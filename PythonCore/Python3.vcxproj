@@ -462,8 +462,8 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2A5EE3C0-96F5-4ACF-BDB3-D0D3EA504DC4}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>PythonCore</RootNamespace>
-    <ProjectName>PythonCore</ProjectName>
+    <RootNamespace>Python3</RootNamespace>
+    <ProjectName>Python3</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

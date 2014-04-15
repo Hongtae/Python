@@ -213,7 +213,11 @@ typedef int pid_t;
 #define Py_IS_INFINITY(X) (!_finite(X) && !_isnan(X))
 #define Py_IS_FINITE(X) _finite(X)
 #define copysign _copysign
+
+/* VS 2010 and above already defines hypot as _hypot */
+#if _MSC_VER < 1600
 #define hypot _hypot
+#endif
 
 /* Side by Side assemblies supported in VS 2005 and VS 2008 but not 2010*/
 #if _MSC_VER >= 1400 && _MSC_VER < 1600
@@ -309,9 +313,8 @@ typedef int pid_t;
 /* For Windows the Python core is in a DLL by default.  Test
 Py_NO_ENABLE_SHARED to find out.  Also support MS_NO_COREDLL for b/w compat */
 #if !defined(MS_NO_COREDLL) && !defined(Py_NO_ENABLE_SHARED)
-#	define Py_NO_ENABLE_SHARED	1
-//#	define Py_ENABLE_SHARED 1 /* standard symbol for shared library */
-//#	define MS_COREDLL	/* deprecated old symbol */
+#	define Py_ENABLE_SHARED 1 /* standard symbol for shared library */
+#	define MS_COREDLL	/* deprecated old symbol */
 #endif /* !MS_NO_COREDLL && ... */
 
 /*  All windows compilers that use this header support __declspec */
@@ -324,13 +327,13 @@ Py_NO_ENABLE_SHARED to find out.  Also support MS_NO_COREDLL for b/w compat */
 			/* So MSVC users need not specify the .lib file in
 			their Makefile (other compilers are generally
 			taken care of by distutils.) */
-//#			if defined(_DEBUG)
-//#				pragma comment(lib,"python33_d.lib")
-//#			elif defined(Py_LIMITED_API)
-//#				pragma comment(lib,"python3.lib")
-//#			else
-//#				pragma comment(lib,"python33.lib")
-//#			endif /* _DEBUG */
+#			if defined(_DEBUG)
+#				pragma comment(lib,"python33_d.lib")
+#			elif defined(Py_LIMITED_API)
+#				pragma comment(lib,"python3.lib")
+#			else
+#				pragma comment(lib,"python33.lib")
+#			endif /* _DEBUG */
 #		endif /* _MSC_VER */
 #	endif /* Py_BUILD_CORE */
 #endif /* MS_COREDLL */
@@ -399,7 +402,7 @@ Py_NO_ENABLE_SHARED to find out.  Also support MS_NO_COREDLL for b/w compat */
 #endif
 
 /* define signed and unsigned exact-width 32-bit and 64-bit types, used in the
-   implementation of Python long integers. */
+   implementation of Python integers. */
 #ifndef PY_UINT32_T
 #if SIZEOF_INT == 4
 #define HAVE_UINT32_T 1

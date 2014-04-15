@@ -592,7 +592,8 @@ STDAPI DllCanUnloadNow(void)
     return result;
 }
 
-#ifndef Py_NO_ENABLE_SHARED
+/* #ifndef Py_NO_ENABLE_SHARED */
+#if 0
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvRes)
 {
     switch(fdwReason) {

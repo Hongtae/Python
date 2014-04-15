@@ -487,6 +487,9 @@
       <Filter>Python</Filter>
     </ClInclude>
     <ClInclude Include="Include\namespaceobject.h" />
+    <ClInclude Include="Include\pyconfig.h">
+      <Filter>Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Modules\selectmodule.c">
@@ -1098,6 +1101,7 @@
     </ClCompile>
     <ClCompile Include="winreg.c" />
     <ClCompile Include="msvcrtmodule.c" />
+    <ClCompile Include="dl_nt.c" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Modules\_decimal\README.txt">

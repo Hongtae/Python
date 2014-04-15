@@ -457,6 +457,11 @@
     </ProjectReference>
     <ProjectReference Include="..\OpenSSL\OpenSSL.vcxproj">
       <Project>{8ce6ba3d-5851-4ef4-af55-15db4ef9b64c}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -549,6 +554,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(Platform)_$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_static</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|Win32'">
     <OutDir>$(SolutionDir)build\$(Platform)_$(Configuration)\</OutDir>
@@ -557,15 +563,16 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(Platform)_$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_static</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|Win32'">
     <OutDir>$(SolutionDir)build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python33</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(Platform)_$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_static</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|x64'">
     <OutDir>$(SolutionDir)build\$(Platform)_$(Configuration)\</OutDir>
@@ -574,11 +581,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(Platform)_$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_static</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|x64'">
     <OutDir>$(SolutionDir)build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python33</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -587,7 +594,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_LIB;Py_BUILD_CORE;Py_NO_ENABLE_SHARED;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../../IGLib/lib/ExtDeps/zlib;../../IGLib/lib/ExtDeps/bzip2;../../IGLib/lib/ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../ExtDeps/zlib;../ExtDeps/bzip2;../ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
@@ -605,7 +612,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../../IGLib/lib/ExtDeps/zlib;../../IGLib/lib/ExtDeps/bzip2;../../IGLib/lib/ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../ExtDeps/zlib;../ExtDeps/bzip2;../ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
@@ -665,7 +672,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_NDEBUG;_LIB;Py_BUILD_CORE;Py_NO_ENABLE_SHARED;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../../IGLib/lib/ExtDeps/zlib;../../IGLib/lib/ExtDeps/bzip2;../../IGLib/lib/ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../ExtDeps/zlib;../ExtDeps/bzip2;../ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
@@ -687,7 +694,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_NDEBUG;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../../IGLib/lib/ExtDeps/zlib;../../IGLib/lib/ExtDeps/bzip2;../../IGLib/lib/ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../ExtDeps/zlib;../ExtDeps/bzip2;../ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>

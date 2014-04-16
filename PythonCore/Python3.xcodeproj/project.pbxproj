@@ -1452,7 +1452,7 @@
 		8467116A16B1056B00B69AF3 /* dynload_shlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dynload_shlib.c; sourceTree = "<group>"; };
 		8467118616B1070B00B69AF3 /* config.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = config.c; sourceTree = "<group>"; };
 		8467118916B1071300B69AF3 /* pyconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pyconfig.h; path = Include/pyconfig.h; sourceTree = "<group>"; };
-		8474A24D16AF8AA100F004D5 /* libPythonCore_OSX.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libPythonCore_OSX.a; path = libPythonCore_OSX.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		8474A24D16AF8AA100F004D5 /* libPythonCore_OSX.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libPythonCore_OSX.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		8474A27B16AF8B2B00F004D5 /* libPythonCore_iOS_static.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPythonCore_iOS_static.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8479F24718FD6B0200829991 /* OpenSSL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OpenSSL.xcodeproj; path = ../OpenSSL/OpenSSL.xcodeproj; sourceTree = "<group>"; };
 		8479F25018FD6B0E00829991 /* ExtDeps.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ExtDeps.xcodeproj; path = ../ExtDeps/ExtDeps.xcodeproj; sourceTree = "<group>"; };
@@ -1945,7 +1945,7 @@
 		8474A24E16AF8AA100F004D5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8474A24D16AF8AA100F004D5 /* libPythonCore_OSX.a */,
+				8474A24D16AF8AA100F004D5 /* libPythonCore_OSX.dylib */,
 				8474A27B16AF8B2B00F004D5 /* libPythonCore_iOS_static.a */,
 				8479F3CE18FD6B3B00829991 /* libPythonCore_OSX_static.a */,
 			);
@@ -2805,7 +2805,7 @@
 			);
 			name = PythonCore_OSX;
 			productName = PythonCore;
-			productReference = 8474A24D16AF8AA100F004D5 /* libPythonCore_OSX.a */;
+			productReference = 8474A24D16AF8AA100F004D5 /* libPythonCore_OSX.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		8474A27416AF8B2B00F004D5 /* PythonCore_iOS_static */ = {

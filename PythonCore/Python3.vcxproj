@@ -51,6 +51,11 @@
     <ClInclude Include="Include\codecs.h" />
     <ClInclude Include="Include\compile.h" />
     <ClInclude Include="Include\complexobject.h" />
+    <ClInclude Include="Include\config\android.h" />
+    <ClInclude Include="Include\config\android_syscall.h" />
+    <ClInclude Include="Include\config\pyconfig_android.h" />
+    <ClInclude Include="Include\config\pyconfig_osx.h" />
+    <ClInclude Include="Include\config\pyconfig_win32.h" />
     <ClInclude Include="Include\datetime.h" />
     <ClInclude Include="Include\descrobject.h" />
     <ClInclude Include="Include\dictobject.h" />

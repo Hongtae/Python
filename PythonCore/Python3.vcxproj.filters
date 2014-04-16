@@ -37,6 +37,9 @@
     <Filter Include="Python">
       <UniqueIdentifier>{b9e8c323-68e2-40d6-b50a-e8c0dcf49921}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include\config">
+      <UniqueIdentifier>{10f4be82-6c49-465d-a3f3-cd249daafae3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\abstract.h">
@@ -489,6 +492,21 @@
     <ClInclude Include="Include\namespaceobject.h" />
     <ClInclude Include="Include\pyconfig.h">
       <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\config\android.h">
+      <Filter>Include\config</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\config\android_syscall.h">
+      <Filter>Include\config</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\config\pyconfig_android.h">
+      <Filter>Include\config</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\config\pyconfig_osx.h">
+      <Filter>Include\config</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\config\pyconfig_win32.h">
+      <Filter>Include\config</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

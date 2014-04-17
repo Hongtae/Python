@@ -1455,13 +1455,14 @@
 #  ifndef PyAPI_DATA
 #    define PyAPI_DATA(RTYPE) extern __attribute__((visibility ("default"))) RTYPE
 #  endif
-#  ifndef PyMODINIT_FUNC
-#    if defined(__cplusplus)
-#      define PyMODINIT_FUNC extern "C" __attribute__((visibility ("default"))) PyObject*
-#    else /* __cplusplus */
-#      define PyMODINIT_FUNC __attribute__((visibility ("default"))) PyObject*
-#    endif /* __cplusplus */
-#  endif
+#endif
+
+#ifndef PyMODINIT_FUNC
+#  if defined(__cplusplus)
+#    define PyMODINIT_FUNC extern "C" __attribute__((visibility ("default"))) PyObject*
+#  else /* __cplusplus */
+#    define PyMODINIT_FUNC __attribute__((visibility ("default"))) PyObject*
+#  endif /* __cplusplus */
 #endif
 
 

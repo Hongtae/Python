@@ -1452,11 +1452,11 @@
 		8467116A16B1056B00B69AF3 /* dynload_shlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dynload_shlib.c; sourceTree = "<group>"; };
 		8467118616B1070B00B69AF3 /* config.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = config.c; sourceTree = "<group>"; };
 		8467118916B1071300B69AF3 /* pyconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pyconfig.h; path = Include/pyconfig.h; sourceTree = "<group>"; };
-		8474A24D16AF8AA100F004D5 /* PythonCore_OSX.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = PythonCore_OSX.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		8474A27B16AF8B2B00F004D5 /* libPythonCore_iOS_static.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPythonCore_iOS_static.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8474A24D16AF8AA100F004D5 /* libPython3.3_OSX.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libPython3.3_OSX.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		8474A27B16AF8B2B00F004D5 /* libPython3.3_iOS_static.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPython3.3_iOS_static.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8479F24718FD6B0200829991 /* OpenSSL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OpenSSL.xcodeproj; path = ../OpenSSL/OpenSSL.xcodeproj; sourceTree = "<group>"; };
 		8479F25018FD6B0E00829991 /* ExtDeps.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ExtDeps.xcodeproj; path = ../ExtDeps/ExtDeps.xcodeproj; sourceTree = "<group>"; };
-		8479F3CE18FD6B3B00829991 /* libPythonCore_OSX_static.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPythonCore_OSX_static.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8479F3CE18FD6B3B00829991 /* libPython3.3_OSX_static.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPython3.3_OSX_static.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		848A7EAC16C203ED007F6822 /* _ctypes_test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _ctypes_test.c; sourceTree = "<group>"; };
 		849641D016C48B3500001919 /* _posixsubprocess.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _posixsubprocess.c; sourceTree = "<group>"; };
 		84B26DA51779F12700CDFB77 /* getplatform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = getplatform.c; sourceTree = "<group>"; };
@@ -1927,12 +1927,12 @@
 		8474A24216AF8AA100F004D5 = {
 			isa = PBXGroup;
 			children = (
+				8467118616B1070B00B69AF3 /* config.c */,
+				8467118916B1071300B69AF3 /* pyconfig.h */,
 				8479F25018FD6B0E00829991 /* ExtDeps.xcodeproj */,
 				8479F24718FD6B0200829991 /* OpenSSL.xcodeproj */,
 				84583B8A17D33DDE000F2186 /* Android */,
 				842BC4BD17CF3A500063A717 /* config */,
-				8467118616B1070B00B69AF3 /* config.c */,
-				8467118916B1071300B69AF3 /* pyconfig.h */,
 				84E2694B16AF8F5500E408BD /* Include */,
 				8467073916AFC3D700B69AF3 /* Modules */,
 				84E270F016AF906100E408BD /* Objects */,
@@ -1945,9 +1945,9 @@
 		8474A24E16AF8AA100F004D5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8474A24D16AF8AA100F004D5 /* PythonCore_OSX.dylib */,
-				8474A27B16AF8B2B00F004D5 /* libPythonCore_iOS_static.a */,
-				8479F3CE18FD6B3B00829991 /* libPythonCore_OSX_static.a */,
+				8474A24D16AF8AA100F004D5 /* libPython3.3_OSX.dylib */,
+				8474A27B16AF8B2B00F004D5 /* libPython3.3_iOS_static.a */,
+				8479F3CE18FD6B3B00829991 /* libPython3.3_OSX_static.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2789,9 +2789,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		8474A24C16AF8AA100F004D5 /* PythonCore_OSX */ = {
+		8474A24C16AF8AA100F004D5 /* Python3.3_OSX */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 8474A25116AF8AA100F004D5 /* Build configuration list for PBXNativeTarget "PythonCore_OSX" */;
+			buildConfigurationList = 8474A25116AF8AA100F004D5 /* Build configuration list for PBXNativeTarget "Python3.3_OSX" */;
 			buildPhases = (
 				8474A24916AF8AA100F004D5 /* Sources */,
 				8474A24A16AF8AA100F004D5 /* Frameworks */,
@@ -2803,14 +2803,14 @@
 				8446F17418FD79FE0014D21A /* PBXTargetDependency */,
 				8446F17218FD79FA0014D21A /* PBXTargetDependency */,
 			);
-			name = PythonCore_OSX;
+			name = Python3.3_OSX;
 			productName = PythonCore;
-			productReference = 8474A24D16AF8AA100F004D5 /* PythonCore_OSX.dylib */;
+			productReference = 8474A24D16AF8AA100F004D5 /* libPython3.3_OSX.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		8474A27416AF8B2B00F004D5 /* PythonCore_iOS_static */ = {
+		8474A27416AF8B2B00F004D5 /* Python3.3_iOS_static */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 8474A27816AF8B2B00F004D5 /* Build configuration list for PBXNativeTarget "PythonCore_iOS_static" */;
+			buildConfigurationList = 8474A27816AF8B2B00F004D5 /* Build configuration list for PBXNativeTarget "Python3.3_iOS_static" */;
 			buildPhases = (
 				8474A27516AF8B2B00F004D5 /* Sources */,
 				8474A27616AF8B2B00F004D5 /* Frameworks */,
@@ -2822,14 +2822,14 @@
 				8446F16C18FD79E50014D21A /* PBXTargetDependency */,
 				8446F16A18FD79E10014D21A /* PBXTargetDependency */,
 			);
-			name = PythonCore_iOS_static;
+			name = Python3.3_iOS_static;
 			productName = PythonCore;
-			productReference = 8474A27B16AF8B2B00F004D5 /* libPythonCore_iOS_static.a */;
+			productReference = 8474A27B16AF8B2B00F004D5 /* libPython3.3_iOS_static.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		8479F25D18FD6B3B00829991 /* PythonCore_OSX_static */ = {
+		8479F25D18FD6B3B00829991 /* Python3.3_OSX_static */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 8479F3CB18FD6B3B00829991 /* Build configuration list for PBXNativeTarget "PythonCore_OSX_static" */;
+			buildConfigurationList = 8479F3CB18FD6B3B00829991 /* Build configuration list for PBXNativeTarget "Python3.3_OSX_static" */;
 			buildPhases = (
 				8479F25E18FD6B3B00829991 /* Sources */,
 				8479F32F18FD6B3B00829991 /* Frameworks */,
@@ -2841,9 +2841,9 @@
 				8446F17018FD79F40014D21A /* PBXTargetDependency */,
 				8446F16E18FD79ED0014D21A /* PBXTargetDependency */,
 			);
-			name = PythonCore_OSX_static;
+			name = Python3.3_OSX_static;
 			productName = PythonCore;
-			productReference = 8479F3CE18FD6B3B00829991 /* libPythonCore_OSX_static.a */;
+			productReference = 8479F3CE18FD6B3B00829991 /* libPython3.3_OSX_static.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -2877,9 +2877,9 @@
 			);
 			projectRoot = "";
 			targets = (
-				8474A24C16AF8AA100F004D5 /* PythonCore_OSX */,
-				8479F25D18FD6B3B00829991 /* PythonCore_OSX_static */,
-				8474A27416AF8B2B00F004D5 /* PythonCore_iOS_static */,
+				8474A24C16AF8AA100F004D5 /* Python3.3_OSX */,
+				8479F25D18FD6B3B00829991 /* Python3.3_OSX_static */,
+				8474A27416AF8B2B00F004D5 /* Python3.3_iOS_static */,
 			);
 		};
 /* End PBXProject section */
@@ -3642,7 +3642,6 @@
 					../ExtDeps/sqlite,
 					../OpenSSL/include,
 				);
-				MACH_O_TYPE = mh_dylib;
 				PRODUCT_NAME = "${TARGET_NAME}";
 			};
 			name = Debug;
@@ -3686,7 +3685,6 @@
 					../ExtDeps/sqlite,
 					../OpenSSL/include,
 				);
-				MACH_O_TYPE = mh_dylib;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -3697,6 +3695,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
 				MACH_O_TYPE = mh_dylib;
 				SDKROOT = macosx;
 			};
@@ -3707,6 +3706,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
 				MACH_O_TYPE = mh_dylib;
 				SDKROOT = macosx;
 			};
@@ -3786,7 +3786,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		8474A25116AF8AA100F004D5 /* Build configuration list for PBXNativeTarget "PythonCore_OSX" */ = {
+		8474A25116AF8AA100F004D5 /* Build configuration list for PBXNativeTarget "Python3.3_OSX" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8474A25216AF8AA100F004D5 /* Debug */,
@@ -3795,7 +3795,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		8474A27816AF8B2B00F004D5 /* Build configuration list for PBXNativeTarget "PythonCore_iOS_static" */ = {
+		8474A27816AF8B2B00F004D5 /* Build configuration list for PBXNativeTarget "Python3.3_iOS_static" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8474A27916AF8B2B00F004D5 /* Debug */,
@@ -3804,7 +3804,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		8479F3CB18FD6B3B00829991 /* Build configuration list for PBXNativeTarget "PythonCore_OSX_static" */ = {
+		8479F3CB18FD6B3B00829991 /* Build configuration list for PBXNativeTarget "Python3.3_OSX_static" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8479F3CC18FD6B3B00829991 /* Debug */,

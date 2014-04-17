@@ -1444,11 +1444,26 @@
 /* Define to empty if the keyword does not work. */
 /* #undef volatile */
 
-#if defined(_DEBUG) && defined(Py_BUILD_CORE)
-#ifndef Py_DEBUG
-#define Py_DEBUG
+
+#ifdef Py_BUILD_CORE
+#  if defined(_DEBUG) && !defined(Py_DEBUG)
+#    define Py_DEBUG
+#  endif
+#  ifndef PyAPI_FUNC
+#    define PyAPI_FUNC(RTYPE) __attribute__((visibility ("default"))) RTYPE
+#  endif
+#  ifndef PyAPI_DATA
+#    define PyAPI_DATA(RTYPE) extern __attribute__((visibility ("default"))) RTYPE
+#  endif
+#  ifndef PyMODINIT_FUNC
+#    if defined(__cplusplus)
+#      define PyMODINIT_FUNC extern "C" __attribute__((visibility ("default"))) PyObject*
+#    else /* __cplusplus */
+#      define PyMODINIT_FUNC __attribute__((visibility ("default"))) PyObject*
+#    endif /* __cplusplus */
+#  endif
 #endif
-#endif
+
 
 #ifndef SOABI
 #define SOABI "cpython-33m"

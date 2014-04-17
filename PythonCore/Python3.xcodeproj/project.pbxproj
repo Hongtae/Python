@@ -1452,7 +1452,7 @@
 		8467116A16B1056B00B69AF3 /* dynload_shlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dynload_shlib.c; sourceTree = "<group>"; };
 		8467118616B1070B00B69AF3 /* config.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = config.c; sourceTree = "<group>"; };
 		8467118916B1071300B69AF3 /* pyconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pyconfig.h; path = Include/pyconfig.h; sourceTree = "<group>"; };
-		8474A24D16AF8AA100F004D5 /* libPythonCore_OSX.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libPythonCore_OSX.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		8474A24D16AF8AA100F004D5 /* PythonCore_OSX.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = PythonCore_OSX.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		8474A27B16AF8B2B00F004D5 /* libPythonCore_iOS_static.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPythonCore_iOS_static.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8479F24718FD6B0200829991 /* OpenSSL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OpenSSL.xcodeproj; path = ../OpenSSL/OpenSSL.xcodeproj; sourceTree = "<group>"; };
 		8479F25018FD6B0E00829991 /* ExtDeps.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ExtDeps.xcodeproj; path = ../ExtDeps/ExtDeps.xcodeproj; sourceTree = "<group>"; };
@@ -1945,7 +1945,7 @@
 		8474A24E16AF8AA100F004D5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8474A24D16AF8AA100F004D5 /* libPythonCore_OSX.dylib */,
+				8474A24D16AF8AA100F004D5 /* PythonCore_OSX.dylib */,
 				8474A27B16AF8B2B00F004D5 /* libPythonCore_iOS_static.a */,
 				8479F3CE18FD6B3B00829991 /* libPythonCore_OSX_static.a */,
 			);
@@ -2805,7 +2805,7 @@
 			);
 			name = PythonCore_OSX;
 			productName = PythonCore;
-			productReference = 8474A24D16AF8AA100F004D5 /* libPythonCore_OSX.dylib */;
+			productReference = 8474A24D16AF8AA100F004D5 /* PythonCore_OSX.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		8474A27416AF8B2B00F004D5 /* PythonCore_iOS_static */ = {
@@ -3624,11 +3624,9 @@
 					"DEBUG=1",
 					"_DEBUG=1",
 					Py_BUILD_CORE,
-					Py_NO_ENABLE_SHARED,
 					HAVE_MEMMOVE,
 					HAVE_EXPAT_H,
 					XML_STATIC,
-					"_FILE_OFFSET_BITS=64",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "";
@@ -3644,6 +3642,7 @@
 					../ExtDeps/sqlite,
 					../OpenSSL/include,
 				);
+				MACH_O_TYPE = mh_dylib;
 				PRODUCT_NAME = "${TARGET_NAME}";
 			};
 			name = Debug;
@@ -3669,11 +3668,9 @@
 					"NDEBUG=1",
 					"_NDEBUG=1",
 					Py_BUILD_CORE,
-					Py_NO_ENABLE_SHARED,
 					HAVE_MEMMOVE,
 					HAVE_EXPAT_H,
 					XML_STATIC,
-					"_FILE_OFFSET_BITS=64",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "";
@@ -3689,6 +3686,7 @@
 					../ExtDeps/sqlite,
 					../OpenSSL/include,
 				);
+				MACH_O_TYPE = mh_dylib;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -3699,7 +3697,6 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
-				EXECUTABLE_PREFIX = lib;
 				MACH_O_TYPE = mh_dylib;
 				SDKROOT = macosx;
 			};
@@ -3710,7 +3707,6 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
-				EXECUTABLE_PREFIX = lib;
 				MACH_O_TYPE = mh_dylib;
 				SDKROOT = macosx;
 			};
@@ -3721,6 +3717,11 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					Py_NO_ENABLE_SHARED,
+				);
+				MACH_O_TYPE = staticlib;
 				OTHER_CFLAGS = "-no-integrated-as";
 				SDKROOT = iphoneos;
 				VALID_ARCHS = "armv7 armv7s";
@@ -3732,6 +3733,11 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					Py_NO_ENABLE_SHARED,
+				);
+				MACH_O_TYPE = staticlib;
 				OTHER_CFLAGS = "-no-integrated-as";
 				SDKROOT = iphoneos;
 				VALID_ARCHS = "armv7 armv7s";
@@ -3744,6 +3750,11 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					Py_NO_ENABLE_SHARED,
+				);
+				MACH_O_TYPE = staticlib;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -3754,6 +3765,11 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					Py_NO_ENABLE_SHARED,
+				);
+				MACH_O_TYPE = staticlib;
 				SDKROOT = macosx;
 			};
 			name = Release;

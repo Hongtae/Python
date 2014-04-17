@@ -1451,8 +1451,10 @@
 /* Define to empty if the keyword does not work. */
 /* #undef volatile */
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(Py_BUILD_CORE)
+#ifndef Py_DEBUG
 #define Py_DEBUG
+#endif
 #endif
 
 #ifndef SOABI

@@ -372,7 +372,7 @@ Py_NO_ENABLE_SHARED to find out.  Also support MS_NO_COREDLL for b/w compat */
 #	endif
 #endif
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(Py_BUILD_CORE)
 #	define Py_DEBUG
 #endif
 

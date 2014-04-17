@@ -559,12 +559,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>_$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python33_static</TargetName>
+    <TargetName>python33_static_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|Win32'">
     <OutDir>$(SolutionDir)build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>_$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python33</TargetName>
+    <TargetName>python33_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)build\$(Platform)_$(Configuration)\</OutDir>
@@ -579,12 +579,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>_$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python33_static</TargetName>
+    <TargetName>python33_static_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|x64'">
     <OutDir>$(SolutionDir)build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>_$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python33</TargetName>
+    <TargetName>python33_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)build\$(Platform)_$(Configuration)\</OutDir>

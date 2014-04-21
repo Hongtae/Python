@@ -11,9 +11,9 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/Python \
 	$(LOCAL_PATH)/Modules/expat \
 	$(LOCAL_PATH)/Modules/_ctypes/libffi_arm_linux/include \
-	$(LOCAL_PATH)/../../IGLib/lib/ExtDeps/zlib \
-	$(LOCAL_PATH)/../../IGLib/lib/ExtDeps/bzip2 \
-	$(LOCAL_PATH)/../../IGLib/lib/ExtDeps/sqlite \
+	$(LOCAL_PATH)/../ExtDeps/zlib \
+	$(LOCAL_PATH)/../ExtDeps/bzip2 \
+	$(LOCAL_PATH)/../ExtDeps/sqlite \
 	$(LOCAL_PATH)/../OpenSSL/include
 
 MODULES_SRC := \
@@ -177,6 +177,7 @@ PARSER_SRC := \
 	Parser/grammar1.c \
 	Parser/listnode.c \
 	Parser/metagrammar.c \
+	Parser/myreadline.c \
 	Parser/node.c \
 	Parser/parser.c \
 	Parser/parsetok.c \

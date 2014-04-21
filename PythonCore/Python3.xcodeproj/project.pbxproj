@@ -1460,6 +1460,7 @@
 		848A7EAC16C203ED007F6822 /* _ctypes_test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _ctypes_test.c; sourceTree = "<group>"; };
 		849641D016C48B3500001919 /* _posixsubprocess.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _posixsubprocess.c; sourceTree = "<group>"; };
 		84B26DA51779F12700CDFB77 /* getplatform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = getplatform.c; sourceTree = "<group>"; };
+		84B8EB8F1904FC58006BFD40 /* android.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; name = android.mk; path = ../android.mk; sourceTree = "<group>"; };
 		84D388B518AB88D600A86851 /* ffi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi.h; sourceTree = "<group>"; };
 		84D388B618AB88D600A86851 /* ffi_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi_common.h; sourceTree = "<group>"; };
 		84D388B718AB88D600A86851 /* ffi_common_i386.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi_common_i386.h; sourceTree = "<group>"; };
@@ -1927,6 +1928,7 @@
 		8474A24216AF8AA100F004D5 = {
 			isa = PBXGroup;
 			children = (
+				84B8EB8F1904FC58006BFD40 /* android.mk */,
 				8467118616B1070B00B69AF3 /* config.c */,
 				8467118916B1071300B69AF3 /* pyconfig.h */,
 				8479F25018FD6B0E00829991 /* ExtDeps.xcodeproj */,

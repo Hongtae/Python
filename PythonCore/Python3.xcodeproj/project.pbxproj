@@ -8,10 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		8446EF8218FD6EEE0014D21A /* libOpenSSL_iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F24F18FD6B0300829991 /* libOpenSSL_iOS.a */; };
-		8446EF8318FD6EF30014D21A /* libExtDeps_iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F25818FD6B0E00829991 /* libExtDeps_iOS.a */; };
 		8446EF8418FD6EFA0014D21A /* libExtDeps_OSX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F25618FD6B0E00829991 /* libExtDeps_OSX.a */; };
 		8446EF8518FD6EFE0014D21A /* libOpenSSL_OSX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F24D18FD6B0300829991 /* libOpenSSL_OSX.a */; };
-		8446EF8618FD6F040014D21A /* libExtDeps_OSX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F25618FD6B0E00829991 /* libExtDeps_OSX.a */; };
 		8446EF8718FD6F070014D21A /* libOpenSSL_OSX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F24D18FD6B0300829991 /* libOpenSSL_OSX.a */; };
 		8446F11B18FD73B50014D21A /* myreadline.c in Sources */ = {isa = PBXBuildFile; fileRef = 8446F11A18FD73B50014D21A /* myreadline.c */; };
 		8446F11C18FD73B50014D21A /* myreadline.c in Sources */ = {isa = PBXBuildFile; fileRef = 8446F11A18FD73B50014D21A /* myreadline.c */; };
@@ -1608,7 +1606,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8446EF8318FD6EF30014D21A /* libExtDeps_iOS.a in Frameworks */,
 				8446EF8218FD6EEE0014D21A /* libOpenSSL_iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1618,7 +1615,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8446EF8718FD6F070014D21A /* libOpenSSL_OSX.a in Frameworks */,
-				8446EF8618FD6F040014D21A /* libExtDeps_OSX.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

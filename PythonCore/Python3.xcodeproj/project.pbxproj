@@ -1597,8 +1597,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8446EF8518FD6EFE0014D21A /* libOpenSSL_OSX.a in Frameworks */,
 				8446EF8418FD6EFA0014D21A /* libExtDeps_OSX.a in Frameworks */,
+				8446EF8518FD6EFE0014D21A /* libOpenSSL_OSX.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

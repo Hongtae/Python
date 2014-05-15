@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		840945831924F67D00B247DF /* ftstdlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 840945821924F67D00B247DF /* ftstdlib.h */; };
+		840945841924F67D00B247DF /* ftstdlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 840945821924F67D00B247DF /* ftstdlib.h */; };
 		841B59CD174A4C0F00DBA899 /* tif_xfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 841B5995174A4C0F00DBA899 /* tif_xfile.cpp */; };
 		841B59CE174A4C0F00DBA899 /* tif_xfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 841B5995174A4C0F00DBA899 /* tif_xfile.cpp */; };
 		841B59CF174A4C0F00DBA899 /* xfile.h in Headers */ = {isa = PBXBuildFile; fileRef = 841B5996174A4C0F00DBA899 /* xfile.h */; };
@@ -357,7 +359,6 @@
 		84A8B0BB12252A05008B2F52 /* ftheader.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A8AEA512252A05008B2F52 /* ftheader.h */; };
 		84A8B0BC12252A05008B2F52 /* ftmodule.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A8AEA612252A05008B2F52 /* ftmodule.h */; };
 		84A8B0BD12252A05008B2F52 /* ftoption.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A8AEA712252A05008B2F52 /* ftoption.h */; };
-		84A8B0BE12252A05008B2F52 /* ftstdlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A8AEA812252A05008B2F52 /* ftstdlib.h */; };
 		84A8B0BF12252A05008B2F52 /* ft2build.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A8AEA912252A05008B2F52 /* ft2build.h */; };
 		84A8B0C012252A05008B2F52 /* ftbbox.c in Sources */ = {isa = PBXBuildFile; fileRef = 84A8AEAC12252A05008B2F52 /* ftbbox.c */; };
 		84A8B0C112252A05008B2F52 /* ftgxval.c in Sources */ = {isa = PBXBuildFile; fileRef = 84A8AEAD12252A05008B2F52 /* ftgxval.c */; };
@@ -563,7 +564,6 @@
 		84C5F7D813013E11005F4449 /* ftheader.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A8AEA512252A05008B2F52 /* ftheader.h */; };
 		84C5F7D913013E11005F4449 /* ftmodule.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A8AEA612252A05008B2F52 /* ftmodule.h */; };
 		84C5F7DA13013E11005F4449 /* ftoption.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A8AEA712252A05008B2F52 /* ftoption.h */; };
-		84C5F7DB13013E11005F4449 /* ftstdlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A8AEA812252A05008B2F52 /* ftstdlib.h */; };
 		84C5F7DC13013E11005F4449 /* ft2build.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A8AEA912252A05008B2F52 /* ft2build.h */; };
 		84C5F80513013E11005F4449 /* png.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A8AF5D12252A05008B2F52 /* png.h */; };
 		84C5F80613013E11005F4449 /* pngconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A8AF5E12252A05008B2F52 /* pngconf.h */; };
@@ -970,6 +970,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		840945821924F67D00B247DF /* ftstdlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ftstdlib.h; path = config/ftstdlib.h; sourceTree = "<group>"; };
 		841B5995174A4C0F00DBA899 /* tif_xfile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tif_xfile.cpp; sourceTree = "<group>"; };
 		841B5996174A4C0F00DBA899 /* xfile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xfile.h; sourceTree = "<group>"; };
 		841B5997174A4C0F00DBA899 /* ximabmp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ximabmp.cpp; sourceTree = "<group>"; };
@@ -1145,11 +1146,10 @@
 		849787D314548FDB001D9CFD /* codec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = codec.h; sourceTree = "<group>"; };
 		849787D614548FDB001D9CFD /* vorbisenc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vorbisenc.h; sourceTree = "<group>"; };
 		849787D714548FDB001D9CFD /* vorbisfile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vorbisfile.h; sourceTree = "<group>"; };
-		84A8AEA412252A05008B2F52 /* ftconfig.h */ = {isa = PBXFileReference; fileEncoding = 2147484706; lastKnownFileType = sourcecode.c.h; name = ftconfig.h; path = freetype/config/ftconfig.h; sourceTree = "<group>"; };
-		84A8AEA512252A05008B2F52 /* ftheader.h */ = {isa = PBXFileReference; fileEncoding = 2147484706; lastKnownFileType = sourcecode.c.h; name = ftheader.h; path = freetype/config/ftheader.h; sourceTree = "<group>"; };
-		84A8AEA612252A05008B2F52 /* ftmodule.h */ = {isa = PBXFileReference; fileEncoding = 2147484706; lastKnownFileType = sourcecode.c.h; name = ftmodule.h; path = freetype/config/ftmodule.h; sourceTree = "<group>"; };
-		84A8AEA712252A05008B2F52 /* ftoption.h */ = {isa = PBXFileReference; fileEncoding = 2147484706; lastKnownFileType = sourcecode.c.h; name = ftoption.h; path = freetype/config/ftoption.h; sourceTree = "<group>"; };
-		84A8AEA812252A05008B2F52 /* ftstdlib.h */ = {isa = PBXFileReference; fileEncoding = 2147484706; lastKnownFileType = sourcecode.c.h; name = ftstdlib.h; path = freetype/config/ftstdlib.h; sourceTree = "<group>"; };
+		84A8AEA412252A05008B2F52 /* ftconfig.h */ = {isa = PBXFileReference; fileEncoding = 2147484706; lastKnownFileType = sourcecode.c.h; name = ftconfig.h; path = config/ftconfig.h; sourceTree = "<group>"; };
+		84A8AEA512252A05008B2F52 /* ftheader.h */ = {isa = PBXFileReference; fileEncoding = 2147484706; lastKnownFileType = sourcecode.c.h; name = ftheader.h; path = config/ftheader.h; sourceTree = "<group>"; };
+		84A8AEA612252A05008B2F52 /* ftmodule.h */ = {isa = PBXFileReference; fileEncoding = 2147484706; lastKnownFileType = sourcecode.c.h; name = ftmodule.h; path = config/ftmodule.h; sourceTree = "<group>"; };
+		84A8AEA712252A05008B2F52 /* ftoption.h */ = {isa = PBXFileReference; fileEncoding = 2147484706; lastKnownFileType = sourcecode.c.h; name = ftoption.h; path = config/ftoption.h; sourceTree = "<group>"; };
 		84A8AEA912252A05008B2F52 /* ft2build.h */ = {isa = PBXFileReference; fileEncoding = 2147484706; lastKnownFileType = sourcecode.c.h; path = ft2build.h; sourceTree = "<group>"; };
 		84A8AEAC12252A05008B2F52 /* ftbbox.c */ = {isa = PBXFileReference; fileEncoding = 2147484706; lastKnownFileType = sourcecode.c.c; name = ftbbox.c; path = base/ftbbox.c; sourceTree = "<group>"; };
 		84A8AEAD12252A05008B2F52 /* ftgxval.c */ = {isa = PBXFileReference; fileEncoding = 2147484706; lastKnownFileType = sourcecode.c.c; name = ftgxval.c; path = base/ftgxval.c; sourceTree = "<group>"; };
@@ -1666,12 +1666,12 @@
 		84A8AEA312252A05008B2F52 /* Header Files */ = {
 			isa = PBXGroup;
 			children = (
+				84A8AEA912252A05008B2F52 /* ft2build.h */,
 				84A8AEA412252A05008B2F52 /* ftconfig.h */,
 				84A8AEA512252A05008B2F52 /* ftheader.h */,
 				84A8AEA612252A05008B2F52 /* ftmodule.h */,
 				84A8AEA712252A05008B2F52 /* ftoption.h */,
-				84A8AEA812252A05008B2F52 /* ftstdlib.h */,
-				84A8AEA912252A05008B2F52 /* ft2build.h */,
+				840945821924F67D00B247DF /* ftstdlib.h */,
 			);
 			name = "Header Files";
 			path = include;
@@ -2232,7 +2232,6 @@
 				84C5F7D813013E11005F4449 /* ftheader.h in Headers */,
 				84C5F7D913013E11005F4449 /* ftmodule.h in Headers */,
 				84C5F7DA13013E11005F4449 /* ftoption.h in Headers */,
-				84C5F7DB13013E11005F4449 /* ftstdlib.h in Headers */,
 				84C5F7DC13013E11005F4449 /* ft2build.h in Headers */,
 				84C5F80513013E11005F4449 /* png.h in Headers */,
 				84C5F80613013E11005F4449 /* pngconf.h in Headers */,
@@ -2382,6 +2381,7 @@
 				84F550B01637F878004DDCFA /* elfgcchack.h in Headers */,
 				84F550B21637F878004DDCFA /* enc.h in Headers */,
 				84F550C41637F878004DDCFA /* libxml.h in Headers */,
+				840945841924F67D00B247DF /* ftstdlib.h in Headers */,
 				84F550D41637F878004DDCFA /* save.h in Headers */,
 				84F550DE1637F878004DDCFA /* timsort.h in Headers */,
 				84F551161637F878004DDCFA /* xzlib.h in Headers */,
@@ -2430,7 +2430,6 @@
 				84A8B0BB12252A05008B2F52 /* ftheader.h in Headers */,
 				84A8B0BC12252A05008B2F52 /* ftmodule.h in Headers */,
 				84A8B0BD12252A05008B2F52 /* ftoption.h in Headers */,
-				84A8B0BE12252A05008B2F52 /* ftstdlib.h in Headers */,
 				84A8B0BF12252A05008B2F52 /* ft2build.h in Headers */,
 				84A8B16912252A05008B2F52 /* png.h in Headers */,
 				84A8B16A12252A05008B2F52 /* pngconf.h in Headers */,
@@ -2580,6 +2579,7 @@
 				84F550AF1637F878004DDCFA /* elfgcchack.h in Headers */,
 				84F550B11637F878004DDCFA /* enc.h in Headers */,
 				84F550C31637F878004DDCFA /* libxml.h in Headers */,
+				840945831924F67D00B247DF /* ftstdlib.h in Headers */,
 				84F550D31637F878004DDCFA /* save.h in Headers */,
 				84F550DD1637F878004DDCFA /* timsort.h in Headers */,
 				84F551151637F878004DDCFA /* xzlib.h in Headers */,

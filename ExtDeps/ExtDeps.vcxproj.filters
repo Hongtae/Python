@@ -107,21 +107,6 @@
     <ClInclude Include="FreeType\include\ft2build.h">
       <Filter>FreeType\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FreeType\include\freetype\config\ftconfig.h">
-      <Filter>FreeType\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FreeType\include\freetype\config\ftheader.h">
-      <Filter>FreeType\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FreeType\include\freetype\config\ftmodule.h">
-      <Filter>FreeType\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FreeType\include\freetype\config\ftoption.h">
-      <Filter>FreeType\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FreeType\include\freetype\config\ftstdlib.h">
-      <Filter>FreeType\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="libFLAC\include\FLAC\all.h">
       <Filter>libFLAC\include</Filter>
     </ClInclude>
@@ -598,6 +583,21 @@
     </ClInclude>
     <ClInclude Include="bzip2\bzlib_private.h">
       <Filter>bzip2</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeType\include\config\ftconfig.h">
+      <Filter>FreeType\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeType\include\config\ftheader.h">
+      <Filter>FreeType\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeType\include\config\ftmodule.h">
+      <Filter>FreeType\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeType\include\config\ftoption.h">
+      <Filter>FreeType\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeType\include\config\ftstdlib.h">
+      <Filter>FreeType\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

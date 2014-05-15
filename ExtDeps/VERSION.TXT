@@ -1,5 +1,5 @@
 CxImage-7.02
-FreeType-2.4.10
+FreeType-2.5.3
 bzip2-1.0.6
 jpeg-9
 libFLAC-1.2.1

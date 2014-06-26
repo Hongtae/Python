@@ -1,4 +1,14 @@
 .DS_Store
 xcuserdata
 
+*.suo
+*.user
+*.sln.docstates
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
+
+ipch/
 Build/*

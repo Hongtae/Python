@@ -1325,7 +1325,6 @@
 
 /* Begin PBXFileReference section */
 		842BC3DD17CF24780063A717 /* Android.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; path = Android.mk; sourceTree = "<group>"; };
-		842BC3DF17CF26550063A717 /* VERSION.TXT */ = {isa = PBXFileReference; lastKnownFileType = text; path = VERSION.TXT; sourceTree = "<group>"; };
 		842BC42017CF2FFC0063A717 /* aes_locl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = aes_locl.h; sourceTree = "<group>"; };
 		842BC42117CF2FFC0063A717 /* apps.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = apps.h; sourceTree = "<group>"; };
 		842BC42217CF2FFC0063A717 /* asn1_locl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = asn1_locl.h; sourceTree = "<group>"; };
@@ -2165,7 +2164,6 @@
 			isa = PBXGroup;
 			children = (
 				842BC3DD17CF24780063A717 /* Android.mk */,
-				842BC3DF17CF26550063A717 /* VERSION.TXT */,
 				842BC45B17CF30760063A717 /* include */,
 				842BC41F17CF2FFC0063A717 /* build */,
 				84D3975816C1FEFF00310B96 /* crypto */,
@@ -4899,7 +4897,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -4914,6 +4912,9 @@
 					OPENSSL_NO_HW_PADLOCK,
 					OPENSSL_SYS_MACOSX,
 					OPENSSL_THREADS,
+					HAVE_DLFCN_H,
+					DSO_DLFCN,
+					NO_WINDOWS_BRAINDEATH,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "";
@@ -4942,7 +4943,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
 				GCC_OPTIMIZATION_LEVEL = s;
@@ -4957,6 +4958,9 @@
 					OPENSSL_NO_HW,
 					OPENSSL_SYS_MACOSX,
 					OPENSSL_THREADS,
+					HAVE_DLFCN_H,
+					DSO_DLFCN,
+					NO_WINDOWS_BRAINDEATH,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "";

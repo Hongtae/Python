@@ -1,10 +1,10 @@
 /* opensslconf.h */
 /* WARNING: Generated automatically from opensslconf.h.in by Configure. */
 
-/* OpenSSL was configured with the following options: */
-#ifndef OPENSSL_SYSNAME_WIN64A
-# define OPENSSL_SYSNAME_WIN64A
+#ifdef  __cplusplus
+extern "C" {
 #endif
+/* OpenSSL was configured with the following options: */
 #ifndef OPENSSL_DOING_MAKEDEPEND
 
 
@@ -35,14 +35,14 @@
 #ifndef OPENSSL_NO_STORE
 # define OPENSSL_NO_STORE
 #endif
+#ifndef OPENSSL_NO_UNIT_TEST
+# define OPENSSL_NO_UNIT_TEST
+#endif
 
 #endif /* OPENSSL_DOING_MAKEDEPEND */
 
-#ifndef OPENSSL_THREADS
-# define OPENSSL_THREADS
-#endif
-#ifndef OPENSSL_NO_ASM
-# define OPENSSL_NO_ASM
+#ifndef OPENSSL_NO_DYNAMIC_ENGINE
+# define OPENSSL_NO_DYNAMIC_ENGINE
 #endif
 
 /* The OPENSSL_NO_* macros are also defined as NO_* if the application
@@ -77,6 +77,9 @@
 # if defined(OPENSSL_NO_STORE) && !defined(NO_STORE)
 #  define NO_STORE
 # endif
+# if defined(OPENSSL_NO_UNIT_TEST) && !defined(NO_UNIT_TEST)
+#  define NO_UNIT_TEST
+# endif
 #endif
 
 /* crypto/opensslconf.h.in */
@@ -95,7 +98,6 @@
 #define OPENSSL_UNISTD <unistd.h>
 
 #undef OPENSSL_EXPORT_VAR_AS_FUNCTION
-#define OPENSSL_EXPORT_VAR_AS_FUNCTION
 
 #if defined(HEADER_IDEA_H) && !defined(IDEA_INT)
 #define IDEA_INT unsigned int
@@ -146,8 +148,19 @@
 
 /* Only one for the following should be defined */
 #undef SIXTY_FOUR_BIT_LONG
-#define SIXTY_FOUR_BIT
+#undef SIXTY_FOUR_BIT
 #undef THIRTY_TWO_BIT
+
+#ifdef __LP64__
+# define SIXTY_FOUR_BIT_LONG
+#else
+# if defined(_M_X64)
+#  define SIXTY_FOUR_BIT
+# else
+#  define THIRTY_TWO_BIT
+# endif
+#endif
+
 #endif
 
 #if defined(HEADER_RC4_LOCL_H) && !defined(CONFIG_HEADER_RC4_LOCL_H)
@@ -234,3 +247,6 @@ YOU SHOULD NOT HAVE BOTH DES_RISC1 AND DES_RISC2 DEFINED!!!!!
 
 #endif /* DES_DEFAULT_OPTIONS */
 #endif /* HEADER_DES_LOCL_H */
+#ifdef  __cplusplus
+}
+#endif

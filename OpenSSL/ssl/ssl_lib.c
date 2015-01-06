@@ -597,8 +597,10 @@ void SSL_free(SSL *s)
 		OPENSSL_free(s->next_proto_negotiated);
 #endif
 
+#ifndef OPENSSL_NO_SRTP
         if (s->srtp_profiles)
             sk_SRTP_PROTECTION_PROFILE_free(s->srtp_profiles);
+#endif
 
 	OPENSSL_free(s);
 	}
@@ -1347,6 +1349,10 @@ char *SSL_get_shared_ciphers(const SSL *s,char *buf,int len)
 
 	p=buf;
 	sk=s->session->ciphers;
+
+	if (sk_SSL_CIPHER_num(sk) == 0)
+		return NULL;
+
 	for (i=0; i<sk_SSL_CIPHER_num(sk); i++)
 		{
 		int n;
@@ -1381,6 +1387,8 @@ int ssl_cipher_list_to_bytes(SSL *s,STACK_OF(SSL_CIPHER) *sk,unsigned char *p,
 
 	if (sk == NULL) return(0);
 	q=p;
+	if (put_cb == NULL)
+		put_cb = s->method->put_cipher_by_char;
 
 	for (i=0; i<sk_SSL_CIPHER_num(sk); i++)
 		{
@@ -1400,24 +1408,41 @@ int ssl_cipher_list_to_bytes(SSL *s,STACK_OF(SSL_CIPHER) *sk,unsigned char *p,
 		    s->psk_client_callback == NULL)
 			continue;
 #endif /* OPENSSL_NO_PSK */
-		j = put_cb ? put_cb(c,p) : ssl_put_cipher_by_char(s,c,p);
+#ifndef OPENSSL_NO_SRP
+		if (((c->algorithm_mkey & SSL_kSRP) || (c->algorithm_auth & SSL_aSRP)) &&
+		    !(s->srp_ctx.srp_Mask & SSL_kSRP))
+		    continue;
+#endif /* OPENSSL_NO_SRP */
+		j = put_cb(c,p);
 		p+=j;
 		}
-	/* If p == q, no ciphers and caller indicates an error. Otherwise
-	 * add SCSV if not renegotiating.
-	 */
-	if (p != q && !s->renegotiate)
+	/* If p == q, no ciphers; caller indicates an error.
+	 * Otherwise, add applicable SCSVs. */
+	if (p != q)
 		{
-		static SSL_CIPHER scsv =
+		if (!s->renegotiate)
 			{
-			0, NULL, SSL3_CK_SCSV, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			};
-		j = put_cb ? put_cb(&scsv,p) : ssl_put_cipher_by_char(s,&scsv,p);
-		p+=j;
+			static SSL_CIPHER scsv =
+				{
+				0, NULL, SSL3_CK_SCSV, 0, 0, 0, 0, 0, 0, 0, 0, 0
+				};
+			j = put_cb(&scsv,p);
+			p+=j;
 #ifdef OPENSSL_RI_DEBUG
-		fprintf(stderr, "SCSV sent by client\n");
+			fprintf(stderr, "TLS_EMPTY_RENEGOTIATION_INFO_SCSV sent by client\n");
 #endif
-		}
+			}
+
+		if (s->mode & SSL_MODE_SEND_FALLBACK_SCSV)
+			{
+			static SSL_CIPHER scsv =
+				{
+				0, NULL, SSL3_CK_FALLBACK_SCSV, 0, 0, 0, 0, 0, 0, 0, 0, 0
+				};
+			j = put_cb(&scsv,p);
+			p+=j;
+			}
+ 		}
 
 	return(p-q);
 	}
@@ -1428,11 +1453,12 @@ STACK_OF(SSL_CIPHER) *ssl_bytes_to_cipher_list(SSL *s,unsigned char *p,int num,
 	const SSL_CIPHER *c;
 	STACK_OF(SSL_CIPHER) *sk;
 	int i,n;
+
 	if (s->s3)
 		s->s3->send_connection_binding = 0;
 
 	n=ssl_put_cipher_by_char(s,NULL,NULL);
-	if ((num%n) != 0)
+	if (n == 0 || (num%n) != 0)
 		{
 		SSLerr(SSL_F_SSL_BYTES_TO_CIPHER_LIST,SSL_R_ERROR_IN_RECEIVED_CIPHER_LIST);
 		return(NULL);
@@ -1447,7 +1473,7 @@ STACK_OF(SSL_CIPHER) *ssl_bytes_to_cipher_list(SSL *s,unsigned char *p,int num,
 
 	for (i=0; i<num; i+=n)
 		{
-		/* Check for SCSV */
+		/* Check for TLS_EMPTY_RENEGOTIATION_INFO_SCSV */
 		if (s->s3 && (n != 3 || !p[0]) &&
 			(p[n-2] == ((SSL3_CK_SCSV >> 8) & 0xff)) &&
 			(p[n-1] == (SSL3_CK_SCSV & 0xff)))
@@ -1464,6 +1490,23 @@ STACK_OF(SSL_CIPHER) *ssl_bytes_to_cipher_list(SSL *s,unsigned char *p,int num,
 #ifdef OPENSSL_RI_DEBUG
 			fprintf(stderr, "SCSV received by server\n");
 #endif
+			continue;
+			}
+
+		/* Check for TLS_FALLBACK_SCSV */
+		if ((n != 3 || !p[0]) &&
+			(p[n-2] == ((SSL3_CK_FALLBACK_SCSV >> 8) & 0xff)) &&
+			(p[n-1] == (SSL3_CK_FALLBACK_SCSV & 0xff)))
+			{
+			/* The SCSV indicates that the client previously tried a higher version.
+			 * Fail if the current version is an unexpected downgrade. */
+			if (!SSL_ctrl(s, SSL_CTRL_CHECK_PROTO_VERSION, 0, NULL))
+				{
+				SSLerr(SSL_F_SSL_BYTES_TO_CIPHER_LIST,SSL_R_INAPPROPRIATE_FALLBACK);
+				if (s->s3)
+					ssl3_send_alert(s,SSL3_AL_FATAL,SSL_AD_INAPPROPRIATE_FALLBACK);
+				goto err;
+				}
 			continue;
 			}
 
@@ -1795,7 +1838,9 @@ SSL_CTX *SSL_CTX_new(const SSL_METHOD *meth)
 	CRYPTO_new_ex_data(CRYPTO_EX_INDEX_SSL_CTX, ret, &ret->ex_data);
 
 	ret->extra_certs=NULL;
-	ret->comp_methods=SSL_COMP_get_compression_methods();
+	/* No compression for DTLS */
+	if (meth->version != DTLS1_VERSION)
+		ret->comp_methods=SSL_COMP_get_compression_methods();
 
 	ret->max_send_fragment = SSL3_RT_MAX_PLAIN_LENGTH;
 
@@ -1952,8 +1997,10 @@ void SSL_CTX_free(SSL_CTX *a)
 	a->comp_methods = NULL;
 #endif
 
+#ifndef OPENSSL_NO_SRTP
         if (a->srtp_profiles)
                 sk_SRTP_PROTECTION_PROFILE_free(a->srtp_profiles);
+#endif
 
 #ifndef OPENSSL_NO_PSK
 	if (a->psk_identity_hint)
@@ -2287,7 +2334,7 @@ int ssl_check_srvr_ecc_cert_and_alg(X509 *x, SSL *s)
 #endif
 
 /* THIS NEEDS CLEANING UP */
-X509 *ssl_get_server_send_cert(SSL *s)
+CERT_PKEY *ssl_get_server_send_pkey(const SSL *s)
 	{
 	unsigned long alg_k,alg_a;
 	CERT *c;
@@ -2342,12 +2389,20 @@ X509 *ssl_get_server_send_cert(SSL *s)
 		i=SSL_PKEY_GOST01;
 	else /* if (alg_a & SSL_aNULL) */
 		{
-		SSLerr(SSL_F_SSL_GET_SERVER_SEND_CERT,ERR_R_INTERNAL_ERROR);
+		SSLerr(SSL_F_SSL_GET_SERVER_SEND_PKEY,ERR_R_INTERNAL_ERROR);
 		return(NULL);
 		}
-	if (c->pkeys[i].x509 == NULL) return(NULL);
 
-	return(c->pkeys[i].x509);
+	return c->pkeys + i;
+	}
+
+X509 *ssl_get_server_send_cert(const SSL *s)
+	{
+	CERT_PKEY *cpk;
+	cpk = ssl_get_server_send_pkey(s);
+	if (!cpk)
+		return NULL;
+	return cpk->x509;
 	}
 
 EVP_PKEY *ssl_get_sign_pkey(SSL *s,const SSL_CIPHER *cipher, const EVP_MD **pmd)
@@ -2608,7 +2663,7 @@ const char *SSL_get_version(const SSL *s)
 		return("TLSv1.2");
 	else if (s->version == TLS1_1_VERSION)
 		return("TLSv1.1");
-	if (s->version == TLS1_VERSION)
+	else if (s->version == TLS1_VERSION)
 		return("TLSv1");
 	else if (s->version == SSL3_VERSION)
 		return("SSLv3");
@@ -2921,15 +2976,26 @@ SSL_CTX *SSL_get_SSL_CTX(const SSL *ssl)
 
 SSL_CTX *SSL_set_SSL_CTX(SSL *ssl, SSL_CTX* ctx)
 	{
+	CERT *ocert = ssl->cert;
 	if (ssl->ctx == ctx)
 		return ssl->ctx;
 #ifndef OPENSSL_NO_TLSEXT
 	if (ctx == NULL)
 		ctx = ssl->initial_ctx;
 #endif
-	if (ssl->cert != NULL)
-		ssl_cert_free(ssl->cert);
 	ssl->cert = ssl_cert_dup(ctx->cert);
+	if (ocert != NULL)
+		{
+		int i;
+		/* Copy negotiated digests from original */
+		for (i = 0; i < SSL_PKEY_NUM; i++)
+			{
+			CERT_PKEY *cpk = ocert->pkeys + i;
+			CERT_PKEY *rpk = ssl->cert->pkeys + i;
+			rpk->digest = cpk->digest;
+			}
+		ssl_cert_free(ocert);
+		}
 	CRYPTO_add(&ctx->references,1,CRYPTO_LOCK_SSL_CTX);
 	if (ssl->ctx != NULL)
 		SSL_CTX_free(ssl->ctx); /* decrement reference count */

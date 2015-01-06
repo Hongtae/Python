@@ -1057,6 +1057,11 @@ class FormatTest(unittest.TestCase):
 
             # issue 6850
             ('a=-7.0', '0.12345', 'aaaa0.1'),
+
+            # issue 22090
+            ('<^+15.20%', 'inf', '<<+Infinity%<<<'),
+            ('\x07>,%', 'sNaN1234567', 'sNaN1234567%'),
+            ('=10.10%', 'NaN123', '   NaN123%'),
             ]
         for fmt, d, result in test_values:
             self.assertEqual(format(Decimal(d), fmt), result)
@@ -2429,6 +2434,23 @@ class PythonAPItests(unittest.TestCase):
             sys.modules['decimal'] = C
             r = pickle.loads(sy)
             self.assertIsInstance(r, C.Decimal)
+            self.assertEqual(r, x)
+
+            x = C.Decimal('-3.123e81723').as_tuple()
+            y = P.Decimal('-3.123e81723').as_tuple()
+
+            sys.modules['decimal'] = C
+            sx = pickle.dumps(x)
+            sys.modules['decimal'] = P
+            r = pickle.loads(sx)
+            self.assertIsInstance(r, P.DecimalTuple)
+            self.assertEqual(r, y)
+
+            sys.modules['decimal'] = P
+            sy = pickle.dumps(y)
+            sys.modules['decimal'] = C
+            r = pickle.loads(sy)
+            self.assertIsInstance(r, C.DecimalTuple)
             self.assertEqual(r, x)
 
         sys.modules['decimal'] = savedecimal
@@ -5412,7 +5434,7 @@ else:
     all_tests.insert(0, CheckAttributes)
 
 
-def test_main(arith=False, verbose=None, todo_tests=None, debug=None):
+def test_main(arith=None, verbose=None, todo_tests=None, debug=None):
     """ Execute the tests.
 
     Runs all arithmetic tests if arith is True or if the "decimal" resource
@@ -5422,7 +5444,7 @@ def test_main(arith=False, verbose=None, todo_tests=None, debug=None):
     init(C)
     init(P)
     global TEST_ALL, DEBUG
-    TEST_ALL = arith or is_resource_enabled('decimal')
+    TEST_ALL = arith if arith is not None else is_resource_enabled('decimal')
     DEBUG = debug
 
     if todo_tests is None:

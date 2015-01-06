@@ -147,7 +147,7 @@ class UUID(object):
             if len(bytes) != 16:
                 raise ValueError('bytes is not a 16-char string')
             assert isinstance(bytes, bytes_), repr(bytes)
-            int = int_(('%02x'*16) % tuple(bytes), 16)
+            int = int_.from_bytes(bytes, byteorder='big')
         if fields is not None:
             if len(fields) != 6:
                 raise ValueError('fields is not a 6-tuple')
@@ -321,8 +321,9 @@ def _find_mac(command, args, hw_identifiers, get_index):
             return None
 
     try:
-        # LC_ALL to ensure English output, 2>/dev/null to
-        # prevent output on stderr
+        # LC_ALL to ensure English output, 2>/dev/null to prevent output on
+        # stderr (Note: we don't have an example where the words we search for
+        # are actually localized, but in theory some system could do so.)
         cmd = 'LC_ALL=C %s %s 2>/dev/null' % (executable, args)
         with os.popen(cmd) as pipe:
             for line in pipe:
@@ -339,7 +340,7 @@ def _find_mac(command, args, hw_identifiers, get_index):
                             # dashes. These should be ignored in favor of a
                             # real MAC address
                             pass
-    except IOError:
+    except OSError:
         pass
 
 def _ifconfig_getnode():
@@ -380,15 +381,13 @@ def _ipconfig_getnode():
     for dir in dirs:
         try:
             pipe = os.popen(os.path.join(dir, 'ipconfig') + ' /all')
-        except IOError:
+        except OSError:
             continue
-        else:
+        with pipe:
             for line in pipe:
                 value = line.split(':')[-1].strip().lower()
                 if re.match('([0-9a-f][0-9a-f]-){5}[0-9a-f][0-9a-f]', value):
                     return int(value.replace('-', ''), 16)
-        finally:
-            pipe.close()
 
 def _netbios_getnode():
     """Get the hardware address on Windows using NetBIOS calls.

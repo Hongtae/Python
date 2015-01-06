@@ -29,37 +29,6 @@
 #ifndef MPDECIMAL_H
 #define MPDECIMAL_H
 
-/* 2014-02-12 added by tiff2766 */
-/* MSC_VER, OSX, iOS Configuration */
-#ifdef _MSC_VER
-#ifdef _WIN64
-#define CONFIG_64
-#pragma message("libmpdec win32.x64")
-#else
-#define CONFIG_32
-#define PPRO
-#pragma message("libmpdec win32.x86")
-#endif
-#define MASM
-#endif
-
-#if !defined(CONFIG_64) && !defined(CONFIG_32)
-	#if defined(__i386__)
-		#define CONFIG_32
-		#define ANSI
-	#elif defined(__x86_64__)
-		#define CONFIG_64
-		#define ANSI
-	#elif defined(__arm__)
-		#define CONFIG_32
-		#define ANSI
-	#elif defined(__arm64__)
-		#define CONFIG_64
-		#define ANSI
-	#else
-		#error "unknown architecture for OSX."
-	#endif
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -139,9 +108,13 @@ MPD_PRAGMA(MPD_HIDE_SYMBOLS_START)
 
 #define MPD_MAJOR_VERSION 2
 #define MPD_MINOR_VERSION 4
-#define MPD_MICRO_VERSION 0
+#define MPD_MICRO_VERSION 1
 
-#define MPD_VERSION "2.4.0"
+#define MPD_VERSION "2.4.1"
+
+#define MPD_VERSION_HEX ((MPD_MAJOR_VERSION << 24) | \
+                         (MPD_MINOR_VERSION << 16) | \
+                         (MPD_MICRO_VERSION <<  8))
 
 const char *mpd_version(void);
 

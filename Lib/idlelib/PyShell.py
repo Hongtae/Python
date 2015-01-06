@@ -21,7 +21,7 @@ from platform import python_version, system
 try:
     from tkinter import *
 except ImportError:
-    print("** IDLE can't import Tkinter.  " \
+    print("** IDLE can't import Tkinter.\n"
           "Your Python may not be configured for Tk. **", file=sys.__stderr__)
     sys.exit(1)
 import tkinter.messagebox as tkMessageBox
@@ -138,6 +138,7 @@ class PyShellEditorWindow(EditorWindow):
         self.io.set_filename_change_hook(filename_changed_hook)
         if self.io.filename:
             self.restore_file_breaks()
+        self.color_breakpoint_text()
 
     rmenu_specs = [
         ("Cut", "<<cut>>", "rmenu_check_cut"),
@@ -147,6 +148,15 @@ class PyShellEditorWindow(EditorWindow):
         ("Set Breakpoint", "<<set-breakpoint-here>>", None),
         ("Clear Breakpoint", "<<clear-breakpoint-here>>", None)
     ]
+
+    def color_breakpoint_text(self, color=True):
+        "Turn colorizing of breakpoint text on or off"
+        if color:
+            theme = idleConf.GetOption('main','Theme','name')
+            cfg = idleConf.GetHighlight(theme, "break")
+        else:
+            cfg = {'foreground': '', 'background': ''}
+        self.text.tag_config('BREAK', cfg)
 
     def set_breakpoint(self, lineno):
         text = self.text
@@ -419,7 +429,7 @@ class ModifiedInterpreter(InteractiveInterpreter):
             try:
                 self.rpcclt = MyRPCClient(addr)
                 break
-            except socket.error as err:
+            except OSError as err:
                 pass
         else:
             self.display_port_binding_error()
@@ -641,9 +651,9 @@ class ModifiedInterpreter(InteractiveInterpreter):
             code = compile(source, filename, "exec")
         except (OverflowError, SyntaxError):
             self.tkconsole.resetoutput()
-            tkerr = self.tkconsole.stderr
-            print('*** Error in script or command!\n', file=tkerr)
-            print('Traceback (most recent call last):', file=tkerr)
+            print('*** Error in script or command!\n'
+                 'Traceback (most recent call last):',
+                  file=self.tkconsole.stderr)
             InteractiveInterpreter.showsyntaxerror(self, filename)
             self.tkconsole.showprompt()
         else:
@@ -844,7 +854,7 @@ class PyShell(OutputWindow):
         ("help", "_Help"),
     ]
 
-    if macosxSupport.runningAsOSXApp():
+    if sys.platform == "darwin":
         menu_specs[-2] = ("windows", "_Window")
 
 
@@ -1034,7 +1044,10 @@ class PyShell(OutputWindow):
                 self.close()
                 return False
         else:
-            nosub = "==== No Subprocess ===="
+            nosub = ("==== No Subprocess ====\n\n" +
+                    "WARNING: Running IDLE without a Subprocess is deprecated\n" +
+                    "and will be removed in a later version. See Help/IDLE Help\n" +
+                    "for details.\n\n")
             sys.displayhook = rpc.displayhook
 
         self.write("Python %s on %s\n%s\n%s" %
@@ -1398,7 +1411,8 @@ USAGE: idle  [-deins] [-t title] [file]*
        idle  [-dns] [-t title] - [arg]*
 
   -h         print this help message and exit
-  -n         run IDLE without a subprocess (see Help/IDLE Help for details)
+  -n         run IDLE without a subprocess (DEPRECATED,
+             see Help/IDLE Help for details)
 
 The following options will override the IDLE 'settings' configuration:
 
@@ -1458,8 +1472,7 @@ def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "c:deihnr:st:")
     except getopt.error as msg:
-        sys.stderr.write("Error: %s\n" % str(msg))
-        sys.stderr.write(usage_msg)
+        print("Error: %s\n%s" % (msg, usage_msg), file=sys.stderr)
         sys.exit(2)
     for o, a in opts:
         if o == '-c':
@@ -1476,6 +1489,8 @@ def main():
         if o == '-i':
             enable_shell = True
         if o == '-n':
+            print(" Warning: running IDLE without a subprocess is deprecated.",
+                  file=sys.stderr)
             use_subprocess = False
         if o == '-r':
             script = a
@@ -1554,7 +1569,7 @@ def main():
         shell = flist.open_shell()
         if not shell:
             return # couldn't open shell
-        if macosxSupport.runningAsOSXApp() and flist.dict:
+        if macosxSupport.isAquaTk() and flist.dict:
             # On OSX: when the user has double-clicked on a file that causes
             # IDLE to be launched the shell window will open just in front of
             # the file she wants to see. Lower the interpreter window when

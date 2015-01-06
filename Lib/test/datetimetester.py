@@ -5,6 +5,7 @@ See http://www.zope.org/Members/fdrake/DateTimeWiki/TestCases
 
 import sys
 import pickle
+import random
 import unittest
 
 from operator import lt, le, gt, ge, eq, ne, truediv, floordiv, mod
@@ -76,7 +77,17 @@ class PicklableFixedOffset(FixedOffset):
     def __init__(self, offset=None, name=None, dstoffset=None):
         FixedOffset.__init__(self, offset, name, dstoffset)
 
+class _TZInfo(tzinfo):
+    def utcoffset(self, datetime_module):
+        return random.random()
+
 class TestTZInfo(unittest.TestCase):
+
+    def test_refcnt_crash_bug_22044(self):
+        tz1 = _TZInfo()
+        dt1 = datetime(2014, 7, 21, 11, 32, 3, 0, tz1)
+        with self.assertRaises(TypeError):
+            dt1.utcoffset()
 
     def test_non_abstractness(self):
         # In order to allow subclasses to get pickled, the C implementation
@@ -618,6 +629,10 @@ class TestTimeDelta(HarmlessMixedComparison, unittest.TestCase):
         eq(td(days=-.4/us_per_day), td(0))
         eq(td(hours=-.2/us_per_hour), td(0))
         eq(td(days=-.4/us_per_day, hours=-.2/us_per_hour), td(microseconds=-1))
+
+        # Test for a patch in Issue 8860
+        eq(td(microseconds=0.5), 0.5*td(microseconds=1.0))
+        eq(td(microseconds=0.5)//td.resolution, 0.5*td.resolution//td.resolution)
 
     def test_massive_normalization(self):
         td = timedelta(microseconds=-1)

@@ -115,7 +115,9 @@ newossobject(PyObject *arg)
        one open at a time.  This does *not* affect later I/O; OSS
        provides a special ioctl() for non-blocking read/write, which is
        exposed via oss_nonblock() below. */
-    if ((fd = open(devicename, imode|O_NONBLOCK)) == -1) {
+    fd = _Py_open(devicename, imode|O_NONBLOCK);
+
+    if (fd == -1) {
         PyErr_SetFromErrnoWithFilename(PyExc_IOError, devicename);
         return NULL;
     }
@@ -177,7 +179,8 @@ newossmixerobject(PyObject *arg)
             devicename = "/dev/mixer";
     }
 
-    if ((fd = open(devicename, O_RDWR)) == -1) {
+    fd = _Py_open(devicename, O_RDWR);
+    if (fd == -1) {
         PyErr_SetFromErrnoWithFilename(PyExc_IOError, devicename);
         return NULL;
     }
@@ -245,7 +248,7 @@ _do_ioctl_1(int fd, PyObject *args, char *fname, int cmd)
     int arg;
 
     assert(strlen(fname) <= 30);
-    strcat(argfmt, fname);
+    strncat(argfmt, fname, 30);
     if (!PyArg_ParseTuple(args, argfmt, &arg))
         return NULL;
 
@@ -270,7 +273,7 @@ _do_ioctl_1_internal(int fd, PyObject *args, char *fname, int cmd)
     int arg = 0;
 
     assert(strlen(fname) <= 30);
-    strcat(argfmt, fname);
+    strncat(argfmt, fname, 30);
     if (!PyArg_ParseTuple(args, argfmt, &arg))
         return NULL;
 
@@ -290,7 +293,7 @@ _do_ioctl_0(int fd, PyObject *args, char *fname, int cmd)
     int rv;
 
     assert(strlen(fname) <= 30);
-    strcat(argfmt, fname);
+    strncat(argfmt, fname, 30);
     if (!PyArg_ParseTuple(args, argfmt))
         return NULL;
 
@@ -891,7 +894,7 @@ static PyMethodDef oss_methods[] = {
     /* Aliases for backwards compatibility */
     { "flush",          (PyCFunction)oss_sync, METH_VARARGS },
 
-    /* Support for the context manager protocol */
+    /* Support for the context management protocol */
     { "__enter__",      oss_self, METH_NOARGS },
     { "__exit__",       oss_exit, METH_VARARGS },
 
@@ -903,7 +906,7 @@ static PyMethodDef oss_mixer_methods[] = {
     { "close",          (PyCFunction)oss_mixer_close, METH_NOARGS },
     { "fileno",         (PyCFunction)oss_mixer_fileno, METH_NOARGS },
 
-    /* Support for the context manager protocol */
+    /* Support for the context management protocol */
     { "__enter__",      oss_self, METH_NOARGS },
     { "__exit__",       oss_exit, METH_VARARGS },
 

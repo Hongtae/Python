@@ -70,7 +70,7 @@ XXX: provide complete list of token types.
 import re
 import urllib   # For urllib.parse.unquote
 from string import hexdigits
-from collections import namedtuple, OrderedDict
+from collections import OrderedDict
 from email import _encoded_words as _ew
 from email import errors
 from email import utils
@@ -368,8 +368,7 @@ class TokenList(list):
                 yield (indent + '    !! invalid element in token '
                                         'list: {!r}'.format(token))
             else:
-                for line in token._pp(indent+'    '):
-                    yield line
+                yield from token._pp(indent+'    ')
         if self.defects:
             extra = ' Defects: {}'.format(self.defects)
         else:
@@ -1315,24 +1314,22 @@ RouteComponentMarker = ValueTerminal('@', 'route-component-marker')
 # Parser
 #
 
-"""Parse strings according to RFC822/2047/2822/5322 rules.
-
-This is a stateless parser.  Each get_XXX function accepts a string and
-returns either a Terminal or a TokenList representing the RFC object named
-by the method and a string containing the remaining unparsed characters
-from the input.  Thus a parser method consumes the next syntactic construct
-of a given type and returns a token representing the construct plus the
-unparsed remainder of the input string.
-
-For example, if the first element of a structured header is a 'phrase',
-then:
-
-    phrase, value = get_phrase(value)
-
-returns the complete phrase from the start of the string value, plus any
-characters left in the string after the phrase is removed.
-
-"""
+# Parse strings according to RFC822/2047/2822/5322 rules.
+#
+# This is a stateless parser.  Each get_XXX function accepts a string and
+# returns either a Terminal or a TokenList representing the RFC object named
+# by the method and a string containing the remaining unparsed characters
+# from the input.  Thus a parser method consumes the next syntactic construct
+# of a given type and returns a token representing the construct plus the
+# unparsed remainder of the input string.
+#
+# For example, if the first element of a structured header is a 'phrase',
+# then:
+#
+#     phrase, value = get_phrase(value)
+#
+# returns the complete phrase from the start of the string value, plus any
+# characters left in the string after the phrase is removed.
 
 _wsp_splitter = re.compile(r'([{}]+)'.format(''.join(WSP))).split
 _non_atom_end_matcher = re.compile(r"[^{}]+".format(
@@ -2900,7 +2897,7 @@ def parse_content_disposition_header(value):
     try:
         token, value = get_token(value)
     except errors.HeaderParseError:
-        ctype.defects.append(errors.InvalidHeaderDefect(
+        disp_header.defects.append(errors.InvalidHeaderDefect(
             "Expected content disposition but found {!r}".format(value)))
         _find_mime_parameters(disp_header, value)
         return disp_header
@@ -2931,8 +2928,8 @@ def parse_content_transfer_encoding_header(value):
     try:
         token, value = get_token(value)
     except errors.HeaderParseError:
-        ctype.defects.append(errors.InvalidHeaderDefect(
-            "Expected content trnasfer encoding but found {!r}".format(value)))
+        cte_header.defects.append(errors.InvalidHeaderDefect(
+            "Expected content transfer encoding but found {!r}".format(value)))
     else:
         cte_header.append(token)
         cte_header.cte = token.value.strip().lower()

@@ -61,6 +61,25 @@ class BaseTest:
         sys.modules['warnings'] = original_warnings
         super(BaseTest, self).tearDown()
 
+class PublicAPITests(BaseTest):
+
+    """Ensures that the correct values are exposed in the
+    public API.
+    """
+
+    def test_module_all_attribute(self):
+        self.assertTrue(hasattr(self.module, '__all__'))
+        target_api = ["warn", "warn_explicit", "showwarning",
+                      "formatwarning", "filterwarnings", "simplefilter",
+                      "resetwarnings", "catch_warnings"]
+        self.assertSetEqual(set(self.module.__all__),
+                            set(target_api))
+
+class CPublicAPITests(PublicAPITests, unittest.TestCase):
+    module = c_warnings
+
+class PyPublicAPITests(PublicAPITests, unittest.TestCase):
+    module = py_warnings
 
 class FilterTests(BaseTest):
 
@@ -73,6 +92,16 @@ class FilterTests(BaseTest):
             self.assertRaises(UserWarning, self.module.warn,
                                 "FilterTests.test_error")
 
+    def test_error_after_default(self):
+        with original_warnings.catch_warnings(module=self.module) as w:
+            self.module.resetwarnings()
+            message = "FilterTests.test_ignore_after_default"
+            def f():
+                self.module.warn(message, UserWarning)
+            f()
+            self.module.filterwarnings("error", category=UserWarning)
+            self.assertRaises(UserWarning, f)
+
     def test_ignore(self):
         with original_warnings.catch_warnings(record=True,
                 module=self.module) as w:
@@ -80,6 +109,19 @@ class FilterTests(BaseTest):
             self.module.filterwarnings("ignore", category=UserWarning)
             self.module.warn("FilterTests.test_ignore", UserWarning)
             self.assertEqual(len(w), 0)
+
+    def test_ignore_after_default(self):
+        with original_warnings.catch_warnings(record=True,
+                module=self.module) as w:
+            self.module.resetwarnings()
+            message = "FilterTests.test_ignore_after_default"
+            def f():
+                self.module.warn(message, UserWarning)
+            f()
+            self.module.filterwarnings("ignore", category=UserWarning)
+            f()
+            f()
+            self.assertEqual(len(w), 1)
 
     def test_always(self):
         with original_warnings.catch_warnings(record=True,
@@ -91,6 +133,26 @@ class FilterTests(BaseTest):
             self.assertTrue(message, w[-1].message)
             self.module.warn(message, UserWarning)
             self.assertTrue(w[-1].message, message)
+
+    def test_always_after_default(self):
+        with original_warnings.catch_warnings(record=True,
+                module=self.module) as w:
+            self.module.resetwarnings()
+            message = "FilterTests.test_always_after_ignore"
+            def f():
+                self.module.warn(message, UserWarning)
+            f()
+            self.assertEqual(len(w), 1)
+            self.assertEqual(w[-1].message.args[0], message)
+            f()
+            self.assertEqual(len(w), 1)
+            self.module.filterwarnings("always", category=UserWarning)
+            f()
+            self.assertEqual(len(w), 2)
+            self.assertEqual(w[-1].message.args[0], message)
+            f()
+            self.assertEqual(len(w), 3)
+            self.assertEqual(w[-1].message.args[0], message)
 
     def test_default(self):
         with original_warnings.catch_warnings(record=True,
@@ -329,6 +391,19 @@ class WarnTests(BaseTest):
             warning_tests.__name__ = module_name
             sys.argv = argv
 
+    def test_warn_explicit_non_ascii_filename(self):
+        with original_warnings.catch_warnings(record=True,
+                module=self.module) as w:
+            self.module.resetwarnings()
+            self.module.filterwarnings("always", category=UserWarning)
+            for filename in ("nonascii\xe9\u20ac", "surrogate\udc80"):
+                try:
+                    os.fsencode(filename)
+                except UnicodeEncodeError:
+                    continue
+                self.module.warn_explicit("text", UserWarning, filename, 1)
+                self.assertEqual(w[-1].filename, filename)
+
     def test_warn_explicit_type_errors(self):
         # warn_explicit() should error out gracefully if it is given objects
         # of the wrong types.
@@ -474,7 +549,9 @@ class _WarningsTests(BaseTest, unittest.TestCase):
                                             registry=registry)
                 self.assertEqual(w[-1].message, message)
                 self.assertEqual(len(w), 1)
-                self.assertEqual(len(registry), 1)
+                # One actual registry key plus the "version" key
+                self.assertEqual(len(registry), 2)
+                self.assertIn("version", registry)
                 del w[:]
                 # Test removal.
                 del self.module.defaultaction
@@ -484,7 +561,7 @@ class _WarningsTests(BaseTest, unittest.TestCase):
                                             registry=registry)
                 self.assertEqual(w[-1].message, message)
                 self.assertEqual(len(w), 1)
-                self.assertEqual(len(registry), 1)
+                self.assertEqual(len(registry), 2)
                 del w[:]
                 # Test setting.
                 self.module.defaultaction = "ignore"
@@ -765,6 +842,25 @@ class BootstrapTest(unittest.TestCase):
 
             # Use -W to load warnings module at startup
             assert_python_ok('-c', 'pass', '-W', 'always', PYTHONPATH=cwd)
+
+class FinalizationTest(unittest.TestCase):
+    def test_finalization(self):
+        # Issue #19421: warnings.warn() should not crash
+        # during Python finalization
+        code = """
+import warnings
+warn = warnings.warn
+
+class A:
+    def __del__(self):
+        warn("test")
+
+a=A()
+        """
+        rc, out, err = assert_python_ok("-c", code)
+        # note: "__main__" filename is not correct, it should be the name
+        # of the script
+        self.assertEqual(err, b'__main__:7: UserWarning: test')
 
 
 def setUpModule():

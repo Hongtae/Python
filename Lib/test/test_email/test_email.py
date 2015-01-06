@@ -10,6 +10,7 @@ import textwrap
 
 from io import StringIO, BytesIO
 from itertools import chain
+from random import choice
 
 import email
 import email.policy
@@ -123,6 +124,14 @@ class TestMessageAPI(TestEmailBase):
         msg = Message()
         msg.set_payload([])
         self.assertEqual(msg.get_payload(), [])
+
+    def test_attach_when_payload_is_string(self):
+        msg = Message()
+        msg['Content-Type'] = 'multipart/mixed'
+        msg.set_payload('string payload')
+        sub_msg = MIMEMessage(Message())
+        self.assertRaisesRegex(TypeError, "[Aa]ttach.*non-multipart",
+                               msg.attach, sub_msg)
 
     def test_get_charsets(self):
         eq = self.assertEqual
@@ -281,15 +290,42 @@ class TestMessageAPI(TestEmailBase):
         self.assertIn('TO', msg)
 
     def test_as_string(self):
-        eq = self.ndiffAssertEqual
         msg = self._msgobj('msg_01.txt')
         with openfile('msg_01.txt') as fp:
             text = fp.read()
-        eq(text, str(msg))
+        self.assertEqual(text, str(msg))
         fullrepr = msg.as_string(unixfrom=True)
         lines = fullrepr.split('\n')
         self.assertTrue(lines[0].startswith('From '))
-        eq(text, NL.join(lines[1:]))
+        self.assertEqual(text, NL.join(lines[1:]))
+
+    def test_as_string_policy(self):
+        msg = self._msgobj('msg_01.txt')
+        newpolicy = msg.policy.clone(linesep='\r\n')
+        fullrepr = msg.as_string(policy=newpolicy)
+        s = StringIO()
+        g = Generator(s, policy=newpolicy)
+        g.flatten(msg)
+        self.assertEqual(fullrepr, s.getvalue())
+
+    def test_as_bytes(self):
+        msg = self._msgobj('msg_01.txt')
+        with openfile('msg_01.txt') as fp:
+            data = fp.read().encode('ascii')
+        self.assertEqual(data, bytes(msg))
+        fullrepr = msg.as_bytes(unixfrom=True)
+        lines = fullrepr.split(b'\n')
+        self.assertTrue(lines[0].startswith(b'From '))
+        self.assertEqual(data, b'\n'.join(lines[1:]))
+
+    def test_as_bytes_policy(self):
+        msg = self._msgobj('msg_01.txt')
+        newpolicy = msg.policy.clone(linesep='\r\n')
+        fullrepr = msg.as_bytes(policy=newpolicy)
+        s = BytesIO()
+        g = BytesGenerator(s,policy=newpolicy)
+        g.flatten(msg)
+        self.assertEqual(fullrepr, s.getvalue())
 
     # test_headerregistry.TestContentTypeHeader.bad_params
     def test_bad_param(self):
@@ -742,8 +778,15 @@ class TestEncoders(unittest.TestCase):
         # whose output character set is 7bit gets a transfer-encoding
         # of 7bit.
         eq = self.assertEqual
-        msg = MIMEText('文', _charset='euc-jp')
+        msg = MIMEText('文\n', _charset='euc-jp')
         eq(msg['content-transfer-encoding'], '7bit')
+        eq(msg.as_string(), textwrap.dedent("""\
+            MIME-Version: 1.0
+            Content-Type: text/plain; charset="iso-2022-jp"
+            Content-Transfer-Encoding: 7bit
+
+            \x1b$BJ8\x1b(B
+            """))
 
     def test_qp_encode_latin1(self):
         msg = MIMEText('\xe1\xf6\n', 'text', 'ISO-8859-1')
@@ -3311,16 +3354,71 @@ Do you like this message?
             bsf.push(il)
             nt += n
             n1 = 0
-            while True:
-                ol = bsf.readline()
-                if ol == NeedMoreData:
-                    break
+            for ol in iter(bsf.readline, NeedMoreData):
                 om.append(ol)
                 n1 += 1
             self.assertEqual(n, n1)
         self.assertEqual(len(om), nt)
         self.assertEqual(''.join([il for il, n in imt]), ''.join(om))
 
+    def test_push_random(self):
+        from email.feedparser import BufferedSubFile, NeedMoreData
+
+        n = 10000
+        chunksize = 5
+        chars = 'abcd \t\r\n'
+
+        s = ''.join(choice(chars) for i in range(n)) + '\n'
+        target = s.splitlines(True)
+
+        bsf = BufferedSubFile()
+        lines = []
+        for i in range(0, len(s), chunksize):
+            chunk = s[i:i+chunksize]
+            bsf.push(chunk)
+            lines.extend(iter(bsf.readline, NeedMoreData))
+        self.assertEqual(lines, target)
+
+
+class TestFeedParsers(TestEmailBase):
+
+    def parse(self, chunks):
+        from email.feedparser import FeedParser
+        feedparser = FeedParser()
+        for chunk in chunks:
+            feedparser.feed(chunk)
+        return feedparser.close()
+
+    def test_newlines(self):
+        m = self.parse(['a:\nb:\rc:\r\nd:\n'])
+        self.assertEqual(m.keys(), ['a', 'b', 'c', 'd'])
+        m = self.parse(['a:\nb:\rc:\r\nd:'])
+        self.assertEqual(m.keys(), ['a', 'b', 'c', 'd'])
+        m = self.parse(['a:\rb', 'c:\n'])
+        self.assertEqual(m.keys(), ['a', 'bc'])
+        m = self.parse(['a:\r', 'b:\n'])
+        self.assertEqual(m.keys(), ['a', 'b'])
+        m = self.parse(['a:\r', '\nb:\n'])
+        self.assertEqual(m.keys(), ['a', 'b'])
+        m = self.parse(['a:\x85b:\u2028c:\n'])
+        self.assertEqual(m.items(), [('a', '\x85'), ('b', '\u2028'), ('c', '')])
+        m = self.parse(['a:\r', 'b:\x85', 'c:\n'])
+        self.assertEqual(m.items(), [('a', ''), ('b', '\x85'), ('c', '')])
+
+    def test_long_lines(self):
+        # Expected peak memory use on 32-bit platform: 6*N*M bytes.
+        M, N = 1000, 20000
+        m = self.parse(['a:b\n\n'] + ['x'*M] * N)
+        self.assertEqual(m.items(), [('a', 'b')])
+        self.assertEqual(m.get_payload(), 'x'*M*N)
+        m = self.parse(['a:b\r\r'] + ['x'*M] * N)
+        self.assertEqual(m.items(), [('a', 'b')])
+        self.assertEqual(m.get_payload(), 'x'*M*N)
+        m = self.parse(['a:b\r\r'] + ['x'*M+'\x85'] * N)
+        self.assertEqual(m.items(), [('a', 'b')])
+        self.assertEqual(m.get_payload(), ('x'*M+'\x85')*N)
+        m = self.parse(['a:\r', 'b: '] + ['x'*M] * N)
+        self.assertEqual(m.items(), [('a', ''), ('b', 'x'*M*N)])
 
 
 class TestParsers(TestEmailBase):
@@ -3347,6 +3445,31 @@ class TestParsers(TestEmailBase):
         self.assertFalse(msg.is_multipart())
         self.assertIsInstance(msg.get_payload(), str)
         self.assertIsInstance(msg.get_payload(decode=True), bytes)
+
+    def test_bytes_parser_does_not_close_file(self):
+        with openfile('msg_02.txt', 'rb') as fp:
+            email.parser.BytesParser().parse(fp)
+            self.assertFalse(fp.closed)
+
+    def test_bytes_parser_on_exception_does_not_close_file(self):
+        with openfile('msg_15.txt', 'rb') as fp:
+            bytesParser = email.parser.BytesParser
+            self.assertRaises(email.errors.StartBoundaryNotFoundDefect,
+                              bytesParser(policy=email.policy.strict).parse,
+                              fp)
+            self.assertFalse(fp.closed)
+
+    def test_parser_does_not_close_file(self):
+        with openfile('msg_02.txt', 'r') as fp:
+            email.parser.Parser().parse(fp)
+            self.assertFalse(fp.closed)
+
+    def test_parser_on_exception_does_not_close_file(self):
+        with openfile('msg_15.txt', 'r') as fp:
+            parser = email.parser.Parser
+            self.assertRaises(email.errors.StartBoundaryNotFoundDefect,
+                              parser(policy=email.policy.strict).parse, fp)
+            self.assertFalse(fp.closed)
 
     def test_whitespace_continuation(self):
         eq = self.assertEqual

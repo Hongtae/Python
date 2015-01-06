@@ -1466,10 +1466,6 @@
 #endif
 
 
-#ifndef SOABI
-#define SOABI "cpython-33m"
-#endif
-
 /* Define the macros needed if on a UnixWare 7.x system. */
 #if defined(__USLC__) && defined(__SCO_VERSION__)
 #define STRICT_SYSV_CURSES /* Don't use ncurses extensions */

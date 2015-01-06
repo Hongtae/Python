@@ -1473,10 +1473,6 @@
 #endif
 
 
-#ifndef SOABI
-#define SOABI "cpython-33m"
-#endif
-
 #if defined(__APPLE__) && defined(__MACH__)
 #define PLATFORM "darwin"
 #endif

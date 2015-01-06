@@ -3521,7 +3521,7 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0460;
+				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = ICONDB.COM;
 			};
 			buildConfigurationList = 1DEB91EF08733DB70010E9CD /* Build configuration list for PBXProject "OpenSSL" */;
@@ -4873,7 +4873,8 @@
 		1DEB91EC08733DB70010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
+				COMBINE_HIDPI_IMAGES = YES;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -4881,7 +4882,8 @@
 		1DEB91ED08733DB70010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
+				COMBINE_HIDPI_IMAGES = YES;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -4922,6 +4924,7 @@
 					include,
 					build,
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SKIP_INSTALL = YES;
 			};
@@ -4973,7 +4976,6 @@
 		84C5F9AD13013E11005F4449 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -4981,7 +4983,6 @@
 		84C5F9AE13013E11005F4449 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
 				SDKROOT = iphoneos;
 			};
 			name = Release;

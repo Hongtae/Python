@@ -1,11 +1,17 @@
 
-/* 2013-02-05 by tiff */
+/* 2015-01-06 by tiff */
 #ifdef _WIN32
-#include "config/pyconfig_win32.h"
+#include "pyconfig_win32.h"
 #elif defined(__APPLE__) && defined(__MACH__)
-#include "config/pyconfig_osx.h"
+#include "pyconfig_osx.h"
 #elif defined(__ANDROID__)
-#include "config/pyconfig_android.h"
+#include "pyconfig_android.h"
 #else
 #error "Unknown platform. run Configure to generate pyconfig.h"
+#endif
+
+
+#ifndef SOABI
+/* CPython 3.4.x */
+#define SOABI "cpython-34m"
 #endif

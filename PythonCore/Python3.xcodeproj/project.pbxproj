@@ -90,7 +90,6 @@
 		84670DDA16AFCBB400B69AF3 /* prepare_protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670B1816AFCBB400B69AF3 /* prepare_protocol.h */; };
 		84670DDC16AFCBB400B69AF3 /* row.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670B1916AFCBB400B69AF3 /* row.c */; };
 		84670DDE16AFCBB400B69AF3 /* row.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670B1A16AFCBB400B69AF3 /* row.h */; };
-		84670DE016AFCBB400B69AF3 /* sqlitecompat.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670B1B16AFCBB400B69AF3 /* sqlitecompat.h */; };
 		84670DE216AFCBB400B69AF3 /* statement.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670B1C16AFCBB400B69AF3 /* statement.c */; };
 		84670DE416AFCBB400B69AF3 /* statement.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670B1D16AFCBB400B69AF3 /* statement.h */; };
 		84670DE616AFCBB400B69AF3 /* util.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670B1E16AFCBB400B69AF3 /* util.c */; };
@@ -171,7 +170,6 @@
 		846712E416B1221500B69AF3 /* mathmodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EAC16AFD3C500B69AF3 /* mathmodule.c */; };
 		846712E516B1221500B69AF3 /* md5module.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EAD16AFD3C500B69AF3 /* md5module.c */; };
 		846712E616B1221500B69AF3 /* mmapmodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EAE16AFD3C500B69AF3 /* mmapmodule.c */; };
-		846712E716B1221500B69AF3 /* operator.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EAF16AFD3C500B69AF3 /* operator.c */; };
 		846712E816B1221500B69AF3 /* parsermodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EB016AFD3C500B69AF3 /* parsermodule.c */; };
 		846712E916B1221500B69AF3 /* posixmodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EB116AFD3C500B69AF3 /* posixmodule.c */; };
 		846712EA16B1221500B69AF3 /* rotatingtree.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EB216AFD3C500B69AF3 /* rotatingtree.c */; };
@@ -384,7 +382,6 @@
 		8479F2ED18FD6B3B00829991 /* mathmodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EAC16AFD3C500B69AF3 /* mathmodule.c */; };
 		8479F2EE18FD6B3B00829991 /* md5module.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EAD16AFD3C500B69AF3 /* md5module.c */; };
 		8479F2EF18FD6B3B00829991 /* mmapmodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EAE16AFD3C500B69AF3 /* mmapmodule.c */; };
-		8479F2F018FD6B3B00829991 /* operator.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EAF16AFD3C500B69AF3 /* operator.c */; };
 		8479F2F118FD6B3B00829991 /* parsermodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EB016AFD3C500B69AF3 /* parsermodule.c */; };
 		8479F2F218FD6B3B00829991 /* posixmodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EB116AFD3C500B69AF3 /* posixmodule.c */; };
 		8479F2F318FD6B3B00829991 /* rotatingtree.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EB216AFD3C500B69AF3 /* rotatingtree.c */; };
@@ -555,7 +552,6 @@
 		8479F3A518FD6B3B00829991 /* module.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670B1616AFCBB400B69AF3 /* module.h */; };
 		8479F3A618FD6B3B00829991 /* prepare_protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670B1816AFCBB400B69AF3 /* prepare_protocol.h */; };
 		8479F3A718FD6B3B00829991 /* row.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670B1A16AFCBB400B69AF3 /* row.h */; };
-		8479F3A818FD6B3B00829991 /* sqlitecompat.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670B1B16AFCBB400B69AF3 /* sqlitecompat.h */; };
 		8479F3A918FD6B3B00829991 /* statement.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670B1D16AFCBB400B69AF3 /* statement.h */; };
 		8479F3AA18FD6B3B00829991 /* util.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670B1F16AFCBB400B69AF3 /* util.h */; };
 		8479F3AB18FD6B3B00829991 /* count.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670E8816AFD28600B69AF3 /* count.h */; };
@@ -612,14 +608,20 @@
 		84DFB7CA1A5D4DDC00EBC872 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C01A5D4DAF00EBC872 /* darwin64.S */; };
 		84DFB7CB1A5D4DDC00EBC872 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C11A5D4DAF00EBC872 /* ffi.c */; };
 		84DFB7CC1A5D4DDC00EBC872 /* ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C21A5D4DAF00EBC872 /* ffi64.c */; };
-		84DFB7CD1A5D4DDC00EBC872 /* win32.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C31A5D4DAF00EBC872 /* win32.S */; };
 		84DFB7CE1A5D4DDD00EBC872 /* darwin.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7BF1A5D4DAF00EBC872 /* darwin.S */; };
 		84DFB7CF1A5D4DDD00EBC872 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C01A5D4DAF00EBC872 /* darwin64.S */; };
 		84DFB7D01A5D4DDD00EBC872 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C11A5D4DAF00EBC872 /* ffi.c */; };
 		84DFB7D11A5D4DDD00EBC872 /* ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C21A5D4DAF00EBC872 /* ffi64.c */; };
-		84DFB7D21A5D4DDD00EBC872 /* win32.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C31A5D4DAF00EBC872 /* win32.S */; };
 		84DFB7D31A5D4DE100EBC872 /* prep_cif.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7BB1A5D4DAE00EBC872 /* prep_cif.c */; };
 		84DFB7D41A5D4DE200EBC872 /* prep_cif.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7BB1A5D4DAE00EBC872 /* prep_cif.c */; };
+		84DFB7DD1A5D80CE00EBC872 /* ffi.h in Headers */ = {isa = PBXBuildFile; fileRef = 84DFB7AD1A5D4DAE00EBC872 /* ffi.h */; };
+		84DFB7DE1A5D80CE00EBC872 /* ffi_common.h in Headers */ = {isa = PBXBuildFile; fileRef = 84DFB7B01A5D4DAE00EBC872 /* ffi_common.h */; };
+		84DFB7DF1A5D80CE00EBC872 /* fficonfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 84DFB7B21A5D4DAE00EBC872 /* fficonfig.h */; };
+		84DFB7E01A5D80CE00EBC872 /* ffitarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 84DFB7B61A5D4DAE00EBC872 /* ffitarget.h */; };
+		84DFB7E11A5D80CF00EBC872 /* ffi.h in Headers */ = {isa = PBXBuildFile; fileRef = 84DFB7AD1A5D4DAE00EBC872 /* ffi.h */; };
+		84DFB7E21A5D80CF00EBC872 /* ffi_common.h in Headers */ = {isa = PBXBuildFile; fileRef = 84DFB7B01A5D4DAE00EBC872 /* ffi_common.h */; };
+		84DFB7E31A5D80CF00EBC872 /* fficonfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 84DFB7B21A5D4DAE00EBC872 /* fficonfig.h */; };
+		84DFB7E41A5D80CF00EBC872 /* ffitarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 84DFB7B61A5D4DAE00EBC872 /* ffitarget.h */; };
 		84E269AA16AF8F5500E408BD /* abstract.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2694C16AF8F5500E408BD /* abstract.h */; };
 		84E269AC16AF8F5500E408BD /* accu.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2694D16AF8F5500E408BD /* accu.h */; };
 		84E269AE16AF8F5500E408BD /* asdl.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2694E16AF8F5500E408BD /* asdl.h */; };
@@ -936,7 +938,6 @@
 		84670B1816AFCBB400B69AF3 /* prepare_protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = prepare_protocol.h; sourceTree = "<group>"; };
 		84670B1916AFCBB400B69AF3 /* row.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = row.c; sourceTree = "<group>"; };
 		84670B1A16AFCBB400B69AF3 /* row.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = row.h; sourceTree = "<group>"; };
-		84670B1B16AFCBB400B69AF3 /* sqlitecompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlitecompat.h; sourceTree = "<group>"; };
 		84670B1C16AFCBB400B69AF3 /* statement.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = statement.c; sourceTree = "<group>"; };
 		84670B1D16AFCBB400B69AF3 /* statement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = statement.h; sourceTree = "<group>"; };
 		84670B1E16AFCBB400B69AF3 /* util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = util.c; sourceTree = "<group>"; };
@@ -982,7 +983,6 @@
 		84670EAC16AFD3C500B69AF3 /* mathmodule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mathmodule.c; sourceTree = "<group>"; };
 		84670EAD16AFD3C500B69AF3 /* md5module.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = md5module.c; sourceTree = "<group>"; };
 		84670EAE16AFD3C500B69AF3 /* mmapmodule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mmapmodule.c; sourceTree = "<group>"; };
-		84670EAF16AFD3C500B69AF3 /* operator.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = operator.c; sourceTree = "<group>"; };
 		84670EB016AFD3C500B69AF3 /* parsermodule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = parsermodule.c; sourceTree = "<group>"; };
 		84670EB116AFD3C500B69AF3 /* posixmodule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = posixmodule.c; sourceTree = "<group>"; };
 		84670EB216AFD3C500B69AF3 /* rotatingtree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rotatingtree.c; sourceTree = "<group>"; };
@@ -1081,7 +1081,6 @@
 		84DFB7C01A5D4DAF00EBC872 /* darwin64.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
 		84DFB7C11A5D4DAF00EBC872 /* ffi.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ffi.c; sourceTree = "<group>"; };
 		84DFB7C21A5D4DAF00EBC872 /* ffi64.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ffi64.c; sourceTree = "<group>"; };
-		84DFB7C31A5D4DAF00EBC872 /* win32.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = win32.S; sourceTree = "<group>"; };
 		84E2694C16AF8F5500E408BD /* abstract.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = abstract.h; sourceTree = "<group>"; };
 		84E2694D16AF8F5500E408BD /* accu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = accu.h; sourceTree = "<group>"; };
 		84E2694E16AF8F5500E408BD /* asdl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asdl.h; sourceTree = "<group>"; };
@@ -1322,7 +1321,6 @@
 				84670EAC16AFD3C500B69AF3 /* mathmodule.c */,
 				84670EAD16AFD3C500B69AF3 /* md5module.c */,
 				84670EAE16AFD3C500B69AF3 /* mmapmodule.c */,
-				84670EAF16AFD3C500B69AF3 /* operator.c */,
 				84670EB016AFD3C500B69AF3 /* parsermodule.c */,
 				84670EB116AFD3C500B69AF3 /* posixmodule.c */,
 				8467114216B1023900B69AF3 /* pyexpat.c */,
@@ -1425,7 +1423,6 @@
 				84670B1816AFCBB400B69AF3 /* prepare_protocol.h */,
 				84670B1916AFCBB400B69AF3 /* row.c */,
 				84670B1A16AFCBB400B69AF3 /* row.h */,
-				84670B1B16AFCBB400B69AF3 /* sqlitecompat.h */,
 				84670B1C16AFCBB400B69AF3 /* statement.c */,
 				84670B1D16AFCBB400B69AF3 /* statement.h */,
 				84670B1E16AFCBB400B69AF3 /* util.c */,
@@ -1599,7 +1596,6 @@
 				84DFB7C01A5D4DAF00EBC872 /* darwin64.S */,
 				84DFB7C11A5D4DAF00EBC872 /* ffi.c */,
 				84DFB7C21A5D4DAF00EBC872 /* ffi64.c */,
-				84DFB7C31A5D4DAF00EBC872 /* win32.S */,
 			);
 			path = x86;
 			sourceTree = "<group>";
@@ -1856,11 +1852,13 @@
 				84E269CA16AF8F5500E408BD /* complexobject.h in Headers */,
 				84E269CC16AF8F5500E408BD /* datetime.h in Headers */,
 				84E269CE16AF8F5500E408BD /* descrobject.h in Headers */,
+				84DFB7E41A5D80CF00EBC872 /* ffitarget.h in Headers */,
 				84E269D016AF8F5500E408BD /* dictobject.h in Headers */,
 				84E269D216AF8F5500E408BD /* dtoa.h in Headers */,
 				84E269D416AF8F5500E408BD /* dynamic_annotations.h in Headers */,
 				84E269D616AF8F5500E408BD /* enumobject.h in Headers */,
 				84E269D816AF8F5500E408BD /* errcode.h in Headers */,
+				84DFB7E31A5D80CF00EBC872 /* fficonfig.h in Headers */,
 				84E269DA16AF8F5500E408BD /* eval.h in Headers */,
 				84E269DC16AF8F5500E408BD /* fileobject.h in Headers */,
 				84E269DE16AF8F5500E408BD /* fileutils.h in Headers */,
@@ -1875,6 +1873,7 @@
 				84E269F016AF8F5500E408BD /* iterobject.h in Headers */,
 				84E269F216AF8F5500E408BD /* listobject.h in Headers */,
 				84E269F416AF8F5500E408BD /* longintrepr.h in Headers */,
+				84DFB7E21A5D80CF00EBC872 /* ffi_common.h in Headers */,
 				84E269F616AF8F5500E408BD /* longobject.h in Headers */,
 				84E269F816AF8F5500E408BD /* marshal.h in Headers */,
 				84E269FA16AF8F5500E408BD /* memoryobject.h in Headers */,
@@ -1945,8 +1944,8 @@
 				84670DD216AFCBB400B69AF3 /* microprotocols.h in Headers */,
 				84670DD616AFCBB400B69AF3 /* module.h in Headers */,
 				84670DDA16AFCBB400B69AF3 /* prepare_protocol.h in Headers */,
+				84DFB7E11A5D80CF00EBC872 /* ffi.h in Headers */,
 				84670DDE16AFCBB400B69AF3 /* row.h in Headers */,
-				84670DE016AFCBB400B69AF3 /* sqlitecompat.h in Headers */,
 				84670DE416AFCBB400B69AF3 /* statement.h in Headers */,
 				84670DE816AFCBB400B69AF3 /* util.h in Headers */,
 				84670F7416B0CF5200B69AF3 /* docstrings.h in Headers */,
@@ -1992,6 +1991,7 @@
 				8479F33918FD6B3B00829991 /* bytes_methods.h in Headers */,
 				8479F33A18FD6B3B00829991 /* bytesobject.h in Headers */,
 				8479F33B18FD6B3B00829991 /* cellobject.h in Headers */,
+				84DFB7DD1A5D80CE00EBC872 /* ffi.h in Headers */,
 				8479F33D18FD6B3B00829991 /* ceval.h in Headers */,
 				8479F33E18FD6B3B00829991 /* classobject.h in Headers */,
 				8479F33F18FD6B3B00829991 /* code.h in Headers */,
@@ -2027,6 +2027,7 @@
 				8479F36418FD6B3B00829991 /* modsupport.h in Headers */,
 				8479F36518FD6B3B00829991 /* moduleobject.h in Headers */,
 				8479F36618FD6B3B00829991 /* namespaceobject.h in Headers */,
+				84DFB7DE1A5D80CE00EBC872 /* ffi_common.h in Headers */,
 				8479F36818FD6B3B00829991 /* node.h in Headers */,
 				8479F36918FD6B3B00829991 /* object.h in Headers */,
 				8479F36A18FD6B3B00829991 /* objimpl.h in Headers */,
@@ -2042,6 +2043,7 @@
 				8479F37418FD6B3B00829991 /* pycapsule.h in Headers */,
 				8479F37518FD6B3B00829991 /* pyctype.h in Headers */,
 				8479F37618FD6B3B00829991 /* pydebug.h in Headers */,
+				84DFB7E01A5D80CE00EBC872 /* ffitarget.h in Headers */,
 				8479F37718FD6B3B00829991 /* pyerrors.h in Headers */,
 				8479F37818FD6B3B00829991 /* pyexpat.h in Headers */,
 				8479F37918FD6B3B00829991 /* pyfpe.h in Headers */,
@@ -2078,6 +2080,7 @@
 				8479F39818FD6B3B00829991 /* internal.h in Headers */,
 				8479F39918FD6B3B00829991 /* xmlrole.h in Headers */,
 				8479F39A18FD6B3B00829991 /* xmltok.h in Headers */,
+				84DFB7DF1A5D80CE00EBC872 /* fficonfig.h in Headers */,
 				8479F39B18FD6B3B00829991 /* _iomodule.h in Headers */,
 				8479F39C18FD6B3B00829991 /* opcode_targets.h in Headers */,
 				8479F39D18FD6B3B00829991 /* socketmodule.h in Headers */,
@@ -2091,7 +2094,6 @@
 				8479F3A518FD6B3B00829991 /* module.h in Headers */,
 				8479F3A618FD6B3B00829991 /* prepare_protocol.h in Headers */,
 				8479F3A718FD6B3B00829991 /* row.h in Headers */,
-				8479F3A818FD6B3B00829991 /* sqlitecompat.h in Headers */,
 				8479F3A918FD6B3B00829991 /* statement.h in Headers */,
 				8479F3AA18FD6B3B00829991 /* util.h in Headers */,
 				8479F3AB18FD6B3B00829991 /* count.h in Headers */,
@@ -2312,7 +2314,6 @@
 				84670DEE16AFCBB400B69AF3 /* _codecs_iso2022.c in Sources */,
 				84DFB7C91A5D4DDC00EBC872 /* darwin.S in Sources */,
 				84670DF016AFCBB400B69AF3 /* _codecs_jp.c in Sources */,
-				84DFB7CD1A5D4DDC00EBC872 /* win32.S in Sources */,
 				84670DF216AFCBB400B69AF3 /* _codecs_kr.c in Sources */,
 				84670DF416AFCBB400B69AF3 /* _codecs_tw.c in Sources */,
 				84670E0816AFCBB400B69AF3 /* multibytecodec.c in Sources */,
@@ -2371,7 +2372,6 @@
 				846712E416B1221500B69AF3 /* mathmodule.c in Sources */,
 				846712E516B1221500B69AF3 /* md5module.c in Sources */,
 				846712E616B1221500B69AF3 /* mmapmodule.c in Sources */,
-				846712E716B1221500B69AF3 /* operator.c in Sources */,
 				846712E816B1221500B69AF3 /* parsermodule.c in Sources */,
 				846712E916B1221500B69AF3 /* posixmodule.c in Sources */,
 				846712EA16B1221500B69AF3 /* rotatingtree.c in Sources */,
@@ -2546,7 +2546,6 @@
 				8479F2B018FD6B3B00829991 /* memoryobject.c in Sources */,
 				8479F2B118FD6B3B00829991 /* methodobject.c in Sources */,
 				84DFB7D11A5D4DDD00EBC872 /* ffi64.c in Sources */,
-				84DFB7D21A5D4DDD00EBC872 /* win32.S in Sources */,
 				8479F2B218FD6B3B00829991 /* moduleobject.c in Sources */,
 				8479F2B318FD6B3B00829991 /* namespaceobject.c in Sources */,
 				8479F2B518FD6B3B00829991 /* object.c in Sources */,
@@ -2610,7 +2609,6 @@
 				8479F2ED18FD6B3B00829991 /* mathmodule.c in Sources */,
 				8479F2EE18FD6B3B00829991 /* md5module.c in Sources */,
 				8479F2EF18FD6B3B00829991 /* mmapmodule.c in Sources */,
-				8479F2F018FD6B3B00829991 /* operator.c in Sources */,
 				8479F2F118FD6B3B00829991 /* parsermodule.c in Sources */,
 				8479F2F218FD6B3B00829991 /* posixmodule.c in Sources */,
 				8479F2F318FD6B3B00829991 /* rotatingtree.c in Sources */,
@@ -2742,7 +2740,7 @@
 					../ExtDeps/sqlite,
 					../OpenSSL/include,
 				);
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "${TARGET_NAME}";
 			};
 			name = Debug;
@@ -2814,7 +2812,7 @@
 		8479F3CC18FD6B3B00829991 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				MACH_O_TYPE = staticlib;
 				SDKROOT = macosx;
@@ -2824,7 +2822,7 @@
 		8479F3CD18FD6B3B00829991 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				MACH_O_TYPE = staticlib;
 				SDKROOT = macosx;

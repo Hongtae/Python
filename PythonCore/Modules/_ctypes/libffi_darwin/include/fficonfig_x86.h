@@ -1,3 +1,5 @@
+#if defined(__i386__) || defined(__x86_64__)
+
 /* fficonfig.h.  Generated from fficonfig.h.in by configure.  */
 /* fficonfig.h.in.  Generated from configure.ac by autoheader.  */
 
@@ -213,3 +215,4 @@
 #endif
 #endif
 
+#endif

@@ -25,6 +25,7 @@
 #define PYSQLITE_MODULE_H
 #include "Python.h"
 
+#define MODULE_NAME "_sqlite3"
 #define PYSQLITE_VERSION "2.6.0"
 
 extern PyObject* pysqlite_Error;

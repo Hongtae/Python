@@ -10,6 +10,7 @@
 #include "Python.h"
 #include <float.h>
 #include "structmember.h"
+#undef Py_BUILD_CORE		/* to use PyDateTimeAPI in datetime.h */
 #include "datetime.h"
 
 #ifdef WITH_THREAD

@@ -2916,6 +2916,7 @@
 		8479F3CC18FD6B3B00829991 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				COMBINE_HIDPI_IMAGES = YES;
 				MACH_O_TYPE = staticlib;
 				SDKROOT = macosx;
@@ -2925,6 +2926,7 @@
 		8479F3CD18FD6B3B00829991 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				COMBINE_HIDPI_IMAGES = YES;
 				MACH_O_TYPE = staticlib;
 				SDKROOT = macosx;

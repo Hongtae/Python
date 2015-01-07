@@ -252,7 +252,6 @@
 		8479F26618FD6B3B00829991 /* bufferedio.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467078B16AFC7A400B69AF3 /* bufferedio.c */; };
 		8479F26718FD6B3B00829991 /* bytesio.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467078C16AFC7A400B69AF3 /* bytesio.c */; };
 		8479F26818FD6B3B00829991 /* fileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467078D16AFC7A400B69AF3 /* fileio.c */; };
-		8479F26918FD6B3B00829991 /* darwin.S in Sources */ = {isa = PBXBuildFile; fileRef = 84D388CA18AB88D600A86851 /* darwin.S */; };
 		8479F26A18FD6B3B00829991 /* iobase.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467078E16AFC7A400B69AF3 /* iobase.c */; };
 		8479F26B18FD6B3B00829991 /* stringio.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467078F16AFC7A400B69AF3 /* stringio.c */; };
 		8479F26C18FD6B3B00829991 /* textio.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467079016AFC7A400B69AF3 /* textio.c */; };
@@ -308,7 +307,6 @@
 		8479F29E18FD6B3B00829991 /* capsule.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467085E16AFCA1700B69AF3 /* capsule.c */; };
 		8479F29F18FD6B3B00829991 /* cellobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467085F16AFCA1700B69AF3 /* cellobject.c */; };
 		8479F2A018FD6B3B00829991 /* classobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467086016AFCA1700B69AF3 /* classobject.c */; };
-		8479F2A118FD6B3B00829991 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = 84D388CB18AB88D600A86851 /* darwin64.S */; };
 		8479F2A218FD6B3B00829991 /* codeobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467086116AFCA1700B69AF3 /* codeobject.c */; };
 		8479F2A318FD6B3B00829991 /* complexobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467086216AFCA1700B69AF3 /* complexobject.c */; };
 		8479F2A418FD6B3B00829991 /* descrobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467086316AFCA1700B69AF3 /* descrobject.c */; };
@@ -327,7 +325,6 @@
 		8479F2B118FD6B3B00829991 /* methodobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467087016AFCA1700B69AF3 /* methodobject.c */; };
 		8479F2B218FD6B3B00829991 /* moduleobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467087116AFCA1700B69AF3 /* moduleobject.c */; };
 		8479F2B318FD6B3B00829991 /* namespaceobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467087216AFCA1700B69AF3 /* namespaceobject.c */; };
-		8479F2B418FD6B3B00829991 /* ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = 84D388CD18AB88D600A86851 /* ffi64.c */; };
 		8479F2B518FD6B3B00829991 /* object.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467087316AFCA1700B69AF3 /* object.c */; };
 		8479F2B618FD6B3B00829991 /* rangeobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467087416AFCA1700B69AF3 /* rangeobject.c */; };
 		8479F2B718FD6B3B00829991 /* setobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467087516AFCA1700B69AF3 /* setobject.c */; };
@@ -393,7 +390,6 @@
 		8479F2F318FD6B3B00829991 /* rotatingtree.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EB216AFD3C500B69AF3 /* rotatingtree.c */; };
 		8479F2F418FD6B3B00829991 /* sha1module.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EB416AFD3C500B69AF3 /* sha1module.c */; };
 		8479F2F518FD6B3B00829991 /* sha256module.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EB516AFD3C500B69AF3 /* sha256module.c */; };
-		8479F2F618FD6B3B00829991 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 84D388CC18AB88D600A86851 /* ffi.c */; };
 		8479F2F718FD6B3B00829991 /* sha512module.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EB616AFD3C500B69AF3 /* sha512module.c */; };
 		8479F2F818FD6B3B00829991 /* signalmodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EB716AFD3C500B69AF3 /* signalmodule.c */; };
 		8479F2F918FD6B3B00829991 /* symtablemodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EB816AFD3C500B69AF3 /* symtablemodule.c */; };
@@ -437,7 +433,6 @@
 		8479F31F18FD6B3B00829991 /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467118616B1070B00B69AF3 /* config.c */; };
 		8479F32018FD6B3B00829991 /* _ctypes_test.c in Sources */ = {isa = PBXBuildFile; fileRef = 848A7EAC16C203ED007F6822 /* _ctypes_test.c */; };
 		8479F32118FD6B3B00829991 /* acceler.c in Sources */ = {isa = PBXBuildFile; fileRef = 846707A416AFC85C00B69AF3 /* acceler.c */; };
-		8479F32218FD6B3B00829991 /* prep_cif.c in Sources */ = {isa = PBXBuildFile; fileRef = 84D3892C18AB8D8400A86851 /* prep_cif.c */; };
 		8479F32318FD6B3B00829991 /* bitset.c in Sources */ = {isa = PBXBuildFile; fileRef = 846707A516AFC85C00B69AF3 /* bitset.c */; };
 		8479F32418FD6B3B00829991 /* firstsets.c in Sources */ = {isa = PBXBuildFile; fileRef = 846707A616AFC85C00B69AF3 /* firstsets.c */; };
 		8479F32518FD6B3B00829991 /* grammar.c in Sources */ = {isa = PBXBuildFile; fileRef = 846707A716AFC85C00B69AF3 /* grammar.c */; };
@@ -461,25 +456,18 @@
 		8479F33918FD6B3B00829991 /* bytes_methods.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2695416AF8F5500E408BD /* bytes_methods.h */; };
 		8479F33A18FD6B3B00829991 /* bytesobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2695516AF8F5500E408BD /* bytesobject.h */; };
 		8479F33B18FD6B3B00829991 /* cellobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2695616AF8F5500E408BD /* cellobject.h */; };
-		8479F33C18FD6B3B00829991 /* ffi.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D388B518AB88D600A86851 /* ffi.h */; };
 		8479F33D18FD6B3B00829991 /* ceval.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2695716AF8F5500E408BD /* ceval.h */; };
 		8479F33E18FD6B3B00829991 /* classobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2695816AF8F5500E408BD /* classobject.h */; };
 		8479F33F18FD6B3B00829991 /* code.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2695916AF8F5500E408BD /* code.h */; };
 		8479F34018FD6B3B00829991 /* codecs.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2695A16AF8F5500E408BD /* codecs.h */; };
-		8479F34118FD6B3B00829991 /* ffitarget_x86_64.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D388C018AB88D600A86851 /* ffitarget_x86_64.h */; };
 		8479F34218FD6B3B00829991 /* compile.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2695B16AF8F5500E408BD /* compile.h */; };
 		8479F34318FD6B3B00829991 /* complexobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2695C16AF8F5500E408BD /* complexobject.h */; };
-		8479F34418FD6B3B00829991 /* fficonfig_x86_64.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D388BD18AB88D600A86851 /* fficonfig_x86_64.h */; };
-		8479F34518FD6B3B00829991 /* ffi_i386.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D388B918AB88D600A86851 /* ffi_i386.h */; };
 		8479F34618FD6B3B00829991 /* datetime.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2695D16AF8F5500E408BD /* datetime.h */; };
 		8479F34718FD6B3B00829991 /* descrobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2695E16AF8F5500E408BD /* descrobject.h */; };
 		8479F34818FD6B3B00829991 /* dictobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2695F16AF8F5500E408BD /* dictobject.h */; };
 		8479F34918FD6B3B00829991 /* dtoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2696016AF8F5500E408BD /* dtoa.h */; };
 		8479F34A18FD6B3B00829991 /* dynamic_annotations.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2696116AF8F5500E408BD /* dynamic_annotations.h */; };
 		8479F34B18FD6B3B00829991 /* enumobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2696216AF8F5500E408BD /* enumobject.h */; };
-		8479F34C18FD6B3B00829991 /* ffi_x86_64.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D388BA18AB88D600A86851 /* ffi_x86_64.h */; };
-		8479F34D18FD6B3B00829991 /* ffi_common_x86_64.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D388B818AB88D600A86851 /* ffi_common_x86_64.h */; };
-		8479F34E18FD6B3B00829991 /* fficonfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D388BB18AB88D600A86851 /* fficonfig.h */; };
 		8479F34F18FD6B3B00829991 /* errcode.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2696316AF8F5500E408BD /* errcode.h */; };
 		8479F35018FD6B3B00829991 /* eval.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2696416AF8F5500E408BD /* eval.h */; };
 		8479F35118FD6B3B00829991 /* fileobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2696516AF8F5500E408BD /* fileobject.h */; };
@@ -489,7 +477,6 @@
 		8479F35518FD6B3B00829991 /* funcobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2696916AF8F5500E408BD /* funcobject.h */; };
 		8479F35618FD6B3B00829991 /* genobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2696A16AF8F5500E408BD /* genobject.h */; };
 		8479F35718FD6B3B00829991 /* graminit.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2696B16AF8F5500E408BD /* graminit.h */; };
-		8479F35818FD6B3B00829991 /* ffitarget_i386.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D388BF18AB88D600A86851 /* ffitarget_i386.h */; };
 		8479F35918FD6B3B00829991 /* grammar.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2696C16AF8F5500E408BD /* grammar.h */; };
 		8479F35A18FD6B3B00829991 /* import.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2696D16AF8F5500E408BD /* import.h */; };
 		8479F35B18FD6B3B00829991 /* intrcheck.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2696E16AF8F5500E408BD /* intrcheck.h */; };
@@ -504,7 +491,6 @@
 		8479F36418FD6B3B00829991 /* modsupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2697716AF8F5500E408BD /* modsupport.h */; };
 		8479F36518FD6B3B00829991 /* moduleobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2697816AF8F5500E408BD /* moduleobject.h */; };
 		8479F36618FD6B3B00829991 /* namespaceobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2697916AF8F5500E408BD /* namespaceobject.h */; };
-		8479F36718FD6B3B00829991 /* ffi_common.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D388B618AB88D600A86851 /* ffi_common.h */; };
 		8479F36818FD6B3B00829991 /* node.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2697A16AF8F5500E408BD /* node.h */; };
 		8479F36918FD6B3B00829991 /* object.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2697B16AF8F5500E408BD /* object.h */; };
 		8479F36A18FD6B3B00829991 /* objimpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2697C16AF8F5500E408BD /* objimpl.h */; };
@@ -577,7 +563,6 @@
 		8479F3AD18FD6B3B00829991 /* find.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670E8A16AFD28600B69AF3 /* find.h */; };
 		8479F3AE18FD6B3B00829991 /* partition.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670E8B16AFD28600B69AF3 /* partition.h */; };
 		8479F3AF18FD6B3B00829991 /* split.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670E8C16AFD28600B69AF3 /* split.h */; };
-		8479F3B018FD6B3B00829991 /* ffitarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D388BE18AB88D600A86851 /* ffitarget.h */; };
 		8479F3B118FD6B3B00829991 /* _math.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670E9A16AFD3C500B69AF3 /* _math.h */; };
 		8479F3B218FD6B3B00829991 /* rotatingtree.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670EB316AFD3C500B69AF3 /* rotatingtree.h */; };
 		8479F3B318FD6B3B00829991 /* unicodetype_db.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670EEA16AFD4A600B69AF3 /* unicodetype_db.h */; };
@@ -586,9 +571,7 @@
 		8479F3B618FD6B3B00829991 /* importdl.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670EEE16AFD4DD00B69AF3 /* importdl.h */; };
 		8479F3B718FD6B3B00829991 /* importlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670EEF16AFD4DD00B69AF3 /* importlib.h */; };
 		8479F3B818FD6B3B00829991 /* docstrings.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670F4416B0CF5200B69AF3 /* docstrings.h */; };
-		8479F3B918FD6B3B00829991 /* fficonfig_i386.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D388BC18AB88D600A86851 /* fficonfig_i386.h */; };
 		8479F3BA18FD6B3B00829991 /* basearith.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670FB816B0D18100B69AF3 /* basearith.h */; };
-		8479F3BB18FD6B3B00829991 /* ffi_common_i386.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D388B718AB88D600A86851 /* ffi_common_i386.h */; };
 		8479F3BC18FD6B3B00829991 /* constants.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670FBA16B0D18100B69AF3 /* constants.h */; };
 		8479F3BD18FD6B3B00829991 /* convolute.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670FBD16B0D18100B69AF3 /* convolute.h */; };
 		8479F3BE18FD6B3B00829991 /* crt.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670FBF16B0D18100B69AF3 /* crt.h */; };
@@ -620,27 +603,23 @@
 		849641B916C473E500001919 /* tokenizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 846707DD16AFC8D200B69AF3 /* tokenizer.h */; };
 		849641D216C48B3500001919 /* _posixsubprocess.c in Sources */ = {isa = PBXBuildFile; fileRef = 849641D016C48B3500001919 /* _posixsubprocess.c */; };
 		84B26DA71779F12700CDFB77 /* getplatform.c in Sources */ = {isa = PBXBuildFile; fileRef = 84B26DA51779F12700CDFB77 /* getplatform.c */; };
-		84D3895418AB8E5200A86851 /* ffi.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D3893018AB8E5200A86851 /* ffi.h */; };
-		84D3895518AB8E5200A86851 /* ffi_armv7.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D3893118AB8E5200A86851 /* ffi_armv7.h */; };
-		84D3895618AB8E5200A86851 /* ffi_common.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D3893218AB8E5200A86851 /* ffi_common.h */; };
-		84D3895718AB8E5200A86851 /* ffi_common_armv7.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D3893318AB8E5200A86851 /* ffi_common_armv7.h */; };
-		84D3895818AB8E5200A86851 /* ffi_common_i386.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D3893418AB8E5200A86851 /* ffi_common_i386.h */; };
-		84D3895918AB8E5200A86851 /* ffi_i386.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D3893518AB8E5200A86851 /* ffi_i386.h */; };
-		84D3895A18AB8E5200A86851 /* fficonfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D3893618AB8E5200A86851 /* fficonfig.h */; };
-		84D3895B18AB8E5200A86851 /* fficonfig_armv7.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D3893718AB8E5200A86851 /* fficonfig_armv7.h */; };
-		84D3895C18AB8E5200A86851 /* fficonfig_i386.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D3893818AB8E5200A86851 /* fficonfig_i386.h */; };
-		84D3895D18AB8E5200A86851 /* ffitarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D3893918AB8E5200A86851 /* ffitarget.h */; };
-		84D3895E18AB8E5200A86851 /* ffitarget_arm.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D3893A18AB8E5200A86851 /* ffitarget_arm.h */; };
-		84D3895F18AB8E5200A86851 /* ffitarget_armv7.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D3893B18AB8E5200A86851 /* ffitarget_armv7.h */; };
-		84D3896018AB8E5200A86851 /* ffitarget_i386.h in Headers */ = {isa = PBXBuildFile; fileRef = 84D3893C18AB8E5200A86851 /* ffitarget_i386.h */; };
-		84D3896118AB8E5200A86851 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 84D3893F18AB8E5200A86851 /* ffi.c */; };
-		84D3896318AB8E5200A86851 /* trampoline.S in Sources */ = {isa = PBXBuildFile; fileRef = 84D3894218AB8E5200A86851 /* trampoline.S */; };
-		84D3896818AB8E5200A86851 /* prep_cif.c in Sources */ = {isa = PBXBuildFile; fileRef = 84D3894718AB8E5200A86851 /* prep_cif.c */; };
-		84D3896B18AB8E5200A86851 /* darwin.S in Sources */ = {isa = PBXBuildFile; fileRef = 84D3894B18AB8E5200A86851 /* darwin.S */; };
-		84D3896C18AB8E5200A86851 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = 84D3894C18AB8E5200A86851 /* darwin64.S */; };
-		84D3896D18AB8E5200A86851 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 84D3894D18AB8E5200A86851 /* ffi.c */; };
-		84D3896E18AB8E5200A86851 /* ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = 84D3894E18AB8E5200A86851 /* ffi64.c */; };
-		84D3897518AB915400A86851 /* sysv.S in Sources */ = {isa = PBXBuildFile; fileRef = 84D3897418AB915400A86851 /* sysv.S */; };
+		84DFB7C41A5D4DBC00EBC872 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7A31A5D4DAE00EBC872 /* ffi.c */; };
+		84DFB7C51A5D4DBC00EBC872 /* sysv.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7A41A5D4DAE00EBC872 /* sysv.S */; };
+		84DFB7C61A5D4DC200EBC872 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7A61A5D4DAE00EBC872 /* ffi.c */; };
+		84DFB7C71A5D4DC200EBC872 /* sysv.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7A71A5D4DAE00EBC872 /* sysv.S */; };
+		84DFB7C81A5D4DC200EBC872 /* trampoline.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7A81A5D4DAE00EBC872 /* trampoline.S */; };
+		84DFB7C91A5D4DDC00EBC872 /* darwin.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7BF1A5D4DAF00EBC872 /* darwin.S */; };
+		84DFB7CA1A5D4DDC00EBC872 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C01A5D4DAF00EBC872 /* darwin64.S */; };
+		84DFB7CB1A5D4DDC00EBC872 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C11A5D4DAF00EBC872 /* ffi.c */; };
+		84DFB7CC1A5D4DDC00EBC872 /* ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C21A5D4DAF00EBC872 /* ffi64.c */; };
+		84DFB7CD1A5D4DDC00EBC872 /* win32.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C31A5D4DAF00EBC872 /* win32.S */; };
+		84DFB7CE1A5D4DDD00EBC872 /* darwin.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7BF1A5D4DAF00EBC872 /* darwin.S */; };
+		84DFB7CF1A5D4DDD00EBC872 /* darwin64.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C01A5D4DAF00EBC872 /* darwin64.S */; };
+		84DFB7D01A5D4DDD00EBC872 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C11A5D4DAF00EBC872 /* ffi.c */; };
+		84DFB7D11A5D4DDD00EBC872 /* ffi64.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C21A5D4DAF00EBC872 /* ffi64.c */; };
+		84DFB7D21A5D4DDD00EBC872 /* win32.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7C31A5D4DAF00EBC872 /* win32.S */; };
+		84DFB7D31A5D4DE100EBC872 /* prep_cif.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7BB1A5D4DAE00EBC872 /* prep_cif.c */; };
+		84DFB7D41A5D4DE200EBC872 /* prep_cif.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7BB1A5D4DAE00EBC872 /* prep_cif.c */; };
 		84E269AA16AF8F5500E408BD /* abstract.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2694C16AF8F5500E408BD /* abstract.h */; };
 		84E269AC16AF8F5500E408BD /* accu.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2694D16AF8F5500E408BD /* accu.h */; };
 		84E269AE16AF8F5500E408BD /* asdl.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2694E16AF8F5500E408BD /* asdl.h */; };
@@ -1079,44 +1058,30 @@
 		849641D016C48B3500001919 /* _posixsubprocess.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _posixsubprocess.c; sourceTree = "<group>"; };
 		84B26DA51779F12700CDFB77 /* getplatform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = getplatform.c; sourceTree = "<group>"; };
 		84B8EB8F1904FC58006BFD40 /* android.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; name = android.mk; path = ../android.mk; sourceTree = "<group>"; };
-		84D388B518AB88D600A86851 /* ffi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi.h; sourceTree = "<group>"; };
-		84D388B618AB88D600A86851 /* ffi_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi_common.h; sourceTree = "<group>"; };
-		84D388B718AB88D600A86851 /* ffi_common_i386.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi_common_i386.h; sourceTree = "<group>"; };
-		84D388B818AB88D600A86851 /* ffi_common_x86_64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi_common_x86_64.h; sourceTree = "<group>"; };
-		84D388B918AB88D600A86851 /* ffi_i386.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi_i386.h; sourceTree = "<group>"; };
-		84D388BA18AB88D600A86851 /* ffi_x86_64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi_x86_64.h; sourceTree = "<group>"; };
-		84D388BB18AB88D600A86851 /* fficonfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fficonfig.h; sourceTree = "<group>"; };
-		84D388BC18AB88D600A86851 /* fficonfig_i386.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fficonfig_i386.h; sourceTree = "<group>"; };
-		84D388BD18AB88D600A86851 /* fficonfig_x86_64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fficonfig_x86_64.h; sourceTree = "<group>"; };
-		84D388BE18AB88D600A86851 /* ffitarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffitarget.h; sourceTree = "<group>"; };
-		84D388BF18AB88D600A86851 /* ffitarget_i386.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffitarget_i386.h; sourceTree = "<group>"; };
-		84D388C018AB88D600A86851 /* ffitarget_x86_64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffitarget_x86_64.h; sourceTree = "<group>"; };
-		84D388CA18AB88D600A86851 /* darwin.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin.S; sourceTree = "<group>"; };
-		84D388CB18AB88D600A86851 /* darwin64.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
-		84D388CC18AB88D600A86851 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffi.c; sourceTree = "<group>"; };
-		84D388CD18AB88D600A86851 /* ffi64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffi64.c; sourceTree = "<group>"; };
-		84D3892C18AB8D8400A86851 /* prep_cif.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = prep_cif.c; sourceTree = "<group>"; };
-		84D3893018AB8E5200A86851 /* ffi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi.h; sourceTree = "<group>"; };
-		84D3893118AB8E5200A86851 /* ffi_armv7.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi_armv7.h; sourceTree = "<group>"; };
-		84D3893218AB8E5200A86851 /* ffi_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi_common.h; sourceTree = "<group>"; };
-		84D3893318AB8E5200A86851 /* ffi_common_armv7.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi_common_armv7.h; sourceTree = "<group>"; };
-		84D3893418AB8E5200A86851 /* ffi_common_i386.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi_common_i386.h; sourceTree = "<group>"; };
-		84D3893518AB8E5200A86851 /* ffi_i386.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi_i386.h; sourceTree = "<group>"; };
-		84D3893618AB8E5200A86851 /* fficonfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fficonfig.h; sourceTree = "<group>"; };
-		84D3893718AB8E5200A86851 /* fficonfig_armv7.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fficonfig_armv7.h; sourceTree = "<group>"; };
-		84D3893818AB8E5200A86851 /* fficonfig_i386.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fficonfig_i386.h; sourceTree = "<group>"; };
-		84D3893918AB8E5200A86851 /* ffitarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffitarget.h; sourceTree = "<group>"; };
-		84D3893A18AB8E5200A86851 /* ffitarget_arm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffitarget_arm.h; sourceTree = "<group>"; };
-		84D3893B18AB8E5200A86851 /* ffitarget_armv7.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffitarget_armv7.h; sourceTree = "<group>"; };
-		84D3893C18AB8E5200A86851 /* ffitarget_i386.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffitarget_i386.h; sourceTree = "<group>"; };
-		84D3893F18AB8E5200A86851 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffi.c; sourceTree = "<group>"; };
-		84D3894218AB8E5200A86851 /* trampoline.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = trampoline.S; sourceTree = "<group>"; };
-		84D3894718AB8E5200A86851 /* prep_cif.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = prep_cif.c; sourceTree = "<group>"; };
-		84D3894B18AB8E5200A86851 /* darwin.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin.S; sourceTree = "<group>"; };
-		84D3894C18AB8E5200A86851 /* darwin64.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
-		84D3894D18AB8E5200A86851 /* ffi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffi.c; sourceTree = "<group>"; };
-		84D3894E18AB8E5200A86851 /* ffi64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffi64.c; sourceTree = "<group>"; };
-		84D3897418AB915400A86851 /* sysv.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = sysv.S; sourceTree = "<group>"; };
+		84DFB7A31A5D4DAE00EBC872 /* ffi.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ffi.c; sourceTree = "<group>"; };
+		84DFB7A41A5D4DAE00EBC872 /* sysv.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = sysv.S; sourceTree = "<group>"; };
+		84DFB7A61A5D4DAE00EBC872 /* ffi.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ffi.c; sourceTree = "<group>"; };
+		84DFB7A71A5D4DAE00EBC872 /* sysv.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = sysv.S; sourceTree = "<group>"; };
+		84DFB7A81A5D4DAE00EBC872 /* trampoline.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = trampoline.S; sourceTree = "<group>"; };
+		84DFB7AD1A5D4DAE00EBC872 /* ffi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ffi.h; sourceTree = "<group>"; };
+		84DFB7AE1A5D4DAE00EBC872 /* ffi_arm64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ffi_arm64.h; sourceTree = "<group>"; };
+		84DFB7AF1A5D4DAE00EBC872 /* ffi_armv7.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ffi_armv7.h; sourceTree = "<group>"; };
+		84DFB7B01A5D4DAE00EBC872 /* ffi_common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ffi_common.h; sourceTree = "<group>"; };
+		84DFB7B11A5D4DAE00EBC872 /* ffi_x86.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ffi_x86.h; sourceTree = "<group>"; };
+		84DFB7B21A5D4DAE00EBC872 /* fficonfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fficonfig.h; sourceTree = "<group>"; };
+		84DFB7B31A5D4DAE00EBC872 /* fficonfig_arm64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fficonfig_arm64.h; sourceTree = "<group>"; };
+		84DFB7B41A5D4DAE00EBC872 /* fficonfig_armv7.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fficonfig_armv7.h; sourceTree = "<group>"; };
+		84DFB7B51A5D4DAE00EBC872 /* fficonfig_x86.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fficonfig_x86.h; sourceTree = "<group>"; };
+		84DFB7B61A5D4DAE00EBC872 /* ffitarget.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ffitarget.h; sourceTree = "<group>"; };
+		84DFB7B71A5D4DAE00EBC872 /* ffitarget_arm64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ffitarget_arm64.h; sourceTree = "<group>"; };
+		84DFB7B81A5D4DAE00EBC872 /* ffitarget_armv7.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ffitarget_armv7.h; sourceTree = "<group>"; };
+		84DFB7B91A5D4DAE00EBC872 /* ffitarget_x86.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ffitarget_x86.h; sourceTree = "<group>"; };
+		84DFB7BB1A5D4DAE00EBC872 /* prep_cif.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = prep_cif.c; sourceTree = "<group>"; };
+		84DFB7BF1A5D4DAF00EBC872 /* darwin.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = darwin.S; sourceTree = "<group>"; };
+		84DFB7C01A5D4DAF00EBC872 /* darwin64.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
+		84DFB7C11A5D4DAF00EBC872 /* ffi.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ffi.c; sourceTree = "<group>"; };
+		84DFB7C21A5D4DAF00EBC872 /* ffi64.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ffi64.c; sourceTree = "<group>"; };
+		84DFB7C31A5D4DAF00EBC872 /* win32.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = win32.S; sourceTree = "<group>"; };
 		84E2694C16AF8F5500E408BD /* abstract.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = abstract.h; sourceTree = "<group>"; };
 		84E2694D16AF8F5500E408BD /* accu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = accu.h; sourceTree = "<group>"; };
 		84E2694E16AF8F5500E408BD /* asdl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asdl.h; sourceTree = "<group>"; };
@@ -1486,6 +1451,7 @@
 		84670E4F16AFCC6E00B69AF3 /* _ctypes */ = {
 			isa = PBXGroup;
 			children = (
+				84DFB7A11A5D4DAE00EBC872 /* libffi_darwin */,
 				84670F0E16B0CCF500B69AF3 /* _ctypes.c */,
 				848A7EAC16C203ED007F6822 /* _ctypes_test.c */,
 				84670F0F16B0CCF500B69AF3 /* callbacks.c */,
@@ -1493,8 +1459,6 @@
 				84670F1116B0CCF500B69AF3 /* cfield.c */,
 				84670F1216B0CCF500B69AF3 /* malloc_closure.c */,
 				84670F1316B0CCF500B69AF3 /* stgdict.c */,
-				84D3892E18AB8E5200A86851 /* libffi_ios */,
-				84D387CE18AB82C600A86851 /* libffi_osx */,
 			);
 			path = _ctypes;
 			sourceTree = "<group>";
@@ -1577,110 +1541,65 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		84D387CE18AB82C600A86851 /* libffi_osx */ = {
+		84DFB7A11A5D4DAE00EBC872 /* libffi_darwin */ = {
 			isa = PBXGroup;
 			children = (
-				84D388B418AB88D600A86851 /* include */,
-				84D388C118AB88D600A86851 /* src */,
+				84DFB7A21A5D4DAE00EBC872 /* arm64 */,
+				84DFB7A51A5D4DAE00EBC872 /* armv7 */,
+				84DFB7AC1A5D4DAE00EBC872 /* include */,
+				84DFB7BB1A5D4DAE00EBC872 /* prep_cif.c */,
+				84DFB7BE1A5D4DAF00EBC872 /* x86 */,
 			);
-			path = libffi_osx;
+			path = libffi_darwin;
 			sourceTree = "<group>";
 		};
-		84D388B418AB88D600A86851 /* include */ = {
+		84DFB7A21A5D4DAE00EBC872 /* arm64 */ = {
 			isa = PBXGroup;
 			children = (
-				84D388B518AB88D600A86851 /* ffi.h */,
-				84D388B618AB88D600A86851 /* ffi_common.h */,
-				84D388B718AB88D600A86851 /* ffi_common_i386.h */,
-				84D388B818AB88D600A86851 /* ffi_common_x86_64.h */,
-				84D388B918AB88D600A86851 /* ffi_i386.h */,
-				84D388BA18AB88D600A86851 /* ffi_x86_64.h */,
-				84D388BB18AB88D600A86851 /* fficonfig.h */,
-				84D388BC18AB88D600A86851 /* fficonfig_i386.h */,
-				84D388BD18AB88D600A86851 /* fficonfig_x86_64.h */,
-				84D388BE18AB88D600A86851 /* ffitarget.h */,
-				84D388BF18AB88D600A86851 /* ffitarget_i386.h */,
-				84D388C018AB88D600A86851 /* ffitarget_x86_64.h */,
+				84DFB7A31A5D4DAE00EBC872 /* ffi.c */,
+				84DFB7A41A5D4DAE00EBC872 /* sysv.S */,
 			);
-			path = include;
+			path = arm64;
 			sourceTree = "<group>";
 		};
-		84D388C118AB88D600A86851 /* src */ = {
+		84DFB7A51A5D4DAE00EBC872 /* armv7 */ = {
 			isa = PBXGroup;
 			children = (
-				84D3892C18AB8D8400A86851 /* prep_cif.c */,
-				84D388C918AB88D600A86851 /* x86 */,
+				84DFB7A61A5D4DAE00EBC872 /* ffi.c */,
+				84DFB7A71A5D4DAE00EBC872 /* sysv.S */,
+				84DFB7A81A5D4DAE00EBC872 /* trampoline.S */,
 			);
-			path = src;
+			path = armv7;
 			sourceTree = "<group>";
 		};
-		84D388C918AB88D600A86851 /* x86 */ = {
+		84DFB7AC1A5D4DAE00EBC872 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				84D388CA18AB88D600A86851 /* darwin.S */,
-				84D388CB18AB88D600A86851 /* darwin64.S */,
-				84D388CC18AB88D600A86851 /* ffi.c */,
-				84D388CD18AB88D600A86851 /* ffi64.c */,
-			);
-			path = x86;
-			sourceTree = "<group>";
-		};
-		84D3892E18AB8E5200A86851 /* libffi_ios */ = {
-			isa = PBXGroup;
-			children = (
-				84D3892F18AB8E5200A86851 /* include */,
-				84D3893D18AB8E5200A86851 /* src */,
-			);
-			path = libffi_ios;
-			sourceTree = "<group>";
-		};
-		84D3892F18AB8E5200A86851 /* include */ = {
-			isa = PBXGroup;
-			children = (
-				84D3893018AB8E5200A86851 /* ffi.h */,
-				84D3893118AB8E5200A86851 /* ffi_armv7.h */,
-				84D3893218AB8E5200A86851 /* ffi_common.h */,
-				84D3893318AB8E5200A86851 /* ffi_common_armv7.h */,
-				84D3893418AB8E5200A86851 /* ffi_common_i386.h */,
-				84D3893518AB8E5200A86851 /* ffi_i386.h */,
-				84D3893618AB8E5200A86851 /* fficonfig.h */,
-				84D3893718AB8E5200A86851 /* fficonfig_armv7.h */,
-				84D3893818AB8E5200A86851 /* fficonfig_i386.h */,
-				84D3893918AB8E5200A86851 /* ffitarget.h */,
-				84D3893A18AB8E5200A86851 /* ffitarget_arm.h */,
-				84D3893B18AB8E5200A86851 /* ffitarget_armv7.h */,
-				84D3893C18AB8E5200A86851 /* ffitarget_i386.h */,
+				84DFB7AD1A5D4DAE00EBC872 /* ffi.h */,
+				84DFB7AE1A5D4DAE00EBC872 /* ffi_arm64.h */,
+				84DFB7AF1A5D4DAE00EBC872 /* ffi_armv7.h */,
+				84DFB7B01A5D4DAE00EBC872 /* ffi_common.h */,
+				84DFB7B11A5D4DAE00EBC872 /* ffi_x86.h */,
+				84DFB7B21A5D4DAE00EBC872 /* fficonfig.h */,
+				84DFB7B31A5D4DAE00EBC872 /* fficonfig_arm64.h */,
+				84DFB7B41A5D4DAE00EBC872 /* fficonfig_armv7.h */,
+				84DFB7B51A5D4DAE00EBC872 /* fficonfig_x86.h */,
+				84DFB7B61A5D4DAE00EBC872 /* ffitarget.h */,
+				84DFB7B71A5D4DAE00EBC872 /* ffitarget_arm64.h */,
+				84DFB7B81A5D4DAE00EBC872 /* ffitarget_armv7.h */,
+				84DFB7B91A5D4DAE00EBC872 /* ffitarget_x86.h */,
 			);
 			path = include;
 			sourceTree = "<group>";
 		};
-		84D3893D18AB8E5200A86851 /* src */ = {
+		84DFB7BE1A5D4DAF00EBC872 /* x86 */ = {
 			isa = PBXGroup;
 			children = (
-				84D3894718AB8E5200A86851 /* prep_cif.c */,
-				84D3893E18AB8E5200A86851 /* arm */,
-				84D3894A18AB8E5200A86851 /* x86 */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
-		84D3893E18AB8E5200A86851 /* arm */ = {
-			isa = PBXGroup;
-			children = (
-				84D3893F18AB8E5200A86851 /* ffi.c */,
-				84D3897418AB915400A86851 /* sysv.S */,
-				84D3894218AB8E5200A86851 /* trampoline.S */,
-			);
-			path = arm;
-			sourceTree = "<group>";
-		};
-		84D3894A18AB8E5200A86851 /* x86 */ = {
-			isa = PBXGroup;
-			children = (
-				84D3894B18AB8E5200A86851 /* darwin.S */,
-				84D3894C18AB8E5200A86851 /* darwin64.S */,
-				84D3894D18AB8E5200A86851 /* ffi.c */,
-				84D3894E18AB8E5200A86851 /* ffi64.c */,
+				84DFB7BF1A5D4DAF00EBC872 /* darwin.S */,
+				84DFB7C01A5D4DAF00EBC872 /* darwin64.S */,
+				84DFB7C11A5D4DAF00EBC872 /* ffi.c */,
+				84DFB7C21A5D4DAF00EBC872 /* ffi64.c */,
+				84DFB7C31A5D4DAF00EBC872 /* win32.S */,
 			);
 			path = x86;
 			sourceTree = "<group>";
@@ -1930,18 +1849,14 @@
 				84E269BC16AF8F5500E408BD /* bytesobject.h in Headers */,
 				84E269BE16AF8F5500E408BD /* cellobject.h in Headers */,
 				84E269C016AF8F5500E408BD /* ceval.h in Headers */,
-				84D3895A18AB8E5200A86851 /* fficonfig.h in Headers */,
 				84E269C216AF8F5500E408BD /* classobject.h in Headers */,
 				84E269C416AF8F5500E408BD /* code.h in Headers */,
 				84E269C616AF8F5500E408BD /* codecs.h in Headers */,
 				84E269C816AF8F5500E408BD /* compile.h in Headers */,
-				84D3896018AB8E5200A86851 /* ffitarget_i386.h in Headers */,
 				84E269CA16AF8F5500E408BD /* complexobject.h in Headers */,
 				84E269CC16AF8F5500E408BD /* datetime.h in Headers */,
 				84E269CE16AF8F5500E408BD /* descrobject.h in Headers */,
-				84D3895618AB8E5200A86851 /* ffi_common.h in Headers */,
 				84E269D016AF8F5500E408BD /* dictobject.h in Headers */,
-				84D3895D18AB8E5200A86851 /* ffitarget.h in Headers */,
 				84E269D216AF8F5500E408BD /* dtoa.h in Headers */,
 				84E269D416AF8F5500E408BD /* dynamic_annotations.h in Headers */,
 				84E269D616AF8F5500E408BD /* enumobject.h in Headers */,
@@ -1957,7 +1872,6 @@
 				84E269EA16AF8F5500E408BD /* grammar.h in Headers */,
 				84E269EC16AF8F5500E408BD /* import.h in Headers */,
 				84E269EE16AF8F5500E408BD /* intrcheck.h in Headers */,
-				84D3895718AB8E5200A86851 /* ffi_common_armv7.h in Headers */,
 				84E269F016AF8F5500E408BD /* iterobject.h in Headers */,
 				84E269F216AF8F5500E408BD /* listobject.h in Headers */,
 				84E269F416AF8F5500E408BD /* longintrepr.h in Headers */,
@@ -2031,18 +1945,15 @@
 				84670DD216AFCBB400B69AF3 /* microprotocols.h in Headers */,
 				84670DD616AFCBB400B69AF3 /* module.h in Headers */,
 				84670DDA16AFCBB400B69AF3 /* prepare_protocol.h in Headers */,
-				84D3895418AB8E5200A86851 /* ffi.h in Headers */,
 				84670DDE16AFCBB400B69AF3 /* row.h in Headers */,
 				84670DE016AFCBB400B69AF3 /* sqlitecompat.h in Headers */,
 				84670DE416AFCBB400B69AF3 /* statement.h in Headers */,
 				84670DE816AFCBB400B69AF3 /* util.h in Headers */,
-				84D3895918AB8E5200A86851 /* ffi_i386.h in Headers */,
 				84670F7416B0CF5200B69AF3 /* docstrings.h in Headers */,
 				84670FD516B0D18200B69AF3 /* basearith.h in Headers */,
 				84670FD916B0D18200B69AF3 /* constants.h in Headers */,
 				84670FDF16B0D18200B69AF3 /* convolute.h in Headers */,
 				84670FE316B0D18200B69AF3 /* crt.h in Headers */,
-				84D3895518AB8E5200A86851 /* ffi_armv7.h in Headers */,
 				84670FE716B0D18200B69AF3 /* difradix2.h in Headers */,
 				84670FEB16B0D18200B69AF3 /* fnt.h in Headers */,
 				84670FEF16B0D18200B69AF3 /* fourstep.h in Headers */,
@@ -2050,8 +1961,6 @@
 				84670FF716B0D18200B69AF3 /* memory.h in Headers */,
 				84670FFB16B0D18200B69AF3 /* mpdecimal.h in Headers */,
 				84670FFF16B0D18200B69AF3 /* numbertheory.h in Headers */,
-				84D3895C18AB8E5200A86851 /* fficonfig_i386.h in Headers */,
-				84D3895B18AB8E5200A86851 /* fficonfig_armv7.h in Headers */,
 				8467100316B0D18200B69AF3 /* sixstep.h in Headers */,
 				8467100716B0D18200B69AF3 /* transpose.h in Headers */,
 				8467118B16B1071300B69AF3 /* pyconfig.h in Headers */,
@@ -2063,11 +1972,8 @@
 				846713FF16B2301200B69AF3 /* importlib.h in Headers */,
 				8467140416B2301200B69AF3 /* opcode_targets.h in Headers */,
 				846489E416B27148000159C4 /* unicodetype_db.h in Headers */,
-				84D3895E18AB8E5200A86851 /* ffitarget_arm.h in Headers */,
-				84D3895F18AB8E5200A86851 /* ffitarget_armv7.h in Headers */,
 				849641B616C473E500001919 /* parser.h in Headers */,
 				849641B916C473E500001919 /* tokenizer.h in Headers */,
-				84D3895818AB8E5200A86851 /* ffi_common_i386.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2086,25 +1992,18 @@
 				8479F33918FD6B3B00829991 /* bytes_methods.h in Headers */,
 				8479F33A18FD6B3B00829991 /* bytesobject.h in Headers */,
 				8479F33B18FD6B3B00829991 /* cellobject.h in Headers */,
-				8479F33C18FD6B3B00829991 /* ffi.h in Headers */,
 				8479F33D18FD6B3B00829991 /* ceval.h in Headers */,
 				8479F33E18FD6B3B00829991 /* classobject.h in Headers */,
 				8479F33F18FD6B3B00829991 /* code.h in Headers */,
 				8479F34018FD6B3B00829991 /* codecs.h in Headers */,
-				8479F34118FD6B3B00829991 /* ffitarget_x86_64.h in Headers */,
 				8479F34218FD6B3B00829991 /* compile.h in Headers */,
 				8479F34318FD6B3B00829991 /* complexobject.h in Headers */,
-				8479F34418FD6B3B00829991 /* fficonfig_x86_64.h in Headers */,
-				8479F34518FD6B3B00829991 /* ffi_i386.h in Headers */,
 				8479F34618FD6B3B00829991 /* datetime.h in Headers */,
 				8479F34718FD6B3B00829991 /* descrobject.h in Headers */,
 				8479F34818FD6B3B00829991 /* dictobject.h in Headers */,
 				8479F34918FD6B3B00829991 /* dtoa.h in Headers */,
 				8479F34A18FD6B3B00829991 /* dynamic_annotations.h in Headers */,
 				8479F34B18FD6B3B00829991 /* enumobject.h in Headers */,
-				8479F34C18FD6B3B00829991 /* ffi_x86_64.h in Headers */,
-				8479F34D18FD6B3B00829991 /* ffi_common_x86_64.h in Headers */,
-				8479F34E18FD6B3B00829991 /* fficonfig.h in Headers */,
 				8479F34F18FD6B3B00829991 /* errcode.h in Headers */,
 				8479F35018FD6B3B00829991 /* eval.h in Headers */,
 				8479F35118FD6B3B00829991 /* fileobject.h in Headers */,
@@ -2114,7 +2013,6 @@
 				8479F35518FD6B3B00829991 /* funcobject.h in Headers */,
 				8479F35618FD6B3B00829991 /* genobject.h in Headers */,
 				8479F35718FD6B3B00829991 /* graminit.h in Headers */,
-				8479F35818FD6B3B00829991 /* ffitarget_i386.h in Headers */,
 				8479F35918FD6B3B00829991 /* grammar.h in Headers */,
 				8479F35A18FD6B3B00829991 /* import.h in Headers */,
 				8479F35B18FD6B3B00829991 /* intrcheck.h in Headers */,
@@ -2129,7 +2027,6 @@
 				8479F36418FD6B3B00829991 /* modsupport.h in Headers */,
 				8479F36518FD6B3B00829991 /* moduleobject.h in Headers */,
 				8479F36618FD6B3B00829991 /* namespaceobject.h in Headers */,
-				8479F36718FD6B3B00829991 /* ffi_common.h in Headers */,
 				8479F36818FD6B3B00829991 /* node.h in Headers */,
 				8479F36918FD6B3B00829991 /* object.h in Headers */,
 				8479F36A18FD6B3B00829991 /* objimpl.h in Headers */,
@@ -2202,7 +2099,6 @@
 				8479F3AD18FD6B3B00829991 /* find.h in Headers */,
 				8479F3AE18FD6B3B00829991 /* partition.h in Headers */,
 				8479F3AF18FD6B3B00829991 /* split.h in Headers */,
-				8479F3B018FD6B3B00829991 /* ffitarget.h in Headers */,
 				8479F3B118FD6B3B00829991 /* _math.h in Headers */,
 				8479F3B218FD6B3B00829991 /* rotatingtree.h in Headers */,
 				8479F3B318FD6B3B00829991 /* unicodetype_db.h in Headers */,
@@ -2211,9 +2107,7 @@
 				8479F3B618FD6B3B00829991 /* importdl.h in Headers */,
 				8479F3B718FD6B3B00829991 /* importlib.h in Headers */,
 				8479F3B818FD6B3B00829991 /* docstrings.h in Headers */,
-				8479F3B918FD6B3B00829991 /* fficonfig_i386.h in Headers */,
 				8479F3BA18FD6B3B00829991 /* basearith.h in Headers */,
-				8479F3BB18FD6B3B00829991 /* ffi_common_i386.h in Headers */,
 				8479F3BC18FD6B3B00829991 /* constants.h in Headers */,
 				8479F3BD18FD6B3B00829991 /* convolute.h in Headers */,
 				8479F3BE18FD6B3B00829991 /* crt.h in Headers */,
@@ -2377,10 +2271,8 @@
 				8467089816AFCA1700B69AF3 /* enumobject.c in Sources */,
 				8467089A16AFCA1700B69AF3 /* exceptions.c in Sources */,
 				8467089C16AFCA1700B69AF3 /* fileobject.c in Sources */,
-				84D3897518AB915400A86851 /* sysv.S in Sources */,
 				8467089E16AFCA1700B69AF3 /* floatobject.c in Sources */,
 				846708A016AFCA1700B69AF3 /* frameobject.c in Sources */,
-				84D3896E18AB8E5200A86851 /* ffi64.c in Sources */,
 				846708A216AFCA1700B69AF3 /* funcobject.c in Sources */,
 				846708A416AFCA1700B69AF3 /* genobject.c in Sources */,
 				846708A616AFCA1700B69AF3 /* iterobject.c in Sources */,
@@ -2393,7 +2285,6 @@
 				846708B416AFCA1700B69AF3 /* object.c in Sources */,
 				846708B616AFCA1700B69AF3 /* rangeobject.c in Sources */,
 				846708B816AFCA1700B69AF3 /* setobject.c in Sources */,
-				84D3896B18AB8E5200A86851 /* darwin.S in Sources */,
 				846708BA16AFCA1700B69AF3 /* sliceobject.c in Sources */,
 				846708BC16AFCA1700B69AF3 /* structseq.c in Sources */,
 				846708BE16AFCA1700B69AF3 /* tupleobject.c in Sources */,
@@ -2403,11 +2294,13 @@
 				846708C616AFCA1700B69AF3 /* weakrefobject.c in Sources */,
 				846708CC16AFCA6D00B69AF3 /* _testembed.c in Sources */,
 				8467094F16AFCBA000B69AF3 /* socketmodule.c in Sources */,
+				84DFB7CA1A5D4DDC00EBC872 /* darwin64.S in Sources */,
 				84670DBE16AFCBB400B69AF3 /* multiprocessing.c in Sources */,
 				84670DC216AFCBB400B69AF3 /* semaphore.c in Sources */,
 				84670DC416AFCBB400B69AF3 /* cache.c in Sources */,
 				84670DC816AFCBB400B69AF3 /* connection.c in Sources */,
 				84670DCC16AFCBB400B69AF3 /* cursor.c in Sources */,
+				84DFB7C41A5D4DBC00EBC872 /* ffi.c in Sources */,
 				84670DD016AFCBB400B69AF3 /* microprotocols.c in Sources */,
 				84670DD416AFCBB400B69AF3 /* module.c in Sources */,
 				84670DD816AFCBB400B69AF3 /* prepare_protocol.c in Sources */,
@@ -2417,14 +2310,15 @@
 				84670DEA16AFCBB400B69AF3 /* _codecs_cn.c in Sources */,
 				84670DEC16AFCBB400B69AF3 /* _codecs_hk.c in Sources */,
 				84670DEE16AFCBB400B69AF3 /* _codecs_iso2022.c in Sources */,
+				84DFB7C91A5D4DDC00EBC872 /* darwin.S in Sources */,
 				84670DF016AFCBB400B69AF3 /* _codecs_jp.c in Sources */,
+				84DFB7CD1A5D4DDC00EBC872 /* win32.S in Sources */,
 				84670DF216AFCBB400B69AF3 /* _codecs_kr.c in Sources */,
 				84670DF416AFCBB400B69AF3 /* _codecs_tw.c in Sources */,
 				84670E0816AFCBB400B69AF3 /* multibytecodec.c in Sources */,
 				84670F7216B0CF5200B69AF3 /* _decimal.c in Sources */,
 				84670FD316B0D18200B69AF3 /* basearith.c in Sources */,
 				84670FD716B0D18200B69AF3 /* constants.c in Sources */,
-				84D3896C18AB8E5200A86851 /* darwin64.S in Sources */,
 				84670FDB16B0D18200B69AF3 /* context.c in Sources */,
 				84670FDD16B0D18200B69AF3 /* convolute.c in Sources */,
 				84670FE116B0D18200B69AF3 /* crt.c in Sources */,
@@ -2448,6 +2342,7 @@
 				8467114F16B1025A00B69AF3 /* unicodedata.c in Sources */,
 				8467115216B1028300B69AF3 /* _datetimemodule.c in Sources */,
 				8467118816B1070B00B69AF3 /* config.c in Sources */,
+				84DFB7CB1A5D4DDC00EBC872 /* ffi.c in Sources */,
 				846712CB16B1221500B69AF3 /* _elementtree.c in Sources */,
 				846712CC16B1221500B69AF3 /* _functoolsmodule.c in Sources */,
 				846712CD16B1221500B69AF3 /* _hashopenssl.c in Sources */,
@@ -2474,8 +2369,6 @@
 				846712E216B1221500B69AF3 /* faulthandler.c in Sources */,
 				846712E316B1221500B69AF3 /* itertoolsmodule.c in Sources */,
 				846712E416B1221500B69AF3 /* mathmodule.c in Sources */,
-				84D3896818AB8E5200A86851 /* prep_cif.c in Sources */,
-				84D3896118AB8E5200A86851 /* ffi.c in Sources */,
 				846712E516B1221500B69AF3 /* md5module.c in Sources */,
 				846712E616B1221500B69AF3 /* mmapmodule.c in Sources */,
 				846712E716B1221500B69AF3 /* operator.c in Sources */,
@@ -2491,14 +2384,16 @@
 				846712F116B1221500B69AF3 /* xxsubtype.c in Sources */,
 				846712F216B1221500B69AF3 /* zipimport.c in Sources */,
 				846712F316B1221500B69AF3 /* zlibmodule.c in Sources */,
-				84D3896D18AB8E5200A86851 /* ffi.c in Sources */,
+				84DFB7C61A5D4DC200EBC872 /* ffi.c in Sources */,
 				846712F616B1222300B69AF3 /* _ctypes.c in Sources */,
 				846712F716B1222300B69AF3 /* callbacks.c in Sources */,
+				84DFB7C51A5D4DBC00EBC872 /* sysv.S in Sources */,
 				846712F816B1222300B69AF3 /* callproc.c in Sources */,
 				846712F916B1222300B69AF3 /* cfield.c in Sources */,
 				846712FA16B1222300B69AF3 /* malloc_closure.c in Sources */,
 				846712FB16B1222300B69AF3 /* stgdict.c in Sources */,
 				846713E316B2301200B69AF3 /* dynload_shlib.c in Sources */,
+				84DFB7C71A5D4DC200EBC872 /* sysv.S in Sources */,
 				846713E416B2301200B69AF3 /* _warnings.c in Sources */,
 				846713E516B2301200B69AF3 /* asdl.c in Sources */,
 				846713E616B2301200B69AF3 /* ast.c in Sources */,
@@ -2530,7 +2425,8 @@
 				8467140616B2301200B69AF3 /* pyarena.c in Sources */,
 				8467140716B2301200B69AF3 /* pyctype.c in Sources */,
 				8467140816B2301200B69AF3 /* pyfpe.c in Sources */,
-				84D3896318AB8E5200A86851 /* trampoline.S in Sources */,
+				84DFB7C81A5D4DC200EBC872 /* trampoline.S in Sources */,
+				84DFB7D41A5D4DE200EBC872 /* prep_cif.c in Sources */,
 				8467140916B2301200B69AF3 /* pymath.c in Sources */,
 				8467140A16B2301200B69AF3 /* pystate.c in Sources */,
 				8467140B16B2301200B69AF3 /* pystrcmp.c in Sources */,
@@ -2538,6 +2434,7 @@
 				8467140D16B2301200B69AF3 /* Python-ast.c in Sources */,
 				8467140E16B2301200B69AF3 /* pythonrun.c in Sources */,
 				8467140F16B2301200B69AF3 /* pytime.c in Sources */,
+				84DFB7CC1A5D4DDC00EBC872 /* ffi64.c in Sources */,
 				8467141016B2301200B69AF3 /* random.c in Sources */,
 				8467141116B2301200B69AF3 /* structmember.c in Sources */,
 				8467141216B2301200B69AF3 /* symtable.c in Sources */,
@@ -2575,7 +2472,7 @@
 				8479F26618FD6B3B00829991 /* bufferedio.c in Sources */,
 				8479F26718FD6B3B00829991 /* bytesio.c in Sources */,
 				8479F26818FD6B3B00829991 /* fileio.c in Sources */,
-				8479F26918FD6B3B00829991 /* darwin.S in Sources */,
+				84DFB7CE1A5D4DDD00EBC872 /* darwin.S in Sources */,
 				8479F26A18FD6B3B00829991 /* iobase.c in Sources */,
 				8479F26B18FD6B3B00829991 /* stringio.c in Sources */,
 				8479F26C18FD6B3B00829991 /* textio.c in Sources */,
@@ -2630,8 +2527,8 @@
 				8479F29D18FD6B3B00829991 /* bytesobject.c in Sources */,
 				8479F29E18FD6B3B00829991 /* capsule.c in Sources */,
 				8479F29F18FD6B3B00829991 /* cellobject.c in Sources */,
+				84DFB7CF1A5D4DDD00EBC872 /* darwin64.S in Sources */,
 				8479F2A018FD6B3B00829991 /* classobject.c in Sources */,
-				8479F2A118FD6B3B00829991 /* darwin64.S in Sources */,
 				8479F2A218FD6B3B00829991 /* codeobject.c in Sources */,
 				8479F2A318FD6B3B00829991 /* complexobject.c in Sources */,
 				8479F2A418FD6B3B00829991 /* descrobject.c in Sources */,
@@ -2648,9 +2545,10 @@
 				8479F2AF18FD6B3B00829991 /* longobject.c in Sources */,
 				8479F2B018FD6B3B00829991 /* memoryobject.c in Sources */,
 				8479F2B118FD6B3B00829991 /* methodobject.c in Sources */,
+				84DFB7D11A5D4DDD00EBC872 /* ffi64.c in Sources */,
+				84DFB7D21A5D4DDD00EBC872 /* win32.S in Sources */,
 				8479F2B218FD6B3B00829991 /* moduleobject.c in Sources */,
 				8479F2B318FD6B3B00829991 /* namespaceobject.c in Sources */,
-				8479F2B418FD6B3B00829991 /* ffi64.c in Sources */,
 				8479F2B518FD6B3B00829991 /* object.c in Sources */,
 				8479F2B618FD6B3B00829991 /* rangeobject.c in Sources */,
 				8479F2B718FD6B3B00829991 /* setobject.c in Sources */,
@@ -2692,6 +2590,7 @@
 				8479F2DA18FD6B3B00829991 /* _lsprof.c in Sources */,
 				8479F2DB18FD6B3B00829991 /* _math.c in Sources */,
 				8479F2DC18FD6B3B00829991 /* _pickle.c in Sources */,
+				84DFB7D31A5D4DE100EBC872 /* prep_cif.c in Sources */,
 				8479F2DD18FD6B3B00829991 /* _randommodule.c in Sources */,
 				8479F2DE18FD6B3B00829991 /* _sre.c in Sources */,
 				8479F2DF18FD6B3B00829991 /* _ssl.c in Sources */,
@@ -2716,8 +2615,8 @@
 				8479F2F218FD6B3B00829991 /* posixmodule.c in Sources */,
 				8479F2F318FD6B3B00829991 /* rotatingtree.c in Sources */,
 				8479F2F418FD6B3B00829991 /* sha1module.c in Sources */,
+				84DFB7D01A5D4DDD00EBC872 /* ffi.c in Sources */,
 				8479F2F518FD6B3B00829991 /* sha256module.c in Sources */,
-				8479F2F618FD6B3B00829991 /* ffi.c in Sources */,
 				8479F2F718FD6B3B00829991 /* sha512module.c in Sources */,
 				8479F2F818FD6B3B00829991 /* signalmodule.c in Sources */,
 				8479F2F918FD6B3B00829991 /* symtablemodule.c in Sources */,
@@ -2761,7 +2660,6 @@
 				8479F31F18FD6B3B00829991 /* config.c in Sources */,
 				8479F32018FD6B3B00829991 /* _ctypes_test.c in Sources */,
 				8479F32118FD6B3B00829991 /* acceler.c in Sources */,
-				8479F32218FD6B3B00829991 /* prep_cif.c in Sources */,
 				8479F32318FD6B3B00829991 /* bitset.c in Sources */,
 				8479F32418FD6B3B00829991 /* firstsets.c in Sources */,
 				8479F32518FD6B3B00829991 /* grammar.c in Sources */,

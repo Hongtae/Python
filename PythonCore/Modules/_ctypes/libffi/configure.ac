@@ -1,11 +1,8 @@
 dnl Process this with autoconf to create configure
-#
-# file from libffi - slightly patched for Python's ctypes
-#
 
 AC_PREREQ(2.68)
 
-AC_INIT([libffi], [3.1], [http://github.com/atgreen/libffi/issues])
+AC_INIT([libffi], [3.2.1], [http://github.com/atgreen/libffi/issues])
 AC_CONFIG_HEADERS([fficonfig.h])
 
 AC_CANONICAL_SYSTEM
@@ -67,7 +64,7 @@ EOF
 AM_MAINTAINER_MODE
 
 AC_CHECK_HEADERS(sys/mman.h)
-AC_CHECK_FUNCS(mmap)
+AC_CHECK_FUNCS([mmap mkostemp])
 AC_FUNC_MMAP_BLACKLIST
 
 dnl The -no-testsuite modules omit the test subdir.
@@ -147,9 +144,6 @@ case "$host" in
 	  AM_LTLDFLAGS='-no-undefined -bindir "$(bindir)"';
 	fi
 	;;
-  i*86-*-nto-qnx*) 
-        TARGET=X86; TARGETDIR=x86
-        ;;
   i?86-*-darwin*)
 	TARGET=X86_DARWIN; TARGETDIR=x86
 	;;
@@ -224,16 +218,20 @@ case "$host" in
 	;;
 
   mips-sgi-irix5.* | mips-sgi-irix6.* | mips*-*-rtems*)
-	TARGET=MIPS_IRIX; TARGETDIR=mips
+	TARGET=MIPS; TARGETDIR=mips
 	;;
   mips*-*linux* | mips*-*-openbsd*)
 	# Support 128-bit long double for NewABI.
 	HAVE_LONG_DOUBLE='defined(__mips64)'
-	TARGET=MIPS_LINUX; TARGETDIR=mips
+	TARGET=MIPS; TARGETDIR=mips
 	;;
 
   nios2*-linux*)
 	TARGET=NIOS2; TARGETDIR=nios2
+	;;
+
+  or1k*-linux*)
+	TARGET=OR1K; TARGETDIR=or1k
 	;;
 
   powerpc*-*-linux* | powerpc-*-sysv*)
@@ -299,7 +297,7 @@ if test $TARGETDIR = unknown; then
   AC_MSG_ERROR(["libffi has not been ported to $host."])
 fi
 
-AM_CONDITIONAL(MIPS,[expr x$TARGET : 'xMIPS' > /dev/null])
+AM_CONDITIONAL(MIPS, test x$TARGET = xMIPS)
 AM_CONDITIONAL(BFIN, test x$TARGET = xBFIN)
 AM_CONDITIONAL(SPARC, test x$TARGET = xSPARC)
 AM_CONDITIONAL(X86, test x$TARGET = xX86)
@@ -318,6 +316,7 @@ AM_CONDITIONAL(MICROBLAZE, test x$TARGET = xMICROBLAZE)
 AM_CONDITIONAL(METAG, test x$TARGET = xMETAG)
 AM_CONDITIONAL(MOXIE, test x$TARGET = xMOXIE)
 AM_CONDITIONAL(NIOS2, test x$TARGET = xNIOS2)
+AM_CONDITIONAL(OR1K, test x$TARGET = xOR1K)
 AM_CONDITIONAL(POWERPC, test x$TARGET = xPOWERPC)
 AM_CONDITIONAL(POWERPC_AIX, test x$TARGET = xPOWERPC_AIX)
 AM_CONDITIONAL(POWERPC_DARWIN, test x$TARGET = xPOWERPC_DARWIN)
@@ -596,11 +595,11 @@ AC_ARG_ENABLE(purify-safety,
 if test "x$GCC" = "xyes"; then
   if test -n "$with_cross_host" &&
      test x"$with_cross_host" != x"no"; then
-    toolexecdir='$(exec_prefix)/$(target_alias)'
-    toolexeclibdir='$(toolexecdir)/lib'
+    toolexecdir="${exec_prefix}"/'$(target_alias)'
+    toolexeclibdir="${toolexecdir}"/lib
   else
-    toolexecdir='$(libdir)/gcc-lib/$(target_alias)'
-    toolexeclibdir='$(libdir)'
+    toolexecdir="${libdir}"/gcc-lib/'$(target_alias)'
+    toolexeclibdir="${libdir}"
   fi
   multi_os_directory=`$CC $CFLAGS -print-multi-os-directory`
   case $multi_os_directory in
@@ -609,7 +608,7 @@ if test "x$GCC" = "xyes"; then
   esac
   AC_SUBST(toolexecdir)
 else
-  toolexeclibdir='$(libdir)'
+  toolexeclibdir="${libdir}"
 fi
 AC_SUBST(toolexeclibdir)
 
@@ -622,9 +621,5 @@ test -d src/$TARGETDIR || mkdir src/$TARGETDIR
 AC_CONFIG_LINKS(include/ffitarget.h:src/$TARGETDIR/ffitarget.h)
 
 AC_CONFIG_FILES(include/Makefile include/ffi.h Makefile testsuite/Makefile man/Makefile libffi.pc)
-
-AC_CONFIG_LINKS(include/ffi_common.h:include/ffi_common.h)
-
-AC_CONFIG_FILES(fficonfig.py)
 
 AC_OUTPUT

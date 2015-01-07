@@ -10,7 +10,9 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/Include \
 	$(LOCAL_PATH)/Python \
 	$(LOCAL_PATH)/Modules/expat \
-	$(LOCAL_PATH)/Modules/_ctypes/libffi_arm_linux/include \
+	$(LOCAL_PATH)/Modules/_ctypes/libffi/include \
+	$(LOCAL_PATH)/Modules/_ctypes/libffi_arm \
+	$(LOCAL_PATH)/Modules/_ctypes/libffi_config_arm_linux \
 	$(LOCAL_PATH)/../ExtDeps/zlib \
 	$(LOCAL_PATH)/../ExtDeps/bzip2 \
 	$(LOCAL_PATH)/../ExtDeps/sqlite \
@@ -81,10 +83,10 @@ MODULES_SRC := \
 	Modules/_ctypes/cfield.c \
 	Modules/_ctypes/malloc_closure.c \
 	Modules/_ctypes/stgdict.c \
-	Modules/_ctypes/libffi_arm_linux/src/prep_cif.c \
-	Modules/_ctypes/libffi_arm_linux/src/arm/ffi.c \
-	Modules/_ctypes/libffi_arm_linux/src/arm/sysv.S \
-	Modules/_ctypes/libffi_arm_linux/src/arm/trampoline.S \
+	Modules/_ctypes/libffi/src/prep_cif.c \
+	Modules/_ctypes/libffi_arm/ffi.c \
+	Modules/_ctypes/libffi_arm/sysv.S \
+	Modules/_ctypes/libffi_arm/trampoline.S \
 	Modules/_decimal/_decimal.c \
 	Modules/_decimal/libmpdec/basearith.c \
 	Modules/_decimal/libmpdec/constants.c \

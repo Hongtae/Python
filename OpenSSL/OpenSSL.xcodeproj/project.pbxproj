@@ -114,6 +114,8 @@
 		848A7EAB16C20325007F6822 /* md5_one.c in Sources */ = {isa = PBXBuildFile; fileRef = 84D3973616C1FEFF00310B96 /* md5_one.c */; };
 		848A7EB016C212AE007F6822 /* bf_enc.c in Sources */ = {isa = PBXBuildFile; fileRef = 848A7EAF16C212AE007F6822 /* bf_enc.c */; };
 		848A7EB116C212AE007F6822 /* bf_enc.c in Sources */ = {isa = PBXBuildFile; fileRef = 848A7EAF16C212AE007F6822 /* bf_enc.c */; };
+		84AFC4421A5E39C10049FD91 /* s3_cbc.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4411A5E39C10049FD91 /* s3_cbc.c */; };
+		84AFC4431A5E39C10049FD91 /* s3_cbc.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4411A5E39C10049FD91 /* s3_cbc.c */; };
 		84D3975D16C1FF6700310B96 /* cm_ameth.c in Sources */ = {isa = PBXBuildFile; fileRef = 84D394C716C1FEFF00310B96 /* cm_ameth.c */; };
 		84D3975E16C1FF6700310B96 /* cm_pmeth.c in Sources */ = {isa = PBXBuildFile; fileRef = 84D394C816C1FEFF00310B96 /* cm_pmeth.c */; };
 		84D3975F16C1FF6700310B96 /* cmac.c in Sources */ = {isa = PBXBuildFile; fileRef = 84D394C916C1FEFF00310B96 /* cmac.c */; };
@@ -1460,6 +1462,7 @@
 		842BC4A617CF30770063A717 /* x509_vfy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x509_vfy.h; sourceTree = "<group>"; };
 		842BC4A717CF30770063A717 /* x509v3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x509v3.h; sourceTree = "<group>"; };
 		848A7EAF16C212AE007F6822 /* bf_enc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bf_enc.c; sourceTree = "<group>"; };
+		84AFC4411A5E39C10049FD91 /* s3_cbc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = s3_cbc.c; sourceTree = "<group>"; };
 		84C45F2615A9199E000A0982 /* libOpenSSL_OSX.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOpenSSL_OSX.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		84C45F2715A9199E000A0982 /* libOpenSSL_iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOpenSSL_iOS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		84D3947B16C1FEFF00310B96 /* e_gost_err.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = e_gost_err.c; sourceTree = "<group>"; };
@@ -2394,6 +2397,20 @@
 				84D3949F16C1FEFF00310B96 /* d1_srtp.c */,
 				84D394A016C1FEFF00310B96 /* d1_srvr.c */,
 				84D394A116C1FEFF00310B96 /* kssl.c */,
+				84D394C016C1FEFF00310B96 /* s2_clnt.c */,
+				84D394C116C1FEFF00310B96 /* s2_enc.c */,
+				84D394C216C1FEFF00310B96 /* s2_lib.c */,
+				84D394C316C1FEFF00310B96 /* s2_meth.c */,
+				84D394C416C1FEFF00310B96 /* s2_pkt.c */,
+				84D394C516C1FEFF00310B96 /* s2_srvr.c */,
+				84D394B916C1FEFF00310B96 /* s3_both.c */,
+				84AFC4411A5E39C10049FD91 /* s3_cbc.c */,
+				84D394BA16C1FEFF00310B96 /* s3_clnt.c */,
+				84D394BB16C1FEFF00310B96 /* s3_enc.c */,
+				84D394BC16C1FEFF00310B96 /* s3_lib.c */,
+				84D394BD16C1FEFF00310B96 /* s3_meth.c */,
+				84D394BE16C1FEFF00310B96 /* s3_pkt.c */,
+				84D394BF16C1FEFF00310B96 /* s3_srvr.c */,
 				84D394A216C1FEFF00310B96 /* s23_clnt.c */,
 				84D394A316C1FEFF00310B96 /* s23_lib.c */,
 				84D394A416C1FEFF00310B96 /* s23_meth.c */,
@@ -2417,19 +2434,6 @@
 				84D394B616C1FEFF00310B96 /* t1_reneg.c */,
 				84D394B716C1FEFF00310B96 /* t1_srvr.c */,
 				84D394B816C1FEFF00310B96 /* tls_srp.c */,
-				84D394B916C1FEFF00310B96 /* s3_both.c */,
-				84D394BA16C1FEFF00310B96 /* s3_clnt.c */,
-				84D394BB16C1FEFF00310B96 /* s3_enc.c */,
-				84D394BC16C1FEFF00310B96 /* s3_lib.c */,
-				84D394BD16C1FEFF00310B96 /* s3_meth.c */,
-				84D394BE16C1FEFF00310B96 /* s3_pkt.c */,
-				84D394BF16C1FEFF00310B96 /* s3_srvr.c */,
-				84D394C016C1FEFF00310B96 /* s2_clnt.c */,
-				84D394C116C1FEFF00310B96 /* s2_enc.c */,
-				84D394C216C1FEFF00310B96 /* s2_lib.c */,
-				84D394C316C1FEFF00310B96 /* s2_meth.c */,
-				84D394C416C1FEFF00310B96 /* s2_pkt.c */,
-				84D394C516C1FEFF00310B96 /* s2_srvr.c */,
 			);
 			path = ssl;
 			sourceTree = "<group>";
@@ -4143,6 +4147,7 @@
 				84D3997116C1FFB500310B96 /* d1_srvr.c in Sources */,
 				84D3997216C1FFB500310B96 /* kssl.c in Sources */,
 				84D3997316C1FFB500310B96 /* s23_clnt.c in Sources */,
+				84AFC4431A5E39C10049FD91 /* s3_cbc.c in Sources */,
 				84D3997416C1FFB500310B96 /* s23_lib.c in Sources */,
 				84D3997516C1FFB500310B96 /* s23_meth.c in Sources */,
 				84D3997616C1FFB500310B96 /* s23_pkt.c in Sources */,
@@ -4805,6 +4810,7 @@
 				84D39BEF16C1FFEF00310B96 /* d1_lib.c in Sources */,
 				84D39BF016C1FFEF00310B96 /* d1_meth.c in Sources */,
 				84D39BF116C1FFEF00310B96 /* d1_pkt.c in Sources */,
+				84AFC4421A5E39C10049FD91 /* s3_cbc.c in Sources */,
 				84D39BF216C1FFEF00310B96 /* d1_srtp.c in Sources */,
 				84D39BF316C1FFEF00310B96 /* d1_srvr.c in Sources */,
 				84D39BF416C1FFEF00310B96 /* kssl.c in Sources */,

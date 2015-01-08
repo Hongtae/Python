@@ -700,6 +700,30 @@
 		84AFC41D1A5D8FFF0049FD91 /* sysmodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467080816AFC99700B69AF3 /* sysmodule.c */; };
 		84AFC41E1A5D8FFF0049FD91 /* thread.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467115616B104F800B69AF3 /* thread.c */; };
 		84AFC41F1A5D8FFF0049FD91 /* traceback.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467080916AFC99700B69AF3 /* traceback.c */; };
+		84AFC4271A5E36800049FD91 /* pyhash.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4261A5E36800049FD91 /* pyhash.c */; };
+		84AFC4281A5E36800049FD91 /* pyhash.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4261A5E36800049FD91 /* pyhash.c */; };
+		84AFC4291A5E36800049FD91 /* pyhash.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4261A5E36800049FD91 /* pyhash.c */; };
+		84AFC42A1A5E36800049FD91 /* pyhash.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4261A5E36800049FD91 /* pyhash.c */; };
+		84AFC42E1A5E386A0049FD91 /* _operator.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC42D1A5E386A0049FD91 /* _operator.c */; };
+		84AFC42F1A5E386A0049FD91 /* _operator.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC42D1A5E386A0049FD91 /* _operator.c */; };
+		84AFC4301A5E386A0049FD91 /* _operator.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC42D1A5E386A0049FD91 /* _operator.c */; };
+		84AFC4311A5E386A0049FD91 /* _operator.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC42D1A5E386A0049FD91 /* _operator.c */; };
+		84AFC4331A5E38BC0049FD91 /* _tracemalloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4321A5E38BC0049FD91 /* _tracemalloc.c */; };
+		84AFC4341A5E38BC0049FD91 /* _tracemalloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4321A5E38BC0049FD91 /* _tracemalloc.c */; };
+		84AFC4351A5E38BC0049FD91 /* _tracemalloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4321A5E38BC0049FD91 /* _tracemalloc.c */; };
+		84AFC4361A5E38BC0049FD91 /* _tracemalloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4321A5E38BC0049FD91 /* _tracemalloc.c */; };
+		84AFC4391A5E39370049FD91 /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4371A5E39370049FD91 /* hashtable.c */; };
+		84AFC43A1A5E39370049FD91 /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4371A5E39370049FD91 /* hashtable.c */; };
+		84AFC43B1A5E39370049FD91 /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4371A5E39370049FD91 /* hashtable.c */; };
+		84AFC43C1A5E39370049FD91 /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4371A5E39370049FD91 /* hashtable.c */; };
+		84AFC43D1A5E39370049FD91 /* hashtable.h in Headers */ = {isa = PBXBuildFile; fileRef = 84AFC4381A5E39370049FD91 /* hashtable.h */; };
+		84AFC43E1A5E39370049FD91 /* hashtable.h in Headers */ = {isa = PBXBuildFile; fileRef = 84AFC4381A5E39370049FD91 /* hashtable.h */; };
+		84AFC43F1A5E39370049FD91 /* hashtable.h in Headers */ = {isa = PBXBuildFile; fileRef = 84AFC4381A5E39370049FD91 /* hashtable.h */; };
+		84AFC4401A5E39370049FD91 /* hashtable.h in Headers */ = {isa = PBXBuildFile; fileRef = 84AFC4381A5E39370049FD91 /* hashtable.h */; };
+		84AFC4451A5E3B030049FD91 /* win32.S in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4441A5E3B030049FD91 /* win32.S */; };
+		84AFC4461A5E3B030049FD91 /* win32.S in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4441A5E3B030049FD91 /* win32.S */; };
+		84AFC4471A5E3B030049FD91 /* win32.S in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4441A5E3B030049FD91 /* win32.S */; };
+		84AFC4481A5E3B030049FD91 /* win32.S in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4441A5E3B030049FD91 /* win32.S */; };
 		84B26DA71779F12700CDFB77 /* getplatform.c in Sources */ = {isa = PBXBuildFile; fileRef = 84B26DA51779F12700CDFB77 /* getplatform.c */; };
 		84DFB7C41A5D4DBC00EBC872 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7A31A5D4DAE00EBC872 /* ffi.c */; };
 		84DFB7C51A5D4DBC00EBC872 /* sysv.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7A41A5D4DAE00EBC872 /* sysv.S */; };
@@ -1784,6 +1808,12 @@
 		84AFC4211A5D90360049FD91 /* Python_iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Python_iOS-Info.plist"; sourceTree = "<group>"; };
 		84AFC4221A5D90360049FD91 /* Python_OSX-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Python_OSX-Info.plist"; sourceTree = "<group>"; };
 		84AFC4231A5D90360049FD91 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		84AFC4261A5E36800049FD91 /* pyhash.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pyhash.c; sourceTree = "<group>"; };
+		84AFC42D1A5E386A0049FD91 /* _operator.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _operator.c; sourceTree = "<group>"; };
+		84AFC4321A5E38BC0049FD91 /* _tracemalloc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _tracemalloc.c; sourceTree = "<group>"; };
+		84AFC4371A5E39370049FD91 /* hashtable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hashtable.c; sourceTree = "<group>"; };
+		84AFC4381A5E39370049FD91 /* hashtable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hashtable.h; sourceTree = "<group>"; };
+		84AFC4441A5E3B030049FD91 /* win32.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = win32.S; sourceTree = "<group>"; };
 		84B26DA51779F12700CDFB77 /* getplatform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = getplatform.c; sourceTree = "<group>"; };
 		84B8EB8F1904FC58006BFD40 /* android.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; name = android.mk; path = ../android.mk; sourceTree = "<group>"; };
 		84DFB7A31A5D4DAE00EBC872 /* ffi.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ffi.c; sourceTree = "<group>"; };
@@ -1959,6 +1989,10 @@
 		8467073916AFC3D700B69AF3 /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				84AFC4371A5E39370049FD91 /* hashtable.c */,
+				84AFC4381A5E39370049FD91 /* hashtable.h */,
+				84AFC4321A5E38BC0049FD91 /* _tracemalloc.c */,
+				84AFC42D1A5E386A0049FD91 /* _operator.c */,
 				84670E4F16AFCC6E00B69AF3 /* _ctypes */,
 				84670ACE16AFCBB400B69AF3 /* _decimal */,
 				8467078816AFC7A400B69AF3 /* _io */,
@@ -2283,10 +2317,11 @@
 		84DFB7BE1A5D4DAF00EBC872 /* x86 */ = {
 			isa = PBXGroup;
 			children = (
-				84DFB7BF1A5D4DAF00EBC872 /* darwin.S */,
-				84DFB7C01A5D4DAF00EBC872 /* darwin64.S */,
 				84DFB7C11A5D4DAF00EBC872 /* ffi.c */,
 				84DFB7C21A5D4DAF00EBC872 /* ffi64.c */,
+				84DFB7BF1A5D4DAF00EBC872 /* darwin.S */,
+				84DFB7C01A5D4DAF00EBC872 /* darwin64.S */,
+				84AFC4441A5E3B030049FD91 /* win32.S */,
 			);
 			path = x86;
 			sourceTree = "<group>";
@@ -2467,10 +2502,8 @@
 				846707E516AFC99700B69AF3 /* ast.c */,
 				846707E616AFC99700B69AF3 /* bltinmodule.c */,
 				846707E716AFC99700B69AF3 /* ceval.c */,
-				84670EEC16AFD4DD00B69AF3 /* ceval_gil.h */,
 				846707E816AFC99700B69AF3 /* codecs.c */,
 				846707E916AFC99700B69AF3 /* compile.c */,
-				84670EED16AFD4DD00B69AF3 /* condvar.h */,
 				846707EA16AFC99700B69AF3 /* dtoa.c */,
 				846707C816AFC88F00B69AF3 /* dynamic_annotations.c */,
 				8467116A16B1056B00B69AF3 /* dynload_shlib.c */,
@@ -2489,17 +2522,15 @@
 				846707A116AFC7D600B69AF3 /* graminit.c */,
 				846707F616AFC99700B69AF3 /* import.c */,
 				846707F716AFC99700B69AF3 /* importdl.c */,
-				84670EEE16AFD4DD00B69AF3 /* importdl.h */,
-				84670EEF16AFD4DD00B69AF3 /* importlib.h */,
 				846707F816AFC99700B69AF3 /* marshal.c */,
 				846707F916AFC99700B69AF3 /* modsupport.c */,
 				846707C916AFC88F00B69AF3 /* mysnprintf.c */,
 				846707FA16AFC99700B69AF3 /* mystrtoul.c */,
-				846707E016AFC8EC00B69AF3 /* opcode_targets.h */,
 				846707FB16AFC99700B69AF3 /* peephole.c */,
 				846707FC16AFC99700B69AF3 /* pyarena.c */,
 				846707CA16AFC88F00B69AF3 /* pyctype.c */,
 				846707FD16AFC99700B69AF3 /* pyfpe.c */,
+				84AFC4261A5E36800049FD91 /* pyhash.c */,
 				846707FE16AFC99700B69AF3 /* pymath.c */,
 				846707FF16AFC99700B69AF3 /* pystate.c */,
 				8467080016AFC99700B69AF3 /* pystrcmp.c */,
@@ -2513,6 +2544,11 @@
 				8467080816AFC99700B69AF3 /* sysmodule.c */,
 				8467115616B104F800B69AF3 /* thread.c */,
 				8467080916AFC99700B69AF3 /* traceback.c */,
+				84670EEC16AFD4DD00B69AF3 /* ceval_gil.h */,
+				84670EED16AFD4DD00B69AF3 /* condvar.h */,
+				84670EEE16AFD4DD00B69AF3 /* importdl.h */,
+				84670EEF16AFD4DD00B69AF3 /* importlib.h */,
+				846707E016AFC8EC00B69AF3 /* opcode_targets.h */,
 			);
 			path = Python;
 			sourceTree = "<group>";
@@ -2567,6 +2603,7 @@
 				84E269F216AF8F5500E408BD /* listobject.h in Headers */,
 				84E269F416AF8F5500E408BD /* longintrepr.h in Headers */,
 				84DFB7E21A5D80CF00EBC872 /* ffi_common.h in Headers */,
+				84AFC43E1A5E39370049FD91 /* hashtable.h in Headers */,
 				84E269F616AF8F5500E408BD /* longobject.h in Headers */,
 				84E269F816AF8F5500E408BD /* marshal.h in Headers */,
 				84E269FA16AF8F5500E408BD /* memoryobject.h in Headers */,
@@ -2719,6 +2756,7 @@
 				8479F36018FD6B3B00829991 /* marshal.h in Headers */,
 				8479F36118FD6B3B00829991 /* memoryobject.h in Headers */,
 				8479F36218FD6B3B00829991 /* metagrammar.h in Headers */,
+				84AFC43D1A5E39370049FD91 /* hashtable.h in Headers */,
 				8479F36318FD6B3B00829991 /* methodobject.h in Headers */,
 				8479F36418FD6B3B00829991 /* modsupport.h in Headers */,
 				8479F36518FD6B3B00829991 /* moduleobject.h in Headers */,
@@ -2960,6 +2998,7 @@
 				84DFB83A1A5D8EF600EBC872 /* bytearrayobject.h in Headers */,
 				84DFB9831A5D8F8300EBC872 /* microprotocols.h in Headers */,
 				84DFB8661A5D8EF600EBC872 /* parsetok.h in Headers */,
+				84AFC4401A5E39370049FD91 /* hashtable.h in Headers */,
 				84DFB8491A5D8EF600EBC872 /* enumobject.h in Headers */,
 				84AFC3D51A5D8FFE0049FD91 /* importdl.h in Headers */,
 				84DFB93E1A5D8F6A00EBC872 /* fourstep.h in Headers */,
@@ -3111,6 +3150,7 @@
 				84DFB8971A5D8EF600EBC872 /* bytearrayobject.h in Headers */,
 				84DFB9951A5D8F8400EBC872 /* microprotocols.h in Headers */,
 				84DFB8C31A5D8EF600EBC872 /* parsetok.h in Headers */,
+				84AFC43F1A5E39370049FD91 /* hashtable.h in Headers */,
 				84DFB8A61A5D8EF600EBC872 /* enumobject.h in Headers */,
 				84AFC4081A5D8FFF0049FD91 /* importdl.h in Headers */,
 				84DFB9591A5D8F6B00EBC872 /* fourstep.h in Headers */,
@@ -3325,6 +3365,7 @@
 				8467088016AFCA1700B69AF3 /* accu.c in Sources */,
 				8467088216AFCA1700B69AF3 /* boolobject.c in Sources */,
 				8467088416AFCA1700B69AF3 /* bytearrayobject.c in Sources */,
+				84AFC4281A5E36800049FD91 /* pyhash.c in Sources */,
 				8467088616AFCA1700B69AF3 /* bytes_methods.c in Sources */,
 				8446F11E18FD73B50014D21A /* myreadline.c in Sources */,
 				8467088816AFCA1700B69AF3 /* bytesobject.c in Sources */,
@@ -3367,6 +3408,7 @@
 				84670DC416AFCBB400B69AF3 /* cache.c in Sources */,
 				84670DC816AFCBB400B69AF3 /* connection.c in Sources */,
 				84670DCC16AFCBB400B69AF3 /* cursor.c in Sources */,
+				84AFC4341A5E38BC0049FD91 /* _tracemalloc.c in Sources */,
 				84DFB7C41A5D4DBC00EBC872 /* ffi.c in Sources */,
 				84670DD016AFCBB400B69AF3 /* microprotocols.c in Sources */,
 				84670DD416AFCBB400B69AF3 /* module.c in Sources */,
@@ -3377,6 +3419,7 @@
 				84670DEA16AFCBB400B69AF3 /* _codecs_cn.c in Sources */,
 				84670DEC16AFCBB400B69AF3 /* _codecs_hk.c in Sources */,
 				84670DEE16AFCBB400B69AF3 /* _codecs_iso2022.c in Sources */,
+				84AFC43A1A5E39370049FD91 /* hashtable.c in Sources */,
 				84DFB7C91A5D4DDC00EBC872 /* darwin.S in Sources */,
 				84670DF016AFCBB400B69AF3 /* _codecs_jp.c in Sources */,
 				84670DF216AFCBB400B69AF3 /* _codecs_kr.c in Sources */,
@@ -3388,6 +3431,7 @@
 				84670FDB16B0D18200B69AF3 /* context.c in Sources */,
 				84670FDD16B0D18200B69AF3 /* convolute.c in Sources */,
 				84670FE116B0D18200B69AF3 /* crt.c in Sources */,
+				84AFC42F1A5E386A0049FD91 /* _operator.c in Sources */,
 				84670FE516B0D18200B69AF3 /* difradix2.c in Sources */,
 				84670FE916B0D18200B69AF3 /* fnt.c in Sources */,
 				84670FED16B0D18200B69AF3 /* fourstep.c in Sources */,
@@ -3448,6 +3492,7 @@
 				846712F016B1221500B69AF3 /* timemodule.c in Sources */,
 				846712F116B1221500B69AF3 /* xxsubtype.c in Sources */,
 				846712F216B1221500B69AF3 /* zipimport.c in Sources */,
+				84AFC4461A5E3B030049FD91 /* win32.S in Sources */,
 				846712F316B1221500B69AF3 /* zlibmodule.c in Sources */,
 				84DFB7C61A5D4DC200EBC872 /* ffi.c in Sources */,
 				846712F616B1222300B69AF3 /* _ctypes.c in Sources */,
@@ -3536,6 +3581,7 @@
 				8479F26518FD6B3B00829991 /* _iomodule.c in Sources */,
 				8479F26618FD6B3B00829991 /* bufferedio.c in Sources */,
 				8479F26718FD6B3B00829991 /* bytesio.c in Sources */,
+				84AFC4331A5E38BC0049FD91 /* _tracemalloc.c in Sources */,
 				8479F26818FD6B3B00829991 /* fileio.c in Sources */,
 				84DFB7CE1A5D4DDD00EBC872 /* darwin.S in Sources */,
 				8479F26A18FD6B3B00829991 /* iobase.c in Sources */,
@@ -3614,6 +3660,7 @@
 				8479F2B218FD6B3B00829991 /* moduleobject.c in Sources */,
 				8479F2B318FD6B3B00829991 /* namespaceobject.c in Sources */,
 				8479F2B518FD6B3B00829991 /* object.c in Sources */,
+				84AFC42E1A5E386A0049FD91 /* _operator.c in Sources */,
 				8479F2B618FD6B3B00829991 /* rangeobject.c in Sources */,
 				8479F2B718FD6B3B00829991 /* setobject.c in Sources */,
 				8479F2B818FD6B3B00829991 /* sliceobject.c in Sources */,
@@ -3660,6 +3707,7 @@
 				8479F2DF18FD6B3B00829991 /* _ssl.c in Sources */,
 				8479F2E018FD6B3B00829991 /* _struct.c in Sources */,
 				8479F2E118FD6B3B00829991 /* _testbuffer.c in Sources */,
+				84AFC4451A5E3B030049FD91 /* win32.S in Sources */,
 				8479F2E218FD6B3B00829991 /* _testcapimodule.c in Sources */,
 				8479F2E318FD6B3B00829991 /* _threadmodule.c in Sources */,
 				8479F2E418FD6B3B00829991 /* _weakref.c in Sources */,
@@ -3706,6 +3754,7 @@
 				8479F30E18FD6B3B00829991 /* memory.c in Sources */,
 				8479F30F18FD6B3B00829991 /* mpdecimal.c in Sources */,
 				8479F31018FD6B3B00829991 /* numbertheory.c in Sources */,
+				84AFC4271A5E36800049FD91 /* pyhash.c in Sources */,
 				8479F31118FD6B3B00829991 /* sixstep.c in Sources */,
 				8479F31218FD6B3B00829991 /* transpose.c in Sources */,
 				8479F31318FD6B3B00829991 /* _bisectmodule.c in Sources */,
@@ -3724,6 +3773,7 @@
 				8479F32018FD6B3B00829991 /* _ctypes_test.c in Sources */,
 				8479F32118FD6B3B00829991 /* acceler.c in Sources */,
 				8479F32318FD6B3B00829991 /* bitset.c in Sources */,
+				84AFC4391A5E39370049FD91 /* hashtable.c in Sources */,
 				8479F32418FD6B3B00829991 /* firstsets.c in Sources */,
 				8479F32518FD6B3B00829991 /* grammar.c in Sources */,
 				8479F32618FD6B3B00829991 /* grammar1.c in Sources */,
@@ -3760,6 +3810,7 @@
 				84AFC3DF1A5D8FFE0049FD91 /* pyfpe.c in Sources */,
 				84DFBA0A1A5D8F9C00EBC872 /* _randommodule.c in Sources */,
 				84DFBA5B1A5D8FB600EBC872 /* longobject.c in Sources */,
+				84AFC42A1A5E36800049FD91 /* pyhash.c in Sources */,
 				84DFBA1C1A5D8F9C00EBC872 /* getpath.c in Sources */,
 				84DFBAAA1A5D8FBF00EBC872 /* parser.c in Sources */,
 				84DFB9221A5D8F5100EBC872 /* cfield.c in Sources */,
@@ -3802,6 +3853,7 @@
 				84AFC3D21A5D8FFE0049FD91 /* graminit.c in Sources */,
 				84AFC3C61A5D8FFE0049FD91 /* errors.c in Sources */,
 				84DFBA571A5D8FB600EBC872 /* funcobject.c in Sources */,
+				84AFC4361A5E38BC0049FD91 /* _tracemalloc.c in Sources */,
 				84DFBA511A5D8FB600EBC872 /* dictobject.c in Sources */,
 				84DFB9301A5D8F6A00EBC872 /* basearith.c in Sources */,
 				84DFB9791A5D8F7D00EBC872 /* multiprocessing.c in Sources */,
@@ -3812,6 +3864,7 @@
 				84DFB8EF1A5D8F1F00EBC872 /* ffi.c in Sources */,
 				84DFB9321A5D8F6A00EBC872 /* constants.c in Sources */,
 				84DFB96E1A5D8F7600EBC872 /* _iomodule.c in Sources */,
+				84AFC43C1A5E39370049FD91 /* hashtable.c in Sources */,
 				84DFB93F1A5D8F6A00EBC872 /* io.c in Sources */,
 				84DFBA251A5D8F9C00EBC872 /* rotatingtree.c in Sources */,
 				84DFBA091A5D8F9C00EBC872 /* _posixsubprocess.c in Sources */,
@@ -3823,6 +3876,7 @@
 				84DFB9A51A5D8F8A00EBC872 /* _codecs_tw.c in Sources */,
 				84AFC3CB1A5D8FFE0049FD91 /* future.c in Sources */,
 				84AFC3E61A5D8FFE0049FD91 /* pytime.c in Sources */,
+				84AFC4311A5E386A0049FD91 /* _operator.c in Sources */,
 				84DFBA541A5D8FB600EBC872 /* fileobject.c in Sources */,
 				84AFC3CC1A5D8FFE0049FD91 /* getargs.c in Sources */,
 				84DFBA171A5D8F9C00EBC872 /* cmathmodule.c in Sources */,
@@ -3883,6 +3937,7 @@
 				84DFB9241A5D8F5100EBC872 /* stgdict.c in Sources */,
 				84DFBA5E1A5D8FB600EBC872 /* moduleobject.c in Sources */,
 				84DFB9371A5D8F6A00EBC872 /* crt.c in Sources */,
+				84AFC4481A5E3B030049FD91 /* win32.S in Sources */,
 				84AFC3D11A5D8FFE0049FD91 /* getversion.c in Sources */,
 				84DFB9B81A5D8F9100EBC872 /* xmlrole.c in Sources */,
 				84DFBA2A1A5D8F9C00EBC872 /* sha512module.c in Sources */,
@@ -3971,6 +4026,7 @@
 				84DFBA881A5D8FB700EBC872 /* obmalloc.c in Sources */,
 				84DFBA811A5D8FB700EBC872 /* listobject.c in Sources */,
 				84DFB9F81A5D8F9C00EBC872 /* zlibmodule.c in Sources */,
+				84AFC4351A5E38BC0049FD91 /* _tracemalloc.c in Sources */,
 				84DFB9C61A5D8F9B00EBC872 /* _json.c in Sources */,
 				84AFC4031A5D8FFF0049FD91 /* getplatform.c in Sources */,
 				84DFBA8C1A5D8FB700EBC872 /* structseq.c in Sources */,
@@ -4049,6 +4105,7 @@
 				84DFB9DF1A5D8F9B00EBC872 /* getpath.c in Sources */,
 				84DFB9251A5D8F5300EBC872 /* _ctypes.c in Sources */,
 				84DFB95C1A5D8F6B00EBC872 /* memory.c in Sources */,
+				84AFC4301A5E386A0049FD91 /* _operator.c in Sources */,
 				84DFBA941A5D8FBF00EBC872 /* bitset.c in Sources */,
 				84DFBA7C1A5D8FB700EBC872 /* floatobject.c in Sources */,
 				84AFC3F81A5D8FFF0049FD91 /* dynload_shlib.c in Sources */,
@@ -4095,6 +4152,7 @@
 				84DFB9C71A5D8F9B00EBC872 /* _localemodule.c in Sources */,
 				84DFB9AA1A5D8F8B00EBC872 /* _codecs_jp.c in Sources */,
 				84DFBA871A5D8FB700EBC872 /* object.c in Sources */,
+				84AFC4471A5E3B030049FD91 /* win32.S in Sources */,
 				84DFBA971A5D8FBF00EBC872 /* grammar1.c in Sources */,
 				84DFBA731A5D8FB700EBC872 /* cellobject.c in Sources */,
 				84DFB9D81A5D8F9B00EBC872 /* audioop.c in Sources */,
@@ -4141,6 +4199,7 @@
 				84DFB9C41A5D8F9B00EBC872 /* _hashopenssl.c in Sources */,
 				84DFBA7D1A5D8FB700EBC872 /* frameobject.c in Sources */,
 				84DFB92B1A5D8F5300EBC872 /* stgdict.c in Sources */,
+				84AFC4291A5E36800049FD91 /* pyhash.c in Sources */,
 				84DFB94B1A5D8F6B00EBC872 /* basearith.c in Sources */,
 				84DFB98E1A5D8F8400EBC872 /* cache.c in Sources */,
 				84DFB9ED1A5D8F9C00EBC872 /* sha512module.c in Sources */,
@@ -4159,6 +4218,7 @@
 				84AFC4191A5D8FFF0049FD91 /* pytime.c in Sources */,
 				84DFBA981A5D8FBF00EBC872 /* listnode.c in Sources */,
 				84DFB9BF1A5D8F9B00EBC872 /* _collectionsmodule.c in Sources */,
+				84AFC43B1A5E39370049FD91 /* hashtable.c in Sources */,
 				84DFBA8D1A5D8FB700EBC872 /* tupleobject.c in Sources */,
 				84DFB9DD1A5D8F9B00EBC872 /* gcmodule.c in Sources */,
 				84DFB9E51A5D8F9B00EBC872 /* parsermodule.c in Sources */,

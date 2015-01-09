@@ -7,6 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		84141F751A5EDA4600C92847 /* _opcode.c in Sources */ = {isa = PBXBuildFile; fileRef = 84141F731A5EDA4600C92847 /* _opcode.c */; };
+		84141F761A5EDA4600C92847 /* _opcode.c in Sources */ = {isa = PBXBuildFile; fileRef = 84141F731A5EDA4600C92847 /* _opcode.c */; };
+		84141F771A5EDA4600C92847 /* _opcode.c in Sources */ = {isa = PBXBuildFile; fileRef = 84141F731A5EDA4600C92847 /* _opcode.c */; };
+		84141F781A5EDA4600C92847 /* _opcode.c in Sources */ = {isa = PBXBuildFile; fileRef = 84141F731A5EDA4600C92847 /* _opcode.c */; };
+		84141F791A5EDA4600C92847 /* _stat.c in Sources */ = {isa = PBXBuildFile; fileRef = 84141F741A5EDA4600C92847 /* _stat.c */; };
+		84141F7A1A5EDA4600C92847 /* _stat.c in Sources */ = {isa = PBXBuildFile; fileRef = 84141F741A5EDA4600C92847 /* _stat.c */; };
+		84141F7B1A5EDA4600C92847 /* _stat.c in Sources */ = {isa = PBXBuildFile; fileRef = 84141F741A5EDA4600C92847 /* _stat.c */; };
+		84141F7C1A5EDA4600C92847 /* _stat.c in Sources */ = {isa = PBXBuildFile; fileRef = 84141F741A5EDA4600C92847 /* _stat.c */; };
+		84141F871A5F91DA00C92847 /* Lib in Resources */ = {isa = PBXBuildFile; fileRef = 84141F861A5F91DA00C92847 /* Lib */; };
+		84141F881A5F91DA00C92847 /* Lib in Resources */ = {isa = PBXBuildFile; fileRef = 84141F861A5F91DA00C92847 /* Lib */; };
 		8446EF8218FD6EEE0014D21A /* libOpenSSL_iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F24F18FD6B0300829991 /* libOpenSSL_iOS.a */; };
 		8446EF8718FD6F070014D21A /* libOpenSSL_OSX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F24D18FD6B0300829991 /* libOpenSSL_OSX.a */; };
 		8446F11C18FD73B50014D21A /* myreadline.c in Sources */ = {isa = PBXBuildFile; fileRef = 8446F11A18FD73B50014D21A /* myreadline.c */; };
@@ -68,7 +78,6 @@
 		846708C216AFCA1700B69AF3 /* unicodectype.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467087A16AFCA1700B69AF3 /* unicodectype.c */; };
 		846708C416AFCA1700B69AF3 /* unicodeobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467087B16AFCA1700B69AF3 /* unicodeobject.c */; };
 		846708C616AFCA1700B69AF3 /* weakrefobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467087C16AFCA1700B69AF3 /* weakrefobject.c */; };
-		846708CC16AFCA6D00B69AF3 /* _testembed.c in Sources */ = {isa = PBXBuildFile; fileRef = 846708CA16AFCA6D00B69AF3 /* _testembed.c */; };
 		8467094F16AFCBA000B69AF3 /* socketmodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467094A16AFCBA000B69AF3 /* socketmodule.c */; };
 		8467095116AFCBA000B69AF3 /* socketmodule.h in Headers */ = {isa = PBXBuildFile; fileRef = 8467094B16AFCBA000B69AF3 /* socketmodule.h */; };
 		8467095316AFCBA000B69AF3 /* unicodedata_db.h in Headers */ = {isa = PBXBuildFile; fileRef = 8467094C16AFCBA000B69AF3 /* unicodedata_db.h */; };
@@ -334,7 +343,6 @@
 		8479F2BD18FD6B3B00829991 /* unicodeobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467087B16AFCA1700B69AF3 /* unicodeobject.c */; };
 		8479F2BE18FD6B3B00829991 /* weakrefobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467087C16AFCA1700B69AF3 /* weakrefobject.c */; };
 		8479F2BF18FD6B3B00829991 /* frozen.c in Sources */ = {isa = PBXBuildFile; fileRef = 846708C716AFCA4F00B69AF3 /* frozen.c */; };
-		8479F2C018FD6B3B00829991 /* _testembed.c in Sources */ = {isa = PBXBuildFile; fileRef = 846708CA16AFCA6D00B69AF3 /* _testembed.c */; };
 		8479F2C118FD6B3B00829991 /* socketmodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467094A16AFCBA000B69AF3 /* socketmodule.c */; };
 		8479F2C218FD6B3B00829991 /* multiprocessing.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670B0916AFCBB400B69AF3 /* multiprocessing.c */; };
 		8479F2C318FD6B3B00829991 /* semaphore.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670B0B16AFCBB400B69AF3 /* semaphore.c */; };
@@ -1144,7 +1152,6 @@
 		84DFB9D01A5D8F9B00EBC872 /* _struct.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670E9F16AFD3C500B69AF3 /* _struct.c */; };
 		84DFB9D11A5D8F9B00EBC872 /* _testbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EA016AFD3C500B69AF3 /* _testbuffer.c */; };
 		84DFB9D21A5D8F9B00EBC872 /* _testcapimodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EA116AFD3C500B69AF3 /* _testcapimodule.c */; };
-		84DFB9D31A5D8F9B00EBC872 /* _testembed.c in Sources */ = {isa = PBXBuildFile; fileRef = 846708CA16AFCA6D00B69AF3 /* _testembed.c */; };
 		84DFB9D41A5D8F9B00EBC872 /* _threadmodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EA216AFD3C500B69AF3 /* _threadmodule.c */; };
 		84DFB9D51A5D8F9B00EBC872 /* _weakref.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EA316AFD3C500B69AF3 /* _weakref.c */; };
 		84DFB9D61A5D8F9B00EBC872 /* arraymodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EA416AFD3C500B69AF3 /* arraymodule.c */; };
@@ -1205,7 +1212,6 @@
 		84DFBA0D1A5D8F9C00EBC872 /* _struct.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670E9F16AFD3C500B69AF3 /* _struct.c */; };
 		84DFBA0E1A5D8F9C00EBC872 /* _testbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EA016AFD3C500B69AF3 /* _testbuffer.c */; };
 		84DFBA0F1A5D8F9C00EBC872 /* _testcapimodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EA116AFD3C500B69AF3 /* _testcapimodule.c */; };
-		84DFBA101A5D8F9C00EBC872 /* _testembed.c in Sources */ = {isa = PBXBuildFile; fileRef = 846708CA16AFCA6D00B69AF3 /* _testembed.c */; };
 		84DFBA111A5D8F9C00EBC872 /* _threadmodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EA216AFD3C500B69AF3 /* _threadmodule.c */; };
 		84DFBA121A5D8F9C00EBC872 /* _weakref.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EA316AFD3C500B69AF3 /* _weakref.c */; };
 		84DFBA131A5D8F9C00EBC872 /* arraymodule.c in Sources */ = {isa = PBXBuildFile; fileRef = 84670EA416AFD3C500B69AF3 /* arraymodule.c */; };
@@ -1547,6 +1553,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		84141F731A5EDA4600C92847 /* _opcode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _opcode.c; sourceTree = "<group>"; };
+		84141F741A5EDA4600C92847 /* _stat.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _stat.c; sourceTree = "<group>"; };
+		84141F861A5F91DA00C92847 /* Lib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Lib; path = ../Lib; sourceTree = "<group>"; };
 		842BC4BE17CF3A500063A717 /* pyconfig_android.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pyconfig_android.h; sourceTree = "<group>"; };
 		842BC4BF17CF3A500063A717 /* pyconfig_osx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pyconfig_osx.h; sourceTree = "<group>"; };
 		842BC4C017CF3A500063A717 /* pyconfig_win32.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pyconfig_win32.h; sourceTree = "<group>"; };
@@ -1662,7 +1671,6 @@
 		8467087B16AFCA1700B69AF3 /* unicodeobject.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = unicodeobject.c; sourceTree = "<group>"; };
 		8467087C16AFCA1700B69AF3 /* weakrefobject.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = weakrefobject.c; sourceTree = "<group>"; };
 		846708C716AFCA4F00B69AF3 /* frozen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = frozen.c; sourceTree = "<group>"; };
-		846708CA16AFCA6D00B69AF3 /* _testembed.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _testembed.c; sourceTree = "<group>"; };
 		846708CD16AFCAA500B69AF3 /* parsetok.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = parsetok.c; sourceTree = "<group>"; };
 		846708CE16AFCAA500B69AF3 /* tokenizer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tokenizer.c; sourceTree = "<group>"; };
 		8467094A16AFCBA000B69AF3 /* socketmodule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = socketmodule.c; sourceTree = "<group>"; };
@@ -1798,10 +1806,10 @@
 		8467116A16B1056B00B69AF3 /* dynload_shlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dynload_shlib.c; sourceTree = "<group>"; };
 		8467118616B1070B00B69AF3 /* config.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = config.c; sourceTree = "<group>"; };
 		8467118916B1071300B69AF3 /* pyconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pyconfig.h; sourceTree = "<group>"; };
-		8474A27B16AF8B2B00F004D5 /* libPython3.4_iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPython3.4_iOS.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8474A27B16AF8B2B00F004D5 /* libPython.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPython.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8479F24718FD6B0200829991 /* OpenSSL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OpenSSL.xcodeproj; path = ../OpenSSL/OpenSSL.xcodeproj; sourceTree = "<group>"; };
 		8479F25018FD6B0E00829991 /* ExtDeps.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ExtDeps.xcodeproj; path = ../ExtDeps/ExtDeps.xcodeproj; sourceTree = "<group>"; };
-		8479F3CE18FD6B3B00829991 /* libPython3.4_OSX.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPython3.4_OSX.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8479F3CE18FD6B3B00829991 /* libPython.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPython.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		848A7EAC16C203ED007F6822 /* _ctypes_test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _ctypes_test.c; sourceTree = "<group>"; };
 		849641D016C48B3500001919 /* _posixsubprocess.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _posixsubprocess.c; sourceTree = "<group>"; };
 		84AFC4201A5D90360049FD91 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -1839,8 +1847,8 @@
 		84DFB7C01A5D4DAF00EBC872 /* darwin64.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = darwin64.S; sourceTree = "<group>"; };
 		84DFB7C11A5D4DAF00EBC872 /* ffi.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ffi.c; sourceTree = "<group>"; };
 		84DFB7C21A5D4DAF00EBC872 /* ffi64.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ffi64.c; sourceTree = "<group>"; };
-		84DFB7EE1A5D8C1800EBC872 /* Python_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Python_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		84DFB80C1A5D8C4500EBC872 /* Python_OSX.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Python_OSX.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		84DFB7EE1A5D8C1800EBC872 /* Python.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Python.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		84DFB80C1A5D8C4500EBC872 /* Python.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Python.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		84E2694C16AF8F5500E408BD /* abstract.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = abstract.h; sourceTree = "<group>"; };
 		84E2694D16AF8F5500E408BD /* accu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = accu.h; sourceTree = "<group>"; };
 		84E2694E16AF8F5500E408BD /* asdl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asdl.h; sourceTree = "<group>"; };
@@ -1989,6 +1997,8 @@
 		8467073916AFC3D700B69AF3 /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				84141F731A5EDA4600C92847 /* _opcode.c */,
+				84141F741A5EDA4600C92847 /* _stat.c */,
 				84AFC4371A5E39370049FD91 /* hashtable.c */,
 				84AFC4381A5E39370049FD91 /* hashtable.h */,
 				84AFC4321A5E38BC0049FD91 /* _tracemalloc.c */,
@@ -2023,7 +2033,6 @@
 				84670E9F16AFD3C500B69AF3 /* _struct.c */,
 				84670EA016AFD3C500B69AF3 /* _testbuffer.c */,
 				84670EA116AFD3C500B69AF3 /* _testcapimodule.c */,
-				846708CA16AFCA6D00B69AF3 /* _testembed.c */,
 				84670EA216AFD3C500B69AF3 /* _threadmodule.c */,
 				84670EA316AFD3C500B69AF3 /* _weakref.c */,
 				84670EA416AFD3C500B69AF3 /* arraymodule.c */,
@@ -2217,6 +2226,7 @@
 		8474A24216AF8AA100F004D5 = {
 			isa = PBXGroup;
 			children = (
+				84141F861A5F91DA00C92847 /* Lib */,
 				84AFC4201A5D90360049FD91 /* LICENSE */,
 				84AFC4211A5D90360049FD91 /* Python_iOS-Info.plist */,
 				84AFC4221A5D90360049FD91 /* Python_OSX-Info.plist */,
@@ -2237,10 +2247,10 @@
 		8474A24E16AF8AA100F004D5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8474A27B16AF8B2B00F004D5 /* libPython3.4_iOS.a */,
-				8479F3CE18FD6B3B00829991 /* libPython3.4_OSX.a */,
-				84DFB7EE1A5D8C1800EBC872 /* Python_iOS.framework */,
-				84DFB80C1A5D8C4500EBC872 /* Python_OSX.framework */,
+				8474A27B16AF8B2B00F004D5 /* libPython.a */,
+				8479F3CE18FD6B3B00829991 /* libPython.a */,
+				84DFB7EE1A5D8C1800EBC872 /* Python.framework */,
+				84DFB80C1A5D8C4500EBC872 /* Python.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3185,7 +3195,7 @@
 			);
 			name = Python3.4_iOS;
 			productName = PythonCore;
-			productReference = 8474A27B16AF8B2B00F004D5 /* libPython3.4_iOS.a */;
+			productReference = 8474A27B16AF8B2B00F004D5 /* libPython.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		8479F25D18FD6B3B00829991 /* Python3.4_OSX */ = {
@@ -3204,7 +3214,7 @@
 			);
 			name = Python3.4_OSX;
 			productName = PythonCore;
-			productReference = 8479F3CE18FD6B3B00829991 /* libPython3.4_OSX.a */;
+			productReference = 8479F3CE18FD6B3B00829991 /* libPython.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		84DFB7ED1A5D8C1800EBC872 /* Python_iOS */ = {
@@ -3224,7 +3234,7 @@
 			);
 			name = Python_iOS;
 			productName = Python_iOS;
-			productReference = 84DFB7EE1A5D8C1800EBC872 /* Python_iOS.framework */;
+			productReference = 84DFB7EE1A5D8C1800EBC872 /* Python.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		84DFB80B1A5D8C4500EBC872 /* Python_OSX */ = {
@@ -3244,7 +3254,7 @@
 			);
 			name = Python_OSX;
 			productName = Python_OSX;
-			productReference = 84DFB80C1A5D8C4500EBC872 /* Python_OSX.framework */;
+			productReference = 84DFB80C1A5D8C4500EBC872 /* Python.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -3330,6 +3340,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84141F881A5F91DA00C92847 /* Lib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3337,6 +3348,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84141F871A5F91DA00C92847 /* Lib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3400,7 +3412,6 @@
 				846708C216AFCA1700B69AF3 /* unicodectype.c in Sources */,
 				846708C416AFCA1700B69AF3 /* unicodeobject.c in Sources */,
 				846708C616AFCA1700B69AF3 /* weakrefobject.c in Sources */,
-				846708CC16AFCA6D00B69AF3 /* _testembed.c in Sources */,
 				8467094F16AFCBA000B69AF3 /* socketmodule.c in Sources */,
 				84DFB7CA1A5D4DDC00EBC872 /* darwin64.S in Sources */,
 				84670DBE16AFCBB400B69AF3 /* multiprocessing.c in Sources */,
@@ -3446,6 +3457,7 @@
 				8467113C16B1017B00B69AF3 /* _codecsmodule.c in Sources */,
 				8467113E16B1017B00B69AF3 /* _collectionsmodule.c in Sources */,
 				8467114016B1017B00B69AF3 /* _csv.c in Sources */,
+				84141F761A5EDA4600C92847 /* _opcode.c in Sources */,
 				8467114716B1023900B69AF3 /* pyexpat.c in Sources */,
 				8467114916B1023900B69AF3 /* selectmodule.c in Sources */,
 				8467114D16B1025A00B69AF3 /* getbuildinfo.c in Sources */,
@@ -3509,6 +3521,7 @@
 				846713E616B2301200B69AF3 /* ast.c in Sources */,
 				846713E716B2301200B69AF3 /* bltinmodule.c in Sources */,
 				846713E816B2301200B69AF3 /* ceval.c in Sources */,
+				84141F7A1A5EDA4600C92847 /* _stat.c in Sources */,
 				846713EA16B2301200B69AF3 /* codecs.c in Sources */,
 				846713EB16B2301200B69AF3 /* compile.c in Sources */,
 				846713ED16B2301200B69AF3 /* dtoa.c in Sources */,
@@ -3615,6 +3628,7 @@
 				8479F28618FD6B3B00829991 /* marshal.c in Sources */,
 				8479F28718FD6B3B00829991 /* modsupport.c in Sources */,
 				8479F28818FD6B3B00829991 /* mystrtoul.c in Sources */,
+				84141F791A5EDA4600C92847 /* _stat.c in Sources */,
 				8479F28918FD6B3B00829991 /* peephole.c in Sources */,
 				8479F28A18FD6B3B00829991 /* pyarena.c in Sources */,
 				8479F28B18FD6B3B00829991 /* pyfpe.c in Sources */,
@@ -3671,7 +3685,6 @@
 				8479F2BD18FD6B3B00829991 /* unicodeobject.c in Sources */,
 				8479F2BE18FD6B3B00829991 /* weakrefobject.c in Sources */,
 				8479F2BF18FD6B3B00829991 /* frozen.c in Sources */,
-				8479F2C018FD6B3B00829991 /* _testembed.c in Sources */,
 				8446F11C18FD73B50014D21A /* myreadline.c in Sources */,
 				8479F2C118FD6B3B00829991 /* socketmodule.c in Sources */,
 				8479F2C218FD6B3B00829991 /* multiprocessing.c in Sources */,
@@ -3723,6 +3736,7 @@
 				8479F2EE18FD6B3B00829991 /* md5module.c in Sources */,
 				8479F2EF18FD6B3B00829991 /* mmapmodule.c in Sources */,
 				8479F2F118FD6B3B00829991 /* parsermodule.c in Sources */,
+				84141F751A5EDA4600C92847 /* _opcode.c in Sources */,
 				8479F2F218FD6B3B00829991 /* posixmodule.c in Sources */,
 				8479F2F318FD6B3B00829991 /* rotatingtree.c in Sources */,
 				8479F2F418FD6B3B00829991 /* sha1module.c in Sources */,
@@ -3795,7 +3809,6 @@
 				84DFBA061A5D8F9C00EBC872 /* _math.c in Sources */,
 				84DFBA2F1A5D8F9C00EBC872 /* timemodule.c in Sources */,
 				84AFC3E11A5D8FFE0049FD91 /* pystate.c in Sources */,
-				84DFBA101A5D8F9C00EBC872 /* _testembed.c in Sources */,
 				84DFBA5C1A5D8FB600EBC872 /* memoryobject.c in Sources */,
 				84DFBA081A5D8F9C00EBC872 /* _pickle.c in Sources */,
 				84AFC3DE1A5D8FFE0049FD91 /* pyctype.c in Sources */,
@@ -3891,6 +3904,7 @@
 				84DFBA471A5D8FB600EBC872 /* boolobject.c in Sources */,
 				84DFB9FA1A5D8F9C00EBC872 /* _bz2module.c in Sources */,
 				84AFC3BD1A5D8FFE0049FD91 /* bltinmodule.c in Sources */,
+				84141F781A5EDA4600C92847 /* _opcode.c in Sources */,
 				84DFB9A11A5D8F8A00EBC872 /* _codecs_hk.c in Sources */,
 				84AFC3C81A5D8FFE0049FD91 /* formatter_unicode.c in Sources */,
 				84AFC3E31A5D8FFE0049FD91 /* pystrtod.c in Sources */,
@@ -3954,6 +3968,7 @@
 				84AFC3CA1A5D8FFE0049FD91 /* frozenmain.c in Sources */,
 				84DFB91C1A5D8F4B00EBC872 /* ffi.c in Sources */,
 				84DFB9841A5D8F8300EBC872 /* module.c in Sources */,
+				84141F7C1A5EDA4600C92847 /* _stat.c in Sources */,
 				84AFC3D71A5D8FFE0049FD91 /* marshal.c in Sources */,
 				84DFB9861A5D8F8300EBC872 /* prepare_protocol.c in Sources */,
 				84DFBAA51A5D8FBF00EBC872 /* grammar1.c in Sources */,
@@ -4060,6 +4075,7 @@
 				84DFB9F31A5D8F9C00EBC872 /* unicodedata.c in Sources */,
 				84DFB9761A5D8F7C00EBC872 /* multiprocessing.c in Sources */,
 				84DFB9C81A5D8F9B00EBC872 /* _lsprof.c in Sources */,
+				84141F7B1A5EDA4600C92847 /* _stat.c in Sources */,
 				84AFC3F41A5D8FFF0049FD91 /* compile.c in Sources */,
 				84DFB9161A5D8F4A00EBC872 /* darwin.S in Sources */,
 				84DFB9A91A5D8F8B00EBC872 /* _codecs_iso2022.c in Sources */,
@@ -4125,7 +4141,6 @@
 				84DFB9F11A5D8F9C00EBC872 /* symtablemodule.c in Sources */,
 				84DFBA821A5D8FB700EBC872 /* longobject.c in Sources */,
 				84DFB9EC1A5D8F9C00EBC872 /* sha256module.c in Sources */,
-				84DFB9D31A5D8F9B00EBC872 /* _testembed.c in Sources */,
 				84DFB96A1A5D8F7500EBC872 /* fileio.c in Sources */,
 				84DFB9D91A5D8F9B00EBC872 /* binascii.c in Sources */,
 				84DFB99A1A5D8F8400EBC872 /* row.c in Sources */,
@@ -4168,6 +4183,7 @@
 				84DFB96C1A5D8F7500EBC872 /* stringio.c in Sources */,
 				84DFBA9A1A5D8FBF00EBC872 /* myreadline.c in Sources */,
 				84DFBA931A5D8FBF00EBC872 /* acceler.c in Sources */,
+				84141F771A5EDA4600C92847 /* _opcode.c in Sources */,
 				84AFC4111A5D8FFF0049FD91 /* pyctype.c in Sources */,
 				84DFBA951A5D8FBF00EBC872 /* firstsets.c in Sources */,
 				84DFBA6E1A5D8FB700EBC872 /* boolobject.c in Sources */,
@@ -4294,7 +4310,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 3.4.2;
+				DYLIB_COMPATIBILITY_VERSION = 3.4;
+				DYLIB_CURRENT_VERSION = 3.4.2;
 				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_VERSION = 3.4.2;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -4345,7 +4364,10 @@
 				COPY_PHASE_STRIP = YES;
 				CURRENT_PROJECT_VERSION = 3.4.2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 3.4;
+				DYLIB_CURRENT_VERSION = 3.4.2;
 				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_VERSION = 3.4.2;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
@@ -4384,6 +4406,7 @@
 			buildSettings = {
 				MACH_O_TYPE = staticlib;
 				OTHER_CFLAGS = "-no-integrated-as";
+				PRODUCT_NAME = Python;
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -4393,6 +4416,7 @@
 			buildSettings = {
 				MACH_O_TYPE = staticlib;
 				OTHER_CFLAGS = "-no-integrated-as";
+				PRODUCT_NAME = Python;
 				SDKROOT = iphoneos;
 			};
 			name = Release;
@@ -4403,6 +4427,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				MACH_O_TYPE = staticlib;
+				PRODUCT_NAME = Python;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -4413,6 +4438,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				MACH_O_TYPE = staticlib;
+				PRODUCT_NAME = Python;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -4424,12 +4450,11 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_PREFIX = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -4440,7 +4465,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Python;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -4456,13 +4481,12 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_PREFIX = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
@@ -4471,7 +4495,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = Python;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -4492,11 +4517,13 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_VERSION = A;
+				EXECUTABLE_PREFIX = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					Py_ENABLE_SHARED,
+				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -4508,7 +4535,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Python;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -4528,12 +4555,14 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_VERSION = A;
+				EXECUTABLE_PREFIX = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					Py_ENABLE_SHARED,
+				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -4543,7 +4572,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Python;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";

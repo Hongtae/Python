@@ -1224,6 +1224,8 @@
 #define SIZEOF__BOOL		1
 #if defined (__i386__) || defined (__x86_64__)
 #define SIZEOF_LONG_DOUBLE	16
+#elif defined(__arm64__)
+#define SIZEOF_LONG_DOUBLE	16
 #elif defined(__arm__)
 #define SIZEOF_LONG_DOUBLE	8
 #else

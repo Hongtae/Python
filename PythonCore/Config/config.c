@@ -11,6 +11,7 @@ extern PyObject* PyInit_binascii(void);
 extern PyObject* PyInit_cmath(void);
 extern PyObject* PyInit_errno(void);
 extern PyObject* PyInit_faulthandler(void);
+extern PyObject* PyInit__tracemalloc(void);
 extern PyObject* PyInit_gc(void);
 extern PyObject* PyInit_math(void);
 extern PyObject* PyInit__md5(void);
@@ -44,7 +45,7 @@ extern PyObject* PyInit__functools(void);
 extern PyObject* PyInit__json(void);
 extern PyObject* PyInit_zlib(void);
 
-// 2013-01-18 by tiff
+/* 2015-01-09 by tiff2766 - BEGIN */
 extern PyObject* PyInit_pyexpat(void);
 extern PyObject* PyInit_unicodedata(void);
 extern PyObject* PyInit_select(void);
@@ -67,11 +68,12 @@ extern PyObject* PyInit__locale(void);
 extern PyObject* PyInit_msvcrt(void);
 extern PyObject* PyInit_winreg(void);
 extern PyObject* PyInit__winapi(void);
+extern PyObject* PyInit__overlapped(void);
 #else
 extern PyObject* PyInit_posix(void);
 extern PyObject* PyInit__posixsubprocess(void);
 #endif
-//
+/* 2015-01-09 by tiff2766 - END */
 
 extern PyObject* PyInit__multibytecodec(void);
 extern PyObject* PyInit__codecs_cn(void);
@@ -87,6 +89,8 @@ extern PyObject* PyInit__pickle(void);
 extern PyObject* PyInit_atexit(void);
 extern PyObject* _PyWarnings_Init(void);
 extern PyObject* PyInit__string(void);
+extern PyObject* PyInit__stat(void);
+extern PyObject* PyInit__opcode(void);
 
 /* tools/freeze/makeconfig.py marker for additional "extern" */
 /* -- ADDMODULE MARKER 1 -- */
@@ -106,7 +110,7 @@ struct _inittab _PyImport_Inittab[] = {
     {"gc", PyInit_gc},
     {"math", PyInit_math},
 
-    {"operator", PyInit__operator},
+    {"_operator", PyInit__operator},
     {"signal", PyInit_signal},
     {"_md5", PyInit__md5},
     {"_sha1", PyInit__sha1},
@@ -116,6 +120,7 @@ struct _inittab _PyImport_Inittab[] = {
 #ifdef WITH_THREAD
     {"_thread", PyInit__thread},
 #endif
+	{"_tracemalloc", PyInit__tracemalloc},
 
 	{"_codecs", PyInit__codecs},
     {"_weakref", PyInit__weakref},
@@ -139,7 +144,7 @@ struct _inittab _PyImport_Inittab[] = {
     {"zipimport", PyInit_zipimport},
     {"zlib", PyInit_zlib},
 
-	// 2013-01-18 by tiff
+	/* 2013-01-18 by tiff - BEGIN */
 	{"pyexpat", PyInit_pyexpat},
 	{"unicodedata", PyInit_unicodedata},
 	{"select", PyInit_select},
@@ -163,11 +168,12 @@ struct _inittab _PyImport_Inittab[] = {
 	{"msvcrt", PyInit_msvcrt},
 	{"winreg", PyInit_winreg},
 	{"_locale", PyInit__locale},
+	{"_overlapped", PyInit__overlapped},
 #else
 	{"posix", PyInit_posix},
     {"_posixsubprocess", PyInit__posixsubprocess},
 #endif
-	// end
+	/* 2013-01-18 by tiff - END */
 
     /* CJK codecs */
     {"_multibytecodec", PyInit__multibytecodec},
@@ -196,6 +202,8 @@ struct _inittab _PyImport_Inittab[] = {
     {"_io", PyInit__io},
     {"_pickle", PyInit__pickle},
     {"atexit", PyInit_atexit},
+	{"_stat", PyInit__stat},
+	{"_opcode", PyInit__opcode},
 
     /* Sentinel */
     {0, 0}

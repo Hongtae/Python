@@ -1463,8 +1463,8 @@
 		842BC4A717CF30770063A717 /* x509v3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x509v3.h; sourceTree = "<group>"; };
 		848A7EAF16C212AE007F6822 /* bf_enc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bf_enc.c; sourceTree = "<group>"; };
 		84AFC4411A5E39C10049FD91 /* s3_cbc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = s3_cbc.c; sourceTree = "<group>"; };
-		84C45F2615A9199E000A0982 /* libOpenSSL_OSX.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOpenSSL_OSX.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		84C45F2715A9199E000A0982 /* libOpenSSL_iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOpenSSL_iOS.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		84C45F2615A9199E000A0982 /* libOpenSSL.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOpenSSL.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		84C45F2715A9199E000A0982 /* libOpenSSL.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOpenSSL.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		84D3947B16C1FEFF00310B96 /* e_gost_err.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = e_gost_err.c; sourceTree = "<group>"; };
 		84D3947C16C1FEFF00310B96 /* gost_ameth.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gost_ameth.c; sourceTree = "<group>"; };
 		84D3947D16C1FEFF00310B96 /* gost_asn1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gost_asn1.c; sourceTree = "<group>"; };
@@ -2336,8 +2336,8 @@
 		84C45F2815A919A7000A0982 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				84C45F2615A9199E000A0982 /* libOpenSSL_OSX.a */,
-				84C45F2715A9199E000A0982 /* libOpenSSL_iOS.a */,
+				84C45F2615A9199E000A0982 /* libOpenSSL.a */,
+				84C45F2715A9199E000A0982 /* libOpenSSL.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3497,7 +3497,7 @@
 			);
 			name = OpenSSL_iOS;
 			productName = IGLibExternal;
-			productReference = 84C45F2715A9199E000A0982 /* libOpenSSL_iOS.a */;
+			productReference = 84C45F2715A9199E000A0982 /* libOpenSSL.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		D2AAC045055464E500DB518D /* OpenSSL_OSX */ = {
@@ -3514,7 +3514,7 @@
 			);
 			name = OpenSSL_OSX;
 			productName = IGLibExternal;
-			productReference = 84C45F2615A9199E000A0982 /* libOpenSSL_OSX.a */;
+			productReference = 84C45F2615A9199E000A0982 /* libOpenSSL.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -4932,7 +4932,7 @@
 					build,
 				);
 				ONLY_ACTIVE_ARCH = NO;
-				PRODUCT_NAME = "${TARGET_NAME}";
+				PRODUCT_NAME = OpenSSL;
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -4977,7 +4977,7 @@
 					include,
 					build,
 				);
-				PRODUCT_NAME = "${TARGET_NAME}";
+				PRODUCT_NAME = OpenSSL;
 				SKIP_INSTALL = YES;
 				VALIDATE_PRODUCT = YES;
 			};

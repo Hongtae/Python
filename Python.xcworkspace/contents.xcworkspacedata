@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:PythonCore/Python3.xcodeproj">
+      location = "group:Python/Python3.xcodeproj">
    </FileRef>
 </Workspace>

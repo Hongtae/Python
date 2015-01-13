@@ -37,8 +37,11 @@
     <Filter Include="Python">
       <UniqueIdentifier>{b9e8c323-68e2-40d6-b50a-e8c0dcf49921}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Include\config">
-      <UniqueIdentifier>{10f4be82-6c49-465d-a3f3-cd249daafae3}</UniqueIdentifier>
+    <Filter Include="Config">
+      <UniqueIdentifier>{c017e68c-9e6b-4c0c-b0a2-0b674904d0cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Win32">
+      <UniqueIdentifier>{72af5262-2ea1-4071-a6fe-658ef3123953}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -489,24 +492,23 @@
     <ClInclude Include="Python\thread_nt.h">
       <Filter>Python</Filter>
     </ClInclude>
-    <ClInclude Include="Include\namespaceobject.h" />
     <ClInclude Include="Include\pyconfig.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="Include\config\android.h">
-      <Filter>Include\config</Filter>
+    <ClInclude Include="Config\pyconfig.h">
+      <Filter>Config</Filter>
     </ClInclude>
-    <ClInclude Include="Include\config\android_syscall.h">
-      <Filter>Include\config</Filter>
+    <ClInclude Include="Config\pyconfig_win32.h">
+      <Filter>Config</Filter>
     </ClInclude>
-    <ClInclude Include="Include\config\pyconfig_android.h">
-      <Filter>Include\config</Filter>
+    <ClInclude Include="Include\namespaceobject.h">
+      <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="Include\config\pyconfig_osx.h">
-      <Filter>Include\config</Filter>
+    <ClInclude Include="Win32\errmap.h">
+      <Filter>Win32</Filter>
     </ClInclude>
-    <ClInclude Include="Include\config\pyconfig_win32.h">
-      <Filter>Include\config</Filter>
+    <ClInclude Include="Modules\hashtable.h">
+      <Filter>Modules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -622,9 +624,6 @@
       <Filter>Modules</Filter>
     </ClCompile>
     <ClCompile Include="Modules\mmapmodule.c">
-      <Filter>Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\operator.c">
       <Filter>Modules</Filter>
     </ClCompile>
     <ClCompile Include="Modules\parsermodule.c">
@@ -1110,16 +1109,51 @@
     <ClCompile Include="Python\traceback.c">
       <Filter>Python</Filter>
     </ClCompile>
-    <ClCompile Include="Modules\getbuildinfo.c" />
-    <ClCompile Include="Objects\namespaceobject.c" />
-    <ClCompile Include="config.c" />
-    <ClCompile Include="getpathp.c" />
     <ClCompile Include="Modules\_winapi.c">
       <Filter>Modules</Filter>
     </ClCompile>
-    <ClCompile Include="winreg.c" />
-    <ClCompile Include="msvcrtmodule.c" />
-    <ClCompile Include="dl_nt.c" />
+    <ClCompile Include="Modules\_operator.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Config\config.c">
+      <Filter>Config</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\namespaceobject.c">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\winreg.c">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\msvcrtmodule.c">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\getpathp.c">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\dl_nt.c">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_tracemalloc.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_stat.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\getbuildinfo.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_opcode.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\hashtable.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Python\pyhash.c">
+      <Filter>Python</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\overlapped.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Modules\_decimal\README.txt">

@@ -35,6 +35,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Config\pyconfig.h" />
+    <ClInclude Include="Config\pyconfig_win32.h" />
     <ClInclude Include="Include\abstract.h" />
     <ClInclude Include="Include\accu.h" />
     <ClInclude Include="Include\asdl.h" />
@@ -51,11 +53,6 @@
     <ClInclude Include="Include\codecs.h" />
     <ClInclude Include="Include\compile.h" />
     <ClInclude Include="Include\complexobject.h" />
-    <ClInclude Include="Include\config\android.h" />
-    <ClInclude Include="Include\config\android_syscall.h" />
-    <ClInclude Include="Include\config\pyconfig_android.h" />
-    <ClInclude Include="Include\config\pyconfig_osx.h" />
-    <ClInclude Include="Include\config\pyconfig_win32.h" />
     <ClInclude Include="Include\datetime.h" />
     <ClInclude Include="Include\descrobject.h" />
     <ClInclude Include="Include\dictobject.h" />
@@ -143,6 +140,7 @@
     <ClInclude Include="Modules\expat\internal.h" />
     <ClInclude Include="Modules\expat\xmlrole.h" />
     <ClInclude Include="Modules\expat\xmltok.h" />
+    <ClInclude Include="Modules\hashtable.h" />
     <ClInclude Include="Modules\rotatingtree.h" />
     <ClInclude Include="Modules\socketmodule.h" />
     <ClInclude Include="Modules\unicodedata_db.h" />
@@ -191,11 +189,18 @@
     <ClInclude Include="Python\condvar.h" />
     <ClInclude Include="Python\importdl.h" />
     <ClInclude Include="Python\thread_nt.h" />
+    <ClInclude Include="Win32\errmap.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="config.c" />
-    <ClCompile Include="dl_nt.c" />
-    <ClCompile Include="getpathp.c" />
+    <ClCompile Include="Config\config.c" />
+    <ClCompile Include="Modules\hashtable.c" />
+    <ClCompile Include="Modules\overlapped.c" />
+    <ClCompile Include="Modules\_opcode.c" />
+    <ClCompile Include="Modules\_stat.c" />
+    <ClCompile Include="Modules\_tracemalloc.c" />
+    <ClCompile Include="Python\pyhash.c" />
+    <ClCompile Include="Win32\dl_nt.c" />
+    <ClCompile Include="Win32\getpathp.c" />
     <ClCompile Include="Modules\arraymodule.c" />
     <ClCompile Include="Modules\atexitmodule.c" />
     <ClCompile Include="Modules\audioop.c" />
@@ -220,7 +225,7 @@
     <ClCompile Include="Modules\mathmodule.c" />
     <ClCompile Include="Modules\md5module.c" />
     <ClCompile Include="Modules\mmapmodule.c" />
-    <ClCompile Include="Modules\operator.c" />
+    <ClCompile Include="Modules\_operator.c" />
     <ClCompile Include="Modules\parsermodule.c" />
     <ClCompile Include="Modules\posixmodule.c" />
     <ClCompile Include="Modules\pyexpat.c" />
@@ -309,7 +314,7 @@
     <ClCompile Include="Modules\_threadmodule.c" />
     <ClCompile Include="Modules\_weakref.c" />
     <ClCompile Include="Modules\_winapi.c" />
-    <ClCompile Include="msvcrtmodule.c" />
+    <ClCompile Include="Win32\msvcrtmodule.c" />
     <ClCompile Include="Objects\abstract.c" />
     <ClCompile Include="Objects\accu.c" />
     <ClCompile Include="Objects\boolobject.c" />
@@ -405,7 +410,7 @@
     <ClCompile Include="Python\thread.c" />
     <ClCompile Include="Python\traceback.c" />
     <ClCompile Include="Python\_warnings.c" />
-    <ClCompile Include="winreg.c" />
+    <ClCompile Include="Win32\winreg.c" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Modules\_decimal\README.txt" />
@@ -565,7 +570,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Build\Intermediates\$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python33_static_d</TargetName>
+    <TargetName>python34_static_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|Win32'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
@@ -575,7 +580,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Build\Intermediates\$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python33_static</TargetName>
+    <TargetName>python34_static</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|Win32'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
@@ -585,7 +590,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Build\Intermediates\$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python33_static_d</TargetName>
+    <TargetName>python34_static_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|x64'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
@@ -595,7 +600,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Build\Intermediates\$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python33_static</TargetName>
+    <TargetName>python34_static</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|x64'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
@@ -608,8 +613,8 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_LIB;Py_BUILD_CORE;Py_NO_ENABLE_SHARED;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../ExtDeps/zlib;../ExtDeps/bzip2;../ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;Py_NO_ENABLE_SHARED;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./Config;./Win32;./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../zlib/zlib;../bzip2/bzip2;../sqlite/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
@@ -617,7 +622,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>ws2_32.lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>ws2_32.lib;crypt32.lib</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|Win32'">
@@ -626,14 +631,14 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../ExtDeps/zlib;../ExtDeps/bzip2;../ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./Config;./Win32;./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../zlib/zlib;../bzip2/bzip2;../sqlite/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>ws2_32.lib</AdditionalLibraryDirectories>
@@ -645,8 +650,8 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_LIB;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;Py_BUILD_CORE;Py_NO_ENABLE_SHARED</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../ExtDeps/zlib;../ExtDeps/bzip2;../ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;Py_NO_ENABLE_SHARED;DEBUG;_DEBUG</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./Config;./Win32;./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../zlib/zlib;../bzip2/bzip2;../sqlite/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
@@ -654,8 +659,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>ws2_32.lib;crypt32.lib</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|x64'">
@@ -664,14 +668,14 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_LIB;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;Py_BUILD_CORE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../ExtDeps/zlib;../ExtDeps/bzip2;../ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./Config;./Win32;./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../zlib/zlib;../bzip2/bzip2;../sqlite/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>
@@ -686,8 +690,8 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_NDEBUG;_LIB;Py_BUILD_CORE;Py_NO_ENABLE_SHARED;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../ExtDeps/zlib;../ExtDeps/bzip2;../ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;Py_NO_ENABLE_SHARED;NDEBUG;_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./Config;./Win32;./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../zlib/zlib;../bzip2/bzip2;../sqlite/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
@@ -697,7 +701,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>ws2_32.lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>ws2_32.lib;crypt32.lib</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|Win32'">
@@ -708,8 +712,8 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_NDEBUG;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../ExtDeps/zlib;../ExtDeps/bzip2;../ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;NDEBUG;_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./Config;./Win32;./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../zlib/zlib;../bzip2/bzip2;../sqlite/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
@@ -717,7 +721,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>ws2_32.lib</AdditionalLibraryDirectories>
@@ -731,8 +735,8 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_NDEBUG;_LIB;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;Py_BUILD_CORE;Py_NO_ENABLE_SHARED</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../ExtDeps/zlib;../ExtDeps/bzip2;../ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;Py_NO_ENABLE_SHARED;NDEBUG;_NDEBUG</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./Config;./Win32;./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../zlib/zlib;../bzip2/bzip2;../sqlite/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
@@ -742,7 +746,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>ws2_32.lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>ws2_32.lib;crypt32.lib</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|x64'">
@@ -753,8 +757,8 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_NDEBUG;_LIB;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;Py_BUILD_CORE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../ExtDeps/zlib;../ExtDeps/bzip2;../ExtDeps/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;NDEBUG;_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./Config;./Win32;./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../zlib/zlib;../bzip2/bzip2;../sqlite/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
@@ -762,7 +766,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>ws2_32.lib</AdditionalLibraryDirectories>

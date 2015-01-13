@@ -89,7 +89,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>./include;./build</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_LIB;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;OPENSSL_THREADS;OPENSSL_NO_RC5;OPENSSL_NO_MD2;OPENSSL_NO_KRB5;OPENSSL_NO_JPAKE;OPENSSL_NO_DYNAMIC_ENGINE;OPENSSL_NO_HW;NO_WINDOWS_BRAINDEATH;DEBUG=1;_DEBUG=1</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_LIB;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;OPENSSL_THREADS;OPENSSL_NO_RC5;OPENSSL_NO_MD2;OPENSSL_NO_KRB5;OPENSSL_NO_JPAKE;OPENSSL_NO_DYNAMIC_ENGINE;OPENSSL_NO_HW;OPENSSL_NO_ASM;NO_WINDOWS_BRAINDEATH;DEBUG=1;_DEBUG=1</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -109,7 +109,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>./include;./build</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_LIB;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;OPENSSL_THREADS;OPENSSL_NO_RC5;OPENSSL_NO_MD2;OPENSSL_NO_KRB5;OPENSSL_NO_JPAKE;OPENSSL_NO_DYNAMIC_ENGINE;OPENSSL_NO_HW;NO_WINDOWS_BRAINDEATH;DEBUG=1;_DEBUG=1</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_LIB;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;OPENSSL_THREADS;OPENSSL_NO_RC5;OPENSSL_NO_MD2;OPENSSL_NO_KRB5;OPENSSL_NO_JPAKE;OPENSSL_NO_DYNAMIC_ENGINE;OPENSSL_NO_HW;OPENSSL_NO_ASM;NO_WINDOWS_BRAINDEATH;DEBUG=1;_DEBUG=1</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -125,7 +125,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>./include;./build</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_LIB;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;OPENSSL_THREADS;OPENSSL_NO_RC5;OPENSSL_NO_MD2;OPENSSL_NO_KRB5;OPENSSL_NO_JPAKE;OPENSSL_NO_DYNAMIC_ENGINE;OPENSSL_NO_HW;NO_WINDOWS_BRAINDEATH;NDEBUG=1;_NDEBUG=1</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_LIB;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;OPENSSL_THREADS;OPENSSL_NO_RC5;OPENSSL_NO_MD2;OPENSSL_NO_KRB5;OPENSSL_NO_JPAKE;OPENSSL_NO_DYNAMIC_ENGINE;OPENSSL_NO_HW;OPENSSL_NO_ASM;NO_WINDOWS_BRAINDEATH;NDEBUG=1;_NDEBUG=1</PreprocessorDefinitions>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -145,7 +145,7 @@
     </Midl>
     <ClCompile>
       <AdditionalIncludeDirectories>./include;./build</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_LIB;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;OPENSSL_THREADS;OPENSSL_NO_RC5;OPENSSL_NO_MD2;OPENSSL_NO_KRB5;OPENSSL_NO_JPAKE;OPENSSL_NO_DYNAMIC_ENGINE;OPENSSL_NO_HW;NO_WINDOWS_BRAINDEATH;NDEBUG=1;_NDEBUG=1</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_LIB;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;OPENSSL_THREADS;OPENSSL_NO_RC5;OPENSSL_NO_MD2;OPENSSL_NO_KRB5;OPENSSL_NO_JPAKE;OPENSSL_NO_DYNAMIC_ENGINE;OPENSSL_NO_HW;OPENSSL_NO_ASM;NO_WINDOWS_BRAINDEATH;NDEBUG=1;_NDEBUG=1</PreprocessorDefinitions>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -514,10 +514,8 @@
     <ClCompile Include="crypto\krb5\krb5_asn.c" />
     <ClCompile Include="crypto\lhash\lhash.c" />
     <ClCompile Include="crypto\lhash\lh_stats.c" />
-    <ClCompile Include="crypto\md4\md4.c" />
     <ClCompile Include="crypto\md4\md4_dgst.c" />
     <ClCompile Include="crypto\md4\md4_one.c" />
-    <ClCompile Include="crypto\md5\md5.c" />
     <ClCompile Include="crypto\md5\md5_dgst.c" />
     <ClCompile Include="crypto\md5\md5_one.c" />
     <ClCompile Include="crypto\mdc2\mdc2dgst.c" />
@@ -629,8 +627,6 @@
     <ClCompile Include="crypto\seed\seed_cfb.c" />
     <ClCompile Include="crypto\seed\seed_ecb.c" />
     <ClCompile Include="crypto\seed\seed_ofb.c" />
-    <ClCompile Include="crypto\sha\sha.c" />
-    <ClCompile Include="crypto\sha\sha1.c" />
     <ClCompile Include="crypto\sha\sha1dgst.c" />
     <ClCompile Include="crypto\sha\sha1_one.c" />
     <ClCompile Include="crypto\sha\sha256.c" />
@@ -768,6 +764,7 @@
     <ClCompile Include="ssl\s2_pkt.c" />
     <ClCompile Include="ssl\s2_srvr.c" />
     <ClCompile Include="ssl\s3_both.c" />
+    <ClCompile Include="ssl\s3_cbc.c" />
     <ClCompile Include="ssl\s3_clnt.c" />
     <ClCompile Include="ssl\s3_enc.c" />
     <ClCompile Include="ssl\s3_lib.c" />
@@ -792,6 +789,9 @@
     <ClCompile Include="ssl\t1_reneg.c" />
     <ClCompile Include="ssl\t1_srvr.c" />
     <ClCompile Include="ssl\tls_srp.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\openssl\opensslconf.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

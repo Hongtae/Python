@@ -1626,12 +1626,6 @@
     <ClCompile Include="crypto\srp\srp_vfy.c">
       <Filter>crypto\srp</Filter>
     </ClCompile>
-    <ClCompile Include="crypto\sha\sha.c">
-      <Filter>crypto\sha</Filter>
-    </ClCompile>
-    <ClCompile Include="crypto\sha\sha1.c">
-      <Filter>crypto\sha</Filter>
-    </ClCompile>
     <ClCompile Include="crypto\sha\sha1dgst.c">
       <Filter>crypto\sha</Filter>
     </ClCompile>
@@ -1667,9 +1661,6 @@
     </ClCompile>
     <ClCompile Include="crypto\cmac\cm_pmeth.c">
       <Filter>crypto\cmac</Filter>
-    </ClCompile>
-    <ClCompile Include="crypto\md5\md5.c">
-      <Filter>crypto\md5</Filter>
     </ClCompile>
     <ClCompile Include="crypto\md5\md5_dgst.c">
       <Filter>crypto\md5</Filter>
@@ -1823,9 +1814,6 @@
     </ClCompile>
     <ClCompile Include="crypto\cast\c_skey.c">
       <Filter>crypto\cast</Filter>
-    </ClCompile>
-    <ClCompile Include="crypto\md4\md4.c">
-      <Filter>crypto\md4</Filter>
     </ClCompile>
     <ClCompile Include="crypto\md4\md4_dgst.c">
       <Filter>crypto\md4</Filter>
@@ -2064,5 +2052,11 @@
     <ClCompile Include="ssl\tls_srp.c">
       <Filter>ssl</Filter>
     </ClCompile>
+    <ClCompile Include="ssl\s3_cbc.c">
+      <Filter>ssl</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\openssl\opensslconf.h" />
   </ItemGroup>
 </Project>

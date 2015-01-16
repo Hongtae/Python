@@ -743,6 +743,12 @@
 		84CADABA1A6920590087774D /* pyconfig_osx.h in Headers */ = {isa = PBXBuildFile; fileRef = 842BC4BF17CF3A500063A717 /* pyconfig_osx.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		84CADABB1A69205A0087774D /* pyconfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 8467118916B1071300B69AF3 /* pyconfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		84CADABC1A69205A0087774D /* pyconfig_osx.h in Headers */ = {isa = PBXBuildFile; fileRef = 842BC4BF17CF3A500063A717 /* pyconfig_osx.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		84CADAE91A696ABE0087774D /* libbzip2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 84909E9C1A6036E4004EB23B /* libbzip2.a */; };
+		84CADAEA1A696AC20087774D /* libsqlite.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 84909EAF1A60380B004EB23B /* libsqlite.a */; };
+		84CADAEB1A696AC70087774D /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 84909E891A60332F004EB23B /* libz.a */; };
+		84CADAEC1A696AD00087774D /* libbzip2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 84909E9E1A6036E4004EB23B /* libbzip2.a */; };
+		84CADAED1A696AD70087774D /* libsqlite.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 84909EB11A60380B004EB23B /* libsqlite.a */; };
+		84CADAEE1A696ADC0087774D /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 84909E8B1A60332F004EB23B /* libz.a */; };
 		84DFB7C41A5D4DBC00EBC872 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7A31A5D4DAE00EBC872 /* ffi.c */; };
 		84DFB7C51A5D4DBC00EBC872 /* sysv.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7A41A5D4DAE00EBC872 /* sysv.S */; };
 		84DFB7C61A5D4DC200EBC872 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7A61A5D4DAE00EBC872 /* ffi.c */; };
@@ -2044,6 +2050,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84CADAEC1A696AD00087774D /* libbzip2.a in Frameworks */,
+				84CADAED1A696AD70087774D /* libsqlite.a in Frameworks */,
+				84CADAEE1A696ADC0087774D /* libz.a in Frameworks */,
 				8446EF8218FD6EEE0014D21A /* libOpenSSL.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2052,6 +2061,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84CADAE91A696ABE0087774D /* libbzip2.a in Frameworks */,
+				84CADAEA1A696AC20087774D /* libsqlite.a in Frameworks */,
+				84CADAEB1A696AC70087774D /* libz.a in Frameworks */,
 				8446EF8718FD6F070014D21A /* libOpenSSL.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

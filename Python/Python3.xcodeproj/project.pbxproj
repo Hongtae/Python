@@ -17,8 +17,8 @@
 		84141F7C1A5EDA4600C92847 /* _stat.c in Sources */ = {isa = PBXBuildFile; fileRef = 84141F741A5EDA4600C92847 /* _stat.c */; };
 		84141F871A5F91DA00C92847 /* Lib in Resources */ = {isa = PBXBuildFile; fileRef = 84141F861A5F91DA00C92847 /* Lib */; };
 		84141F881A5F91DA00C92847 /* Lib in Resources */ = {isa = PBXBuildFile; fileRef = 84141F861A5F91DA00C92847 /* Lib */; };
-		8446EF8218FD6EEE0014D21A /* libOpenSSL_iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F24F18FD6B0300829991 /* libOpenSSL_iOS.a */; };
-		8446EF8718FD6F070014D21A /* libOpenSSL_OSX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F24D18FD6B0300829991 /* libOpenSSL_OSX.a */; };
+		8446EF8218FD6EEE0014D21A /* libOpenSSL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F24F18FD6B0300829991 /* libOpenSSL.a */; };
+		8446EF8718FD6F070014D21A /* libOpenSSL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F24D18FD6B0300829991 /* libOpenSSL.a */; };
 		8446F11C18FD73B50014D21A /* myreadline.c in Sources */ = {isa = PBXBuildFile; fileRef = 8446F11A18FD73B50014D21A /* myreadline.c */; };
 		8446F11E18FD73B50014D21A /* myreadline.c in Sources */ = {isa = PBXBuildFile; fileRef = 8446F11A18FD73B50014D21A /* myreadline.c */; };
 		846489E416B27148000159C4 /* unicodetype_db.h in Headers */ = {isa = PBXBuildFile; fileRef = 84670EEA16AFD4A600B69AF3 /* unicodetype_db.h */; };
@@ -739,6 +739,10 @@
 		84AFC4471A5E3B030049FD91 /* win32.S in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4441A5E3B030049FD91 /* win32.S */; };
 		84AFC4481A5E3B030049FD91 /* win32.S in Sources */ = {isa = PBXBuildFile; fileRef = 84AFC4441A5E3B030049FD91 /* win32.S */; };
 		84B26DA71779F12700CDFB77 /* getplatform.c in Sources */ = {isa = PBXBuildFile; fileRef = 84B26DA51779F12700CDFB77 /* getplatform.c */; };
+		84CADAB91A6920590087774D /* pyconfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 8467118916B1071300B69AF3 /* pyconfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		84CADABA1A6920590087774D /* pyconfig_osx.h in Headers */ = {isa = PBXBuildFile; fileRef = 842BC4BF17CF3A500063A717 /* pyconfig_osx.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		84CADABB1A69205A0087774D /* pyconfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 8467118916B1071300B69AF3 /* pyconfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		84CADABC1A69205A0087774D /* pyconfig_osx.h in Headers */ = {isa = PBXBuildFile; fileRef = 842BC4BF17CF3A500063A717 /* pyconfig_osx.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		84DFB7C41A5D4DBC00EBC872 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7A31A5D4DAE00EBC872 /* ffi.c */; };
 		84DFB7C51A5D4DBC00EBC872 /* sysv.S in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7A41A5D4DAE00EBC872 /* sysv.S */; };
 		84DFB7C61A5D4DC200EBC872 /* ffi.c in Sources */ = {isa = PBXBuildFile; fileRef = 84DFB7A61A5D4DAE00EBC872 /* ffi.c */; };
@@ -762,8 +766,8 @@
 		84DFB7E21A5D80CF00EBC872 /* ffi_common.h in Headers */ = {isa = PBXBuildFile; fileRef = 84DFB7B01A5D4DAE00EBC872 /* ffi_common.h */; };
 		84DFB7E31A5D80CF00EBC872 /* fficonfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 84DFB7B21A5D4DAE00EBC872 /* fficonfig.h */; };
 		84DFB7E41A5D80CF00EBC872 /* ffitarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 84DFB7B61A5D4DAE00EBC872 /* ffitarget.h */; };
-		84DFB82A1A5D8E8700EBC872 /* libOpenSSL_iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F24F18FD6B0300829991 /* libOpenSSL_iOS.a */; };
-		84DFB8301A5D8E9800EBC872 /* libOpenSSL_OSX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F24D18FD6B0300829991 /* libOpenSSL_OSX.a */; };
+		84DFB82A1A5D8E8700EBC872 /* libOpenSSL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F24F18FD6B0300829991 /* libOpenSSL.a */; };
+		84DFB8301A5D8E9800EBC872 /* libOpenSSL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8479F24D18FD6B0300829991 /* libOpenSSL.a */; };
 		84DFB8311A5D8ED700EBC872 /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467118616B1070B00B69AF3 /* config.c */; };
 		84DFB8321A5D8ED800EBC872 /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 8467118616B1070B00B69AF3 /* config.c */; };
 		84DFB8331A5D8EF600EBC872 /* abstract.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E2694C16AF8F5500E408BD /* abstract.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1582,6 +1586,48 @@
 			remoteGlobalIDString = 84C5F7A413013E11005F4449;
 			remoteInfo = zlib_iOS;
 		};
+		84CADA991A6911BE0087774D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84909E961A6036E4004EB23B /* bzip2.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 84C5F7A413013E11005F4449;
+			remoteInfo = bzip2_iOS;
+		};
+		84CADA9B1A6911C30087774D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84909EA91A60380B004EB23B /* sqlite.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 84C5F7A413013E11005F4449;
+			remoteInfo = sqlite_iOS;
+		};
+		84CADA9D1A6911C80087774D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84909E831A60332F004EB23B /* zlib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 84C5F7A413013E11005F4449;
+			remoteInfo = zlib_iOS;
+		};
+		84CADA9F1A6911D30087774D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84909E961A6036E4004EB23B /* bzip2.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
+			remoteInfo = bzip2_OSX;
+		};
+		84CADAA11A6911D90087774D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84909EA91A60380B004EB23B /* sqlite.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
+			remoteInfo = sqlite_OSX;
+		};
+		84CADAA31A6911DE0087774D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 84909E831A60332F004EB23B /* zlib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
+			remoteInfo = zlib_OSX;
+		};
 		84DFB8271A5D8E7C00EBC872 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8479F24718FD6B0200829991 /* OpenSSL.xcodeproj */;
@@ -1852,9 +1898,9 @@
 		8467116A16B1056B00B69AF3 /* dynload_shlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dynload_shlib.c; sourceTree = "<group>"; };
 		8467118616B1070B00B69AF3 /* config.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = config.c; sourceTree = "<group>"; };
 		8467118916B1071300B69AF3 /* pyconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pyconfig.h; sourceTree = "<group>"; };
-		8474A27B16AF8B2B00F004D5 /* libPython.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPython.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8474A27B16AF8B2B00F004D5 /* libpython3.4.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpython3.4.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8479F24718FD6B0200829991 /* OpenSSL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OpenSSL.xcodeproj; path = ../OpenSSL/OpenSSL.xcodeproj; sourceTree = "<group>"; };
-		8479F3CE18FD6B3B00829991 /* libPython.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPython.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8479F3CE18FD6B3B00829991 /* libpython3.4.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpython3.4.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		848A7EAC16C203ED007F6822 /* _ctypes_test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _ctypes_test.c; sourceTree = "<group>"; };
 		84909E831A60332F004EB23B /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = ../zlib/zlib.xcodeproj; sourceTree = "<group>"; };
 		84909E961A6036E4004EB23B /* bzip2.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = bzip2.xcodeproj; path = ../bzip2/bzip2.xcodeproj; sourceTree = "<group>"; };
@@ -1998,7 +2044,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8446EF8218FD6EEE0014D21A /* libOpenSSL_iOS.a in Frameworks */,
+				8446EF8218FD6EEE0014D21A /* libOpenSSL.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2006,7 +2052,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8446EF8718FD6F070014D21A /* libOpenSSL_OSX.a in Frameworks */,
+				8446EF8718FD6F070014D21A /* libOpenSSL.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2017,7 +2063,7 @@
 				84909EBB1A60385B004EB23B /* libbzip2.a in Frameworks */,
 				84909EBC1A60385B004EB23B /* libsqlite.a in Frameworks */,
 				84909EBD1A60385B004EB23B /* libz.a in Frameworks */,
-				84DFB82A1A5D8E8700EBC872 /* libOpenSSL_iOS.a in Frameworks */,
+				84DFB82A1A5D8E8700EBC872 /* libOpenSSL.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2028,7 +2074,7 @@
 				84909EA01A6036F2004EB23B /* libbzip2.a in Frameworks */,
 				84909EB41A603835004EB23B /* libsqlite.a in Frameworks */,
 				84909E921A6034FA004EB23B /* libz.a in Frameworks */,
-				84DFB8301A5D8E9800EBC872 /* libOpenSSL_OSX.a in Frameworks */,
+				84DFB8301A5D8E9800EBC872 /* libOpenSSL.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2050,54 +2096,54 @@
 		8467073916AFC3D700B69AF3 /* Modules */ = {
 			isa = PBXGroup;
 			children = (
-				84141F731A5EDA4600C92847 /* _opcode.c */,
-				84141F741A5EDA4600C92847 /* _stat.c */,
-				84AFC4371A5E39370049FD91 /* hashtable.c */,
-				84AFC4381A5E39370049FD91 /* hashtable.h */,
-				84AFC4321A5E38BC0049FD91 /* _tracemalloc.c */,
-				84AFC42D1A5E386A0049FD91 /* _operator.c */,
-				84670E4F16AFCC6E00B69AF3 /* _ctypes */,
-				84670ACE16AFCBB400B69AF3 /* _decimal */,
-				8467078816AFC7A400B69AF3 /* _io */,
-				84670B0816AFCBB400B69AF3 /* _multiprocessing */,
-				84670B0C16AFCBB400B69AF3 /* _sqlite */,
-				84670B2016AFCBB400B69AF3 /* cjkcodecs */,
-				8467073A16AFC3ED00B69AF3 /* expat */,
 				8467113216B1017B00B69AF3 /* _bisectmodule.c */,
 				8467113316B1017B00B69AF3 /* _bz2module.c */,
 				8467113416B1017B00B69AF3 /* _codecsmodule.c */,
 				8467113516B1017B00B69AF3 /* _collectionsmodule.c */,
 				8467113616B1017B00B69AF3 /* _csv.c */,
+				84670E4F16AFCC6E00B69AF3 /* _ctypes */,
 				8467115016B1028300B69AF3 /* _datetimemodule.c */,
+				84670ACE16AFCBB400B69AF3 /* _decimal */,
 				84670E9216AFD3C500B69AF3 /* _elementtree.c */,
 				84670E9316AFD3C500B69AF3 /* _functoolsmodule.c */,
 				84670E9416AFD3C500B69AF3 /* _hashopenssl.c */,
 				84670E9516AFD3C500B69AF3 /* _heapqmodule.c */,
+				8467078816AFC7A400B69AF3 /* _io */,
 				84670E9616AFD3C500B69AF3 /* _json.c */,
 				84670E9716AFD3C500B69AF3 /* _localemodule.c */,
 				84670E9816AFD3C500B69AF3 /* _lsprof.c */,
 				84670E9916AFD3C500B69AF3 /* _math.c */,
 				84670E9A16AFD3C500B69AF3 /* _math.h */,
+				84670B0816AFCBB400B69AF3 /* _multiprocessing */,
+				84141F731A5EDA4600C92847 /* _opcode.c */,
+				84AFC42D1A5E386A0049FD91 /* _operator.c */,
 				84670E9B16AFD3C500B69AF3 /* _pickle.c */,
 				849641D016C48B3500001919 /* _posixsubprocess.c */,
 				84670E9C16AFD3C500B69AF3 /* _randommodule.c */,
+				84670B0C16AFCBB400B69AF3 /* _sqlite */,
 				84670E9D16AFD3C500B69AF3 /* _sre.c */,
 				84670E9E16AFD3C500B69AF3 /* _ssl.c */,
+				84141F741A5EDA4600C92847 /* _stat.c */,
 				84670E9F16AFD3C500B69AF3 /* _struct.c */,
 				84670EA016AFD3C500B69AF3 /* _testbuffer.c */,
 				84670EA116AFD3C500B69AF3 /* _testcapimodule.c */,
 				84670EA216AFD3C500B69AF3 /* _threadmodule.c */,
+				84AFC4321A5E38BC0049FD91 /* _tracemalloc.c */,
 				84670EA316AFD3C500B69AF3 /* _weakref.c */,
 				84670EA416AFD3C500B69AF3 /* arraymodule.c */,
 				84670EA516AFD3C500B69AF3 /* atexitmodule.c */,
 				84670EA616AFD3C500B69AF3 /* audioop.c */,
 				84670EA716AFD3C500B69AF3 /* binascii.c */,
+				84670B2016AFCBB400B69AF3 /* cjkcodecs */,
 				84670EA816AFD3C500B69AF3 /* cmathmodule.c */,
 				84670EA916AFD3C500B69AF3 /* errnomodule.c */,
+				8467073A16AFC3ED00B69AF3 /* expat */,
 				84670EAA16AFD3C500B69AF3 /* faulthandler.c */,
 				8467077F16AFC78500B69AF3 /* gcmodule.c */,
 				8467114A16B1025A00B69AF3 /* getbuildinfo.c */,
 				8467078016AFC78500B69AF3 /* getpath.c */,
+				84AFC4371A5E39370049FD91 /* hashtable.c */,
+				84AFC4381A5E39370049FD91 /* hashtable.h */,
 				84670EAB16AFD3C500B69AF3 /* itertoolsmodule.c */,
 				8467078116AFC78500B69AF3 /* main.c */,
 				84670EAC16AFD3C500B69AF3 /* mathmodule.c */,
@@ -2117,8 +2163,8 @@
 				8467094B16AFCBA000B69AF3 /* socketmodule.h */,
 				84670EB816AFD3C500B69AF3 /* symtablemodule.c */,
 				84670EBA16AFD3C500B69AF3 /* timemodule.c */,
-				8467114B16B1025A00B69AF3 /* unicodedata.c */,
 				8467094C16AFCBA000B69AF3 /* unicodedata_db.h */,
+				8467114B16B1025A00B69AF3 /* unicodedata.c */,
 				8467094D16AFCBA000B69AF3 /* unicodename_db.h */,
 				84670EBB16AFD3C500B69AF3 /* xxsubtype.c */,
 				84670EBC16AFD3C500B69AF3 /* zipimport.c */,
@@ -2303,8 +2349,8 @@
 		8474A24E16AF8AA100F004D5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8474A27B16AF8B2B00F004D5 /* libPython.a */,
-				8479F3CE18FD6B3B00829991 /* libPython.a */,
+				8474A27B16AF8B2B00F004D5 /* libpython3.4.a */,
+				8479F3CE18FD6B3B00829991 /* libpython3.4.a */,
 				84DFB7EE1A5D8C1800EBC872 /* Python.framework */,
 				84DFB80C1A5D8C4500EBC872 /* Python.framework */,
 			);
@@ -2314,8 +2360,8 @@
 		8479F24818FD6B0200829991 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8479F24D18FD6B0300829991 /* libOpenSSL_OSX.a */,
-				8479F24F18FD6B0300829991 /* libOpenSSL_iOS.a */,
+				8479F24D18FD6B0300829991 /* libOpenSSL.a */,
+				8479F24F18FD6B0300829991 /* libOpenSSL.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3063,6 +3109,7 @@
 				84DFB9421A5D8F6A00EBC872 /* memory.h in Headers */,
 				84DFB85C1A5D8EF600EBC872 /* metagrammar.h in Headers */,
 				84DFB87F1A5D8EF600EBC872 /* pythread.h in Headers */,
+				84CADABB1A69205A0087774D /* pyconfig.h in Headers */,
 				84DFB8331A5D8EF600EBC872 /* abstract.h in Headers */,
 				84DFBAAE1A5D8FBF00EBC872 /* tokenizer.h in Headers */,
 				84DFB9331A5D8F6A00EBC872 /* constants.h in Headers */,
@@ -3095,6 +3142,7 @@
 				84DFB8571A5D8EF600EBC872 /* listobject.h in Headers */,
 				84DFB88D1A5D8EF600EBC872 /* unicodeobject.h in Headers */,
 				84DFB9111A5D8F3D00EBC872 /* ffi_common.h in Headers */,
+				84CADABC1A69205A0087774D /* pyconfig_osx.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3215,6 +3263,7 @@
 				84DFB95D1A5D8F6B00EBC872 /* memory.h in Headers */,
 				84DFB8B91A5D8EF600EBC872 /* metagrammar.h in Headers */,
 				84DFB8DC1A5D8EF600EBC872 /* pythread.h in Headers */,
+				84CADAB91A6920590087774D /* pyconfig.h in Headers */,
 				84DFB8901A5D8EF600EBC872 /* abstract.h in Headers */,
 				84DFBAA01A5D8FBF00EBC872 /* tokenizer.h in Headers */,
 				84DFB94E1A5D8F6B00EBC872 /* constants.h in Headers */,
@@ -3247,6 +3296,7 @@
 				84DFB8B41A5D8EF600EBC872 /* listobject.h in Headers */,
 				84DFB8EA1A5D8EF600EBC872 /* unicodeobject.h in Headers */,
 				84DFB90D1A5D8F3C00EBC872 /* ffi_common.h in Headers */,
+				84CADABA1A6920590087774D /* pyconfig_osx.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3264,11 +3314,14 @@
 			buildRules = (
 			);
 			dependencies = (
+				84CADA9A1A6911BE0087774D /* PBXTargetDependency */,
+				84CADA9C1A6911C30087774D /* PBXTargetDependency */,
+				84CADA9E1A6911C80087774D /* PBXTargetDependency */,
 				8446F16C18FD79E50014D21A /* PBXTargetDependency */,
 			);
 			name = Python_iOS_static;
 			productName = PythonCore;
-			productReference = 8474A27B16AF8B2B00F004D5 /* libPython.a */;
+			productReference = 8474A27B16AF8B2B00F004D5 /* libpython3.4.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		8479F25D18FD6B3B00829991 /* Python_OSX_static */ = {
@@ -3282,11 +3335,14 @@
 			buildRules = (
 			);
 			dependencies = (
+				84CADAA01A6911D30087774D /* PBXTargetDependency */,
+				84CADAA21A6911D90087774D /* PBXTargetDependency */,
+				84CADAA41A6911DE0087774D /* PBXTargetDependency */,
 				8446F16E18FD79ED0014D21A /* PBXTargetDependency */,
 			);
 			name = Python_OSX_static;
 			productName = PythonCore;
-			productReference = 8479F3CE18FD6B3B00829991 /* libPython.a */;
+			productReference = 8479F3CE18FD6B3B00829991 /* libpython3.4.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		84DFB7ED1A5D8C1800EBC872 /* Python_iOS */ = {
@@ -3389,17 +3445,17 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		8479F24D18FD6B0300829991 /* libOpenSSL_OSX.a */ = {
+		8479F24D18FD6B0300829991 /* libOpenSSL.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libOpenSSL_OSX.a;
+			path = libOpenSSL.a;
 			remoteRef = 8479F24C18FD6B0300829991 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		8479F24F18FD6B0300829991 /* libOpenSSL_iOS.a */ = {
+		8479F24F18FD6B0300829991 /* libOpenSSL.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libOpenSSL_iOS.a;
+			path = libOpenSSL.a;
 			remoteRef = 8479F24E18FD6B0300829991 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -4404,6 +4460,36 @@
 			name = zlib_iOS;
 			targetProxy = 84909EB91A60384B004EB23B /* PBXContainerItemProxy */;
 		};
+		84CADA9A1A6911BE0087774D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = bzip2_iOS;
+			targetProxy = 84CADA991A6911BE0087774D /* PBXContainerItemProxy */;
+		};
+		84CADA9C1A6911C30087774D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = sqlite_iOS;
+			targetProxy = 84CADA9B1A6911C30087774D /* PBXContainerItemProxy */;
+		};
+		84CADA9E1A6911C80087774D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = zlib_iOS;
+			targetProxy = 84CADA9D1A6911C80087774D /* PBXContainerItemProxy */;
+		};
+		84CADAA01A6911D30087774D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = bzip2_OSX;
+			targetProxy = 84CADA9F1A6911D30087774D /* PBXContainerItemProxy */;
+		};
+		84CADAA21A6911D90087774D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = sqlite_OSX;
+			targetProxy = 84CADAA11A6911D90087774D /* PBXContainerItemProxy */;
+		};
+		84CADAA41A6911DE0087774D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = zlib_OSX;
+			targetProxy = 84CADAA31A6911DE0087774D /* PBXContainerItemProxy */;
+		};
 		84DFB8281A5D8E7C00EBC872 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = OpenSSL_iOS;
@@ -4436,7 +4522,7 @@
 				DYLIB_CURRENT_VERSION = 3.4.2;
 				EXECUTABLE_PREFIX = lib;
 				FRAMEWORK_VERSION = 3.4.2;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
@@ -4466,7 +4552,7 @@
 					../OpenSSL/include,
 				);
 				ONLY_ACTIVE_ARCH = NO;
-				PRODUCT_NAME = Python;
+				PRODUCT_NAME = python3.4;
 			};
 			name = Debug;
 		};
@@ -4490,7 +4576,7 @@
 				DYLIB_CURRENT_VERSION = 3.4.2;
 				EXECUTABLE_PREFIX = lib;
 				FRAMEWORK_VERSION = 3.4.2;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
 				GCC_OPTIMIZATION_LEVEL = s;
@@ -4518,7 +4604,7 @@
 					../ExtDeps/sqlite,
 					../OpenSSL/include,
 				);
-				PRODUCT_NAME = Python;
+				PRODUCT_NAME = python3.4;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -4526,9 +4612,9 @@
 		8474A27916AF8B2B00F004D5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				MACH_O_TYPE = staticlib;
-				OTHER_CFLAGS = "-no-integrated-as";
-				PRODUCT_NAME = Python;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -4536,9 +4622,9 @@
 		8474A27A16AF8B2B00F004D5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				MACH_O_TYPE = staticlib;
-				OTHER_CFLAGS = "-no-integrated-as";
-				PRODUCT_NAME = Python;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
 			};
 			name = Release;
@@ -4549,7 +4635,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				MACH_O_TYPE = staticlib;
-				PRODUCT_NAME = Python;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -4560,7 +4646,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				MACH_O_TYPE = staticlib;
-				PRODUCT_NAME = Python;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -4568,6 +4654,7 @@
 		84DFB8011A5D8C1800EBC872 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -4587,6 +4674,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = Python;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -4598,6 +4686,7 @@
 		84DFB8021A5D8C1800EBC872 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -4617,6 +4706,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = Python;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -4655,6 +4745,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = Python;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -4691,6 +4782,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = Python;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";

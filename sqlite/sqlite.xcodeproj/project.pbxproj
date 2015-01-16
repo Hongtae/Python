@@ -212,15 +212,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					FreeType/include,
-					libxml2/include,
-					libogg/include,
-					libvorbis/include,
-					libFLAC/include,
-					zlib,
-					bzip2,
-				);
+				HEADER_SEARCH_PATHS = sqlite;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = sqlite;
 				SKIP_INSTALL = YES;
@@ -252,15 +244,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					FreeType/include,
-					libxml2/include,
-					libogg/include,
-					libvorbis/include,
-					libFLAC/include,
-					zlib,
-					bzip2,
-				);
+				HEADER_SEARCH_PATHS = sqlite;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = sqlite;
 				SKIP_INSTALL = YES;

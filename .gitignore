@@ -13,5 +13,5 @@ xcuserdata
 *.cachefile
 
 ipch/
-Build/*
+Build/**
 __pycache__/

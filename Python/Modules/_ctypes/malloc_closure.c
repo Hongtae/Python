@@ -86,9 +86,6 @@ static void more_core(void)
     }
 }
 
-/* 2015-01-09 by tiff2766
- Use ffi_closure_free, ffi_closure_alloc functions defined in ffi.c on armv7 */
-#ifndef __arm__
 /******************************************************************/
 
 /* put the item back into the free list */
@@ -112,5 +109,3 @@ void *ffi_closure_alloc(size_t ignored, void** codeloc)
     *codeloc = (void *)item;
     return (void *)item;
 }
-
-#endif // ifndef __arm__

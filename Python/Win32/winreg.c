@@ -871,8 +871,10 @@ Py2Reg(PyObject *value, DWORD typ, BYTE **retDataBuf, DWORD *retDataSize)
         /* ALSO handle ALL unknown data types here.  Even if we can't
            support it natively, we should handle the bits. */
         default:
-            if (value == Py_None)
+            if (value == Py_None) {
                 *retDataSize = 0;
+                *retDataBuf = NULL;
+            }
             else {
                 Py_buffer view;
 
@@ -937,14 +939,16 @@ Reg2Py(BYTE *retDataBuf, DWORD retDataSize, DWORD typ)
                 wchar_t *data = (wchar_t *)retDataBuf;
                 int len = retDataSize / 2;
                 int s = countStrings(data, len);
-                wchar_t **str = (wchar_t **)malloc(sizeof(wchar_t *)*s);
+                wchar_t **str = (wchar_t **)PyMem_Malloc(sizeof(wchar_t *)*s);
                 if (str == NULL)
                     return PyErr_NoMemory();
 
                 fixupMultiSZ(str, data, len);
                 obData = PyList_New(s);
-                if (obData == NULL)
+                if (obData == NULL) {
+                    PyMem_Free(str);
                     return NULL;
+                }
                 for (index = 0; index < s; index++)
                 {
                     size_t len = wcslen(str[index]);
@@ -952,13 +956,14 @@ Reg2Py(BYTE *retDataBuf, DWORD retDataSize, DWORD typ)
                         PyErr_SetString(PyExc_OverflowError,
                             "registry string is too long for a Python string");
                         Py_DECREF(obData);
+                        PyMem_Free(str);
                         return NULL;
                     }
                     PyList_SetItem(obData,
                                    index,
                                    PyUnicode_FromWideChar(str[index], len));
                 }
-                free(str);
+                PyMem_Free(str);
 
                 break;
             }
@@ -1793,9 +1798,9 @@ PyMODINIT_FUNC PyInit_winreg(void)
     if (PyDict_SetItemString(d, "HKEYType",
                              (PyObject *)&PyHKEY_Type) != 0)
         return NULL;
-    Py_INCREF(PyExc_WindowsError);
+    Py_INCREF(PyExc_OSError);
     if (PyDict_SetItemString(d, "error",
-                             PyExc_WindowsError) != 0)
+                             PyExc_OSError) != 0)
         return NULL;
 
     /* Add the relevant constants */

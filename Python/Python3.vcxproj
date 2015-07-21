@@ -711,6 +711,7 @@
       <PreprocessorDefinitions>WIN32;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;Py_NO_ENABLE_SHARED;DEBUG;_DEBUG</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>./Config;./Win32;./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../zlib/zlib;../bzip2/bzip2;../sqlite/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <OmitFramePointers>false</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -731,6 +732,7 @@
       <PreprocessorDefinitions>WIN32;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>./Config;./Win32;./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../zlib/zlib;../bzip2/bzip2;../sqlite/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <OmitFramePointers>false</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -753,6 +755,7 @@
       <PreprocessorDefinitions>WIN32;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;Py_NO_ENABLE_SHARED;NDEBUG;_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>./Config;./Win32;./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../zlib/zlib;../bzip2/bzip2;../sqlite/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -775,6 +778,7 @@
       <PreprocessorDefinitions>WIN32;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;NDEBUG;_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>./Config;./Win32;./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../zlib/zlib;../bzip2/bzip2;../sqlite/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -798,6 +802,7 @@
       <PreprocessorDefinitions>WIN32;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;Py_NO_ENABLE_SHARED;NDEBUG;_NDEBUG</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>./Config;./Win32;./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../zlib/zlib;../bzip2/bzip2;../sqlite/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -820,6 +825,7 @@
       <PreprocessorDefinitions>WIN32;_LIB;Py_BUILD_CORE;HAVE_MEMMOVE;HAVE_EXPAT_H;XML_STATIC;_FILE_OFFSET_BITS=64;NDEBUG;_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>./Config;./Win32;./Include;./Python;./Modules/expat;./Modules/_ctypes/libffi_msvc;../zlib/zlib;../bzip2/bzip2;../sqlite/sqlite;../OpenSSL/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

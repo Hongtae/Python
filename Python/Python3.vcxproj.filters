@@ -43,6 +43,12 @@
     <Filter Include="Win32">
       <UniqueIdentifier>{72af5262-2ea1-4071-a6fe-658ef3123953}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Win32\clinic">
+      <UniqueIdentifier>{ad52847f-b58b-46ec-9138-e7b21b1a84e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\clinic">
+      <UniqueIdentifier>{1f8d8a7a-70ea-463b-ad9a-2ddeeae9e35c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\abstract.h">
@@ -509,6 +515,114 @@
     </ClInclude>
     <ClInclude Include="Modules\hashtable.h">
       <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\clinic\msvcrtmodule.c.h">
+      <Filter>Win32\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\clinic\winreg.c.h">
+      <Filter>Win32\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\clinic\winsound.c.h">
+      <Filter>Win32\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_bz2module.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_codecsmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_cryptmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_cursesmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_datetimemodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_dbmmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_elementtree.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_gdbmmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_lzmamodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_opcode.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_pickle.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_sre.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_ssl.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_tkinter.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_weakref.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_winapi.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\arraymodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\audioop.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\binascii.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\cmathmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\fcntlmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\grpmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\md5module.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\posixmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\pwdmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\pyexpat.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\sha1module.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\sha256module.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\sha512module.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\signalmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\spwdmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\unicodedata.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\zlibmodule.c.h">
+      <Filter>Modules\clinic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1153,6 +1267,18 @@
     </ClCompile>
     <ClCompile Include="Modules\overlapped.c">
       <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Python\pylifecycle.c">
+      <Filter>Python</Filter>
+    </ClCompile>
+    <ClCompile Include="Python\pystrhex.c">
+      <Filter>Python</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\invalid_parameter_handler.c">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\odictobject.c">
+      <Filter>Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

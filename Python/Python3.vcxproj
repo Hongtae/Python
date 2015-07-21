@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug_DLL|Win32">
       <Configuration>Debug_DLL</Configuration>
@@ -136,6 +136,39 @@
     <ClInclude Include="Modules\cjkcodecs\mappings_kr.h" />
     <ClInclude Include="Modules\cjkcodecs\mappings_tw.h" />
     <ClInclude Include="Modules\cjkcodecs\multibytecodec.h" />
+    <ClInclude Include="Modules\clinic\arraymodule.c.h" />
+    <ClInclude Include="Modules\clinic\audioop.c.h" />
+    <ClInclude Include="Modules\clinic\binascii.c.h" />
+    <ClInclude Include="Modules\clinic\cmathmodule.c.h" />
+    <ClInclude Include="Modules\clinic\fcntlmodule.c.h" />
+    <ClInclude Include="Modules\clinic\grpmodule.c.h" />
+    <ClInclude Include="Modules\clinic\md5module.c.h" />
+    <ClInclude Include="Modules\clinic\posixmodule.c.h" />
+    <ClInclude Include="Modules\clinic\pwdmodule.c.h" />
+    <ClInclude Include="Modules\clinic\pyexpat.c.h" />
+    <ClInclude Include="Modules\clinic\sha1module.c.h" />
+    <ClInclude Include="Modules\clinic\sha256module.c.h" />
+    <ClInclude Include="Modules\clinic\sha512module.c.h" />
+    <ClInclude Include="Modules\clinic\signalmodule.c.h" />
+    <ClInclude Include="Modules\clinic\spwdmodule.c.h" />
+    <ClInclude Include="Modules\clinic\unicodedata.c.h" />
+    <ClInclude Include="Modules\clinic\zlibmodule.c.h" />
+    <ClInclude Include="Modules\clinic\_bz2module.c.h" />
+    <ClInclude Include="Modules\clinic\_codecsmodule.c.h" />
+    <ClInclude Include="Modules\clinic\_cryptmodule.c.h" />
+    <ClInclude Include="Modules\clinic\_cursesmodule.c.h" />
+    <ClInclude Include="Modules\clinic\_datetimemodule.c.h" />
+    <ClInclude Include="Modules\clinic\_dbmmodule.c.h" />
+    <ClInclude Include="Modules\clinic\_elementtree.c.h" />
+    <ClInclude Include="Modules\clinic\_gdbmmodule.c.h" />
+    <ClInclude Include="Modules\clinic\_lzmamodule.c.h" />
+    <ClInclude Include="Modules\clinic\_opcode.c.h" />
+    <ClInclude Include="Modules\clinic\_pickle.c.h" />
+    <ClInclude Include="Modules\clinic\_sre.c.h" />
+    <ClInclude Include="Modules\clinic\_ssl.c.h" />
+    <ClInclude Include="Modules\clinic\_tkinter.c.h" />
+    <ClInclude Include="Modules\clinic\_weakref.c.h" />
+    <ClInclude Include="Modules\clinic\_winapi.c.h" />
     <ClInclude Include="Modules\expat\expat.h" />
     <ClInclude Include="Modules\expat\internal.h" />
     <ClInclude Include="Modules\expat\xmlrole.h" />
@@ -189,6 +222,9 @@
     <ClInclude Include="Python\condvar.h" />
     <ClInclude Include="Python\importdl.h" />
     <ClInclude Include="Python\thread_nt.h" />
+    <ClInclude Include="Win32\clinic\msvcrtmodule.c.h" />
+    <ClInclude Include="Win32\clinic\winreg.c.h" />
+    <ClInclude Include="Win32\clinic\winsound.c.h" />
     <ClInclude Include="Win32\errmap.h" />
   </ItemGroup>
   <ItemGroup>
@@ -198,7 +234,10 @@
     <ClCompile Include="Modules\_opcode.c" />
     <ClCompile Include="Modules\_stat.c" />
     <ClCompile Include="Modules\_tracemalloc.c" />
+    <ClCompile Include="Objects\odictobject.c" />
     <ClCompile Include="Python\pyhash.c" />
+    <ClCompile Include="Python\pylifecycle.c" />
+    <ClCompile Include="Python\pystrhex.c" />
     <ClCompile Include="Win32\dl_nt.c" />
     <ClCompile Include="Win32\getpathp.c" />
     <ClCompile Include="Modules\arraymodule.c" />
@@ -314,6 +353,7 @@
     <ClCompile Include="Modules\_threadmodule.c" />
     <ClCompile Include="Modules\_weakref.c" />
     <ClCompile Include="Modules\_winapi.c" />
+    <ClCompile Include="Win32\invalid_parameter_handler.c" />
     <ClCompile Include="Win32\msvcrtmodule.c" />
     <ClCompile Include="Objects\abstract.c" />
     <ClCompile Include="Objects\accu.c" />
@@ -500,57 +540,58 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Python3</RootNamespace>
     <ProjectName>Python3</ProjectName>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
@@ -585,42 +626,42 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Build\Intermediates\$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python34_static_d</TargetName>
+    <TargetName>python35_static_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|Win32'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Build\Intermediates\$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python34_d</TargetName>
+    <TargetName>python35_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Build\Intermediates\$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python34_static</TargetName>
+    <TargetName>python35_static</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|Win32'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Build\Intermediates\$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python34</TargetName>
+    <TargetName>python35</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Build\Intermediates\$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python34_static_d</TargetName>
+    <TargetName>python35_static_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DLL|x64'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Build\Intermediates\$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python34_d</TargetName>
+    <TargetName>python35_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Build\Intermediates\$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python34_static</TargetName>
+    <TargetName>python35_static</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DLL|x64'">
     <OutDir>$(SolutionDir)Build\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Build\Intermediates\$(ProjectName)_$(Platform)_$(Configuration)\</IntDir>
-    <TargetName>python34</TargetName>
+    <TargetName>python35</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

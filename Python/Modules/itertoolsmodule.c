@@ -2985,18 +2985,18 @@ def permutations(iterable, r=None):
     cycles = range(n-r+1, n+1)[::-1]
     yield tuple(pool[i] for i in indices[:r])
     while n:
-    for i in reversed(range(r)):
-        cycles[i] -= 1
-        if cycles[i] == 0:
-        indices[i:] = indices[i+1:] + indices[i:i+1]
-        cycles[i] = n - i
+        for i in reversed(range(r)):
+            cycles[i] -= 1
+            if cycles[i] == 0:
+                indices[i:] = indices[i+1:] + indices[i:i+1]
+                cycles[i] = n - i
+            else:
+                j = cycles[i]
+                indices[i], indices[-j] = indices[-j], indices[i]
+                yield tuple(pool[i] for i in indices[:r])
+                break
         else:
-        j = cycles[i]
-        indices[i], indices[-j] = indices[-j], indices[i]
-        yield tuple(pool[i] for i in indices[:r])
-        break
-    else:
-        return
+            return
 */
 
 typedef struct {
@@ -3874,7 +3874,7 @@ typedef struct {
 
 fast_mode:  when cnt an integer < PY_SSIZE_T_MAX and no step is specified.
 
-    assert(cnt != PY_SSIZE_T_MAX && long_cnt == NULL && long_step==PyInt(1));
+    assert(cnt != PY_SSIZE_T_MAX && long_cnt == NULL && long_step==PyLong(1));
     Advances with:  cnt += 1
     When count hits Y_SSIZE_T_MAX, switch to slow_mode.
 

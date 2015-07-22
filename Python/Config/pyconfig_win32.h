@@ -218,7 +218,7 @@ typedef int pid_t;
 #endif
 
 /* VS 2015 defines these names with a leading underscore */
-#if _MSC_VER >= 1900
+#if _MSC_VER >= 1900 && defined(Py_BUILD_CORE)
 #define timezone _timezone
 #define daylight _daylight
 #define tzname _tzname
@@ -347,8 +347,10 @@ Py_NO_ENABLE_SHARED to find out.  Also support MS_NO_COREDLL for b/w compat */
 #	endif
 #endif
 
-#ifdef _DEBUG
-#	define Py_DEBUG
+#if defined(_DEBUG) && defined(Py_BUILD_CORE) 
+#	ifndef Py_DEBUG
+#		define Py_DEBUG
+#	endif
 #endif
 
 

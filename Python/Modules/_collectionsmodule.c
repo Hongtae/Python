@@ -924,6 +924,8 @@ deque_index(dequeobject *deque, PyObject *args)
         if (stop < 0)
             stop = 0;
     }
+    if (stop > Py_SIZE(deque))
+        stop = Py_SIZE(deque);
 
     for (i=0 ; i<stop ; i++) {
         if (i >= start) {
@@ -2023,7 +2025,7 @@ defdict_init(PyObject *self, PyObject *args, PyObject *kwds)
             newdefault = PyTuple_GET_ITEM(args, 0);
             if (!PyCallable_Check(newdefault) && newdefault != Py_None) {
                 PyErr_SetString(PyExc_TypeError,
-                    "first argument must be callable");
+                    "first argument must be callable or None");
                 return -1;
             }
         }

@@ -14,8 +14,9 @@ for older versions in distutils.msvc9compiler and distutils.msvccompiler.
 # ported to VS 2015 by Steve Dower
 
 import os
+import shutil
+import stat
 import subprocess
-import re
 
 from distutils.errors import DistutilsExecError, DistutilsPlatformError, \
                              CompileError, LibError, LinkError
@@ -26,7 +27,7 @@ from distutils.util import get_platform
 import winreg
 from itertools import count
 
-def _find_vcvarsall():
+def _find_vcvarsall(plat_spec):
     with winreg.OpenKeyEx(
         winreg.HKEY_LOCAL_MACHINE,
         r"Software\Microsoft\VisualStudio\SxS\VC7",
@@ -34,7 +35,7 @@ def _find_vcvarsall():
     ) as key:
         if not key:
             log.debug("Visual C++ is not registered")
-            return None
+            return None, None
 
         best_version = 0
         best_dir = None
@@ -52,14 +53,23 @@ def _find_vcvarsall():
                     best_version, best_dir = version, vc_dir
         if not best_version:
             log.debug("No suitable Visual C++ version found")
-            return None
+            return None, None
 
         vcvarsall = os.path.join(best_dir, "vcvarsall.bat")
         if not os.path.isfile(vcvarsall):
             log.debug("%s cannot be found", vcvarsall)
-            return None
+            return None, None
 
-        return vcvarsall
+        vcruntime = None
+        vcruntime_spec = _VCVARS_PLAT_TO_VCRUNTIME_REDIST.get(plat_spec)
+        if vcruntime_spec:
+            vcruntime = os.path.join(best_dir,
+                vcruntime_spec.format(best_version))
+            if not os.path.isfile(vcruntime):
+                log.debug("%s cannot be found", vcruntime)
+                vcruntime = None
+
+        return vcvarsall, vcruntime
 
 def _get_vc_env(plat_spec):
     if os.getenv("DISTUTILS_USE_SDK"):
@@ -68,7 +78,7 @@ def _get_vc_env(plat_spec):
             for key, value in os.environ.items()
         }
 
-    vcvarsall = _find_vcvarsall()
+    vcvarsall, vcruntime = _find_vcvarsall(plat_spec)
     if not vcvarsall:
         raise DistutilsPlatformError("Unable to find vcvarsall.bat")
 
@@ -84,12 +94,16 @@ def _get_vc_env(plat_spec):
         raise DistutilsPlatformError("Error executing {}"
                 .format(exc.cmd))
 
-    return {
+    env = {
         key.lower(): value
         for key, _, value in
         (line.partition('=') for line in out.splitlines())
         if key and value
     }
+    
+    if vcruntime:
+        env['py_vcruntime_redist'] = vcruntime
+    return env
 
 def _find_exe(exe, paths=None):
     """Return path to an MSVC executable program.
@@ -115,6 +129,20 @@ PLAT_TO_VCVARS = {
     'win32' : 'x86',
     'win-amd64' : 'amd64',
 }
+
+# A map keyed by get_platform() return values to the file under
+# the VC install directory containing the vcruntime redistributable.
+_VCVARS_PLAT_TO_VCRUNTIME_REDIST = {
+    'x86' : 'redist\\x86\\Microsoft.VC{0}0.CRT\\vcruntime{0}0.dll',
+    'amd64' : 'redist\\x64\\Microsoft.VC{0}0.CRT\\vcruntime{0}0.dll',
+    'x86_amd64' : 'redist\\x64\\Microsoft.VC{0}0.CRT\\vcruntime{0}0.dll',
+}
+
+# A set containing the DLLs that are guaranteed to be available for
+# all micro versions of this Python version. Known extension
+# dependencies that are not in this set will be copied to the output
+# path.
+_BUNDLED_DLLS = frozenset(['vcruntime140.dll'])
 
 class MSVCCompiler(CCompiler) :
     """Concrete class that implements an interface to Microsoft Visual C++,
@@ -182,13 +210,15 @@ class MSVCCompiler(CCompiler) :
             raise DistutilsPlatformError("Unable to find a compatible "
                 "Visual Studio installation.")
 
-        paths = vc_env.get('path', '').split(os.pathsep)
+        self._paths = vc_env.get('path', '')
+        paths = self._paths.split(os.pathsep)
         self.cc = _find_exe("cl.exe", paths)
         self.linker = _find_exe("link.exe", paths)
         self.lib = _find_exe("lib.exe", paths)
         self.rc = _find_exe("rc.exe", paths)   # resource compiler
         self.mc = _find_exe("mc.exe", paths)   # message compiler
         self.mt = _find_exe("mt.exe", paths)   # message compiler
+        self._vcruntime_redist = vc_env.get('py_vcruntime_redist', '')
 
         for dir in vc_env.get('include', '').split(os.pathsep):
             if dir:
@@ -199,22 +229,46 @@ class MSVCCompiler(CCompiler) :
                 self.add_library_dir(dir)
 
         self.preprocess_options = None
+        # If vcruntime_redist is available, link against it dynamically. Otherwise,
+        # use /MT[d] to build statically, then switch from libucrt[d].lib to ucrt[d].lib
+        # later to dynamically link to ucrtbase but not vcruntime.
         self.compile_options = [
-            '/nologo', '/Ox', '/MD', '/W3', '/GL', '/DNDEBUG'
+            '/nologo', '/Ox', '/W3', '/GL', '/DNDEBUG'
         ]
+        self.compile_options.append('/MD' if self._vcruntime_redist else '/MT')
+        
         self.compile_options_debug = [
             '/nologo', '/Od', '/MDd', '/Zi', '/W3', '/D_DEBUG'
         ]
 
-        self.ldflags_shared = [
-            '/nologo', '/DLL', '/INCREMENTAL:NO'
+        ldflags = [
+            '/nologo', '/INCREMENTAL:NO', '/LTCG'
         ]
-        self.ldflags_shared_debug = [
-            '/nologo', '/DLL', '/INCREMENTAL:no', '/DEBUG:FULL'
+        if not self._vcruntime_redist:
+            ldflags.extend(('/nodefaultlib:libucrt.lib', 'ucrt.lib'))
+
+        ldflags_debug = [
+            '/nologo', '/INCREMENTAL:NO', '/LTCG', '/DEBUG:FULL'
         ]
-        self.ldflags_static = [
-            '/nologo'
-        ]
+
+        self.ldflags_exe = [*ldflags, '/MANIFEST:EMBED,ID=1']
+        self.ldflags_exe_debug = [*ldflags_debug, '/MANIFEST:EMBED,ID=1']
+        self.ldflags_shared = [*ldflags, '/DLL', '/MANIFEST:EMBED,ID=2', '/MANIFESTUAC:NO']
+        self.ldflags_shared_debug = [*ldflags_debug, '/DLL', '/MANIFEST:EMBED,ID=2', '/MANIFESTUAC:NO']
+        self.ldflags_static = [*ldflags]
+        self.ldflags_static_debug = [*ldflags_debug]
+
+        self._ldflags = {
+            (CCompiler.EXECUTABLE, None): self.ldflags_exe,
+            (CCompiler.EXECUTABLE, False): self.ldflags_exe,
+            (CCompiler.EXECUTABLE, True): self.ldflags_exe_debug,
+            (CCompiler.SHARED_OBJECT, None): self.ldflags_shared,
+            (CCompiler.SHARED_OBJECT, False): self.ldflags_shared,
+            (CCompiler.SHARED_OBJECT, True): self.ldflags_shared_debug,
+            (CCompiler.SHARED_LIBRARY, None): self.ldflags_static,
+            (CCompiler.SHARED_LIBRARY, False): self.ldflags_static,
+            (CCompiler.SHARED_LIBRARY, True): self.ldflags_static_debug,
+        }
 
         self.initialized = True
 
@@ -224,9 +278,12 @@ class MSVCCompiler(CCompiler) :
                          source_filenames,
                          strip_dir=0,
                          output_dir=''):
-        ext_map = {ext: self.obj_extension for ext in self.src_extensions}
-        ext_map.update((ext, self.res_extension)
-                for ext in self._rc_extensions + self._mc_extensions)
+        ext_map = {
+            **{ext: self.obj_extension for ext in self.src_extensions},
+            **{ext: self.res_extension for ext in self._rc_extensions + self._mc_extensions},
+        }
+
+        output_dir = output_dir or ''
 
         def make_out_path(p):
             base, ext = os.path.splitext(p)
@@ -237,18 +294,17 @@ class MSVCCompiler(CCompiler) :
                 if base.startswith((os.path.sep, os.path.altsep)):
                     base = base[1:]
             try:
-                return base + ext_map[ext]
+                # XXX: This may produce absurdly long paths. We should check
+                # the length of the result and trim base until we fit within
+                # 260 characters.
+                return os.path.join(output_dir, base + ext_map[ext])
             except LookupError:
                 # Better to raise an exception instead of silently continuing
                 # and later complain about sources and targets having
                 # different lengths
                 raise CompileError("Don't know how to compile {}".format(p))
 
-        output_dir = output_dir or ''
-        return [
-            os.path.join(output_dir, make_out_path(src_name))
-            for src_name in source_filenames
-        ]
+        return list(map(make_out_path, source_filenames))
 
 
     def compile(self, sources,
@@ -359,6 +415,7 @@ class MSVCCompiler(CCompiler) :
             if debug:
                 pass # XXX what goes here?
             try:
+                log.debug('Executing "%s" %s', self.lib, ' '.join(lib_args))
                 self.spawn([self.lib] + lib_args)
             except DistutilsExecError as msg:
                 raise LibError(msg)
@@ -399,14 +456,9 @@ class MSVCCompiler(CCompiler) :
             output_filename = os.path.join(output_dir, output_filename)
 
         if self._need_link(objects, output_filename):
-            ldflags = (self.ldflags_shared_debug if debug
-                       else self.ldflags_shared)
-            if target_desc == CCompiler.EXECUTABLE:
-                ldflags = ldflags[1:]
+            ldflags = self._ldflags[target_desc, debug]
 
-            export_opts = []
-            for sym in (export_symbols or []):
-                export_opts.append("/EXPORT:" + sym)
+            export_opts = ["/EXPORT:" + sym for sym in (export_symbols or [])]
 
             ld_args = (ldflags + lib_opts + export_opts +
                        objects + ['/OUT:' + output_filename])
@@ -425,110 +477,41 @@ class MSVCCompiler(CCompiler) :
                     self.library_filename(dll_name))
                 ld_args.append ('/IMPLIB:' + implib_file)
 
-            self.manifest_setup_ldargs(output_filename, build_temp, ld_args)
-
             if extra_preargs:
                 ld_args[:0] = extra_preargs
             if extra_postargs:
                 ld_args.extend(extra_postargs)
 
-            self.mkpath(os.path.dirname(output_filename))
+            output_dir = os.path.dirname(os.path.abspath(output_filename))
+            self.mkpath(output_dir)
             try:
+                log.debug('Executing "%s" %s', self.linker, ' '.join(ld_args))
                 self.spawn([self.linker] + ld_args)
+                self._copy_vcruntime(output_dir)
             except DistutilsExecError as msg:
                 raise LinkError(msg)
-
-            # embed the manifest
-            # XXX - this is somewhat fragile - if mt.exe fails, distutils
-            # will still consider the DLL up-to-date, but it will not have a
-            # manifest.  Maybe we should link to a temp file?  OTOH, that
-            # implies a build environment error that shouldn't go undetected.
-            mfinfo = self.manifest_get_embed_info(target_desc, ld_args)
-            if mfinfo is not None:
-                mffilename, mfid = mfinfo
-                out_arg = '-outputresource:{};{}'.format(output_filename, mfid)
-                try:
-                    self.spawn([self.mt, '-nologo', '-manifest',
-                                mffilename, out_arg])
-                except DistutilsExecError as msg:
-                    raise LinkError(msg)
         else:
             log.debug("skipping %s (up-to-date)", output_filename)
 
-    def manifest_setup_ldargs(self, output_filename, build_temp, ld_args):
-        # If we need a manifest at all, an embedded manifest is recommended.
-        # See MSDN article titled
-        # "How to: Embed a Manifest Inside a C/C++ Application"
-        # (currently at http://msdn2.microsoft.com/en-us/library/ms235591(VS.80).aspx)
-        # Ask the linker to generate the manifest in the temp dir, so
-        # we can check it, and possibly embed it, later.
-        temp_manifest = os.path.join(
-                build_temp,
-                os.path.basename(output_filename) + ".manifest")
-        ld_args.append('/MANIFESTFILE:' + temp_manifest)
+    def _copy_vcruntime(self, output_dir):
+        vcruntime = self._vcruntime_redist
+        if not vcruntime or not os.path.isfile(vcruntime):
+            return
 
-    def manifest_get_embed_info(self, target_desc, ld_args):
-        # If a manifest should be embedded, return a tuple of
-        # (manifest_filename, resource_id).  Returns None if no manifest
-        # should be embedded.  See http://bugs.python.org/issue7833 for why
-        # we want to avoid any manifest for extension modules if we can)
-        for arg in ld_args:
-            if arg.startswith("/MANIFESTFILE:"):
-                temp_manifest = arg.split(":", 1)[1]
-                break
-        else:
-            # no /MANIFESTFILE so nothing to do.
-            return None
-        if target_desc == CCompiler.EXECUTABLE:
-            # by default, executables always get the manifest with the
-            # CRT referenced.
-            mfid = 1
-        else:
-            # Extension modules try and avoid any manifest if possible.
-            mfid = 2
-            temp_manifest = self._remove_visual_c_ref(temp_manifest)
-        if temp_manifest is None:
-            return None
-        return temp_manifest, mfid
+        if os.path.basename(vcruntime).lower() in _BUNDLED_DLLS:
+            return
 
-    def _remove_visual_c_ref(self, manifest_file):
+        log.debug('Copying "%s"', vcruntime)
+        vcruntime = shutil.copy(vcruntime, output_dir)
+        os.chmod(vcruntime, stat.S_IWRITE)
+
+    def spawn(self, cmd):
+        old_path = os.getenv('path')
         try:
-            # Remove references to the Visual C runtime, so they will
-            # fall through to the Visual C dependency of Python.exe.
-            # This way, when installed for a restricted user (e.g.
-            # runtimes are not in WinSxS folder, but in Python's own
-            # folder), the runtimes do not need to be in every folder
-            # with .pyd's.
-            # Returns either the filename of the modified manifest or
-            # None if no manifest should be embedded.
-            manifest_f = open(manifest_file)
-            try:
-                manifest_buf = manifest_f.read()
-            finally:
-                manifest_f.close()
-            pattern = re.compile(
-                r"""<assemblyIdentity.*?name=("|')Microsoft\."""\
-                r"""VC\d{2}\.CRT("|').*?(/>|</assemblyIdentity>)""",
-                re.DOTALL)
-            manifest_buf = re.sub(pattern, "", manifest_buf)
-            pattern = "<dependentAssembly>\s*</dependentAssembly>"
-            manifest_buf = re.sub(pattern, "", manifest_buf)
-            # Now see if any other assemblies are referenced - if not, we
-            # don't want a manifest embedded.
-            pattern = re.compile(
-                r"""<assemblyIdentity.*?name=(?:"|')(.+?)(?:"|')"""
-                r""".*?(?:/>|</assemblyIdentity>)""", re.DOTALL)
-            if re.search(pattern, manifest_buf) is None:
-                return None
-
-            manifest_f = open(manifest_file, 'w')
-            try:
-                manifest_f.write(manifest_buf)
-                return manifest_file
-            finally:
-                manifest_f.close()
-        except OSError:
-            pass
+            os.environ['path'] = self._paths
+            return super().spawn(cmd)
+        finally:
+            os.environ['path'] = old_path
 
     # -- Miscellaneous methods -----------------------------------------
     # These are all used by the 'gen_lib_options() function, in

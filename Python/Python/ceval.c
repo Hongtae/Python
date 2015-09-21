@@ -2561,21 +2561,24 @@ PyEval_EvalFrameEx(PyFrameObject *f, int throwflag)
         }
 
         TARGET(BUILD_MAP) {
+            int i;
             PyObject *map = _PyDict_NewPresized((Py_ssize_t)oparg);
             if (map == NULL)
                 goto error;
-            while (--oparg >= 0) {
+            for (i = oparg; i > 0; i--) {
                 int err;
-                PyObject *value = TOP();
-                PyObject *key = SECOND();
-                STACKADJ(-2);
+                PyObject *key = PEEK(2*i);
+                PyObject *value = PEEK(2*i - 1);
                 err = PyDict_SetItem(map, key, value);
-                Py_DECREF(value);
-                Py_DECREF(key);
                 if (err != 0) {
                     Py_DECREF(map);
                     goto error;
                 }
+            }
+
+            while (oparg--) {
+                Py_DECREF(POP());
+                Py_DECREF(POP());
             }
             PUSH(map);
             DISPATCH();
@@ -5082,19 +5085,24 @@ import_from(PyObject *v, PyObject *name)
        sys.modules. */
     PyErr_Clear();
     pkgname = _PyObject_GetAttrId(v, &PyId___name__);
-    if (pkgname == NULL)
-        return NULL;
+    if (pkgname == NULL) {
+        goto error;
+    }
     fullmodname = PyUnicode_FromFormat("%U.%U", pkgname, name);
     Py_DECREF(pkgname);
-    if (fullmodname == NULL)
+    if (fullmodname == NULL) {
         return NULL;
+    }
     x = PyDict_GetItem(PyImport_GetModuleDict(), fullmodname);
-    if (x == NULL)
-        PyErr_Format(PyExc_ImportError, "cannot import name %R", name);
-    else
-        Py_INCREF(x);
     Py_DECREF(fullmodname);
+    if (x == NULL) {
+        goto error;
+    }
+    Py_INCREF(x);
     return x;
+ error:
+    PyErr_Format(PyExc_ImportError, "cannot import name %R", name);
+    return NULL;
 }
 
 static int

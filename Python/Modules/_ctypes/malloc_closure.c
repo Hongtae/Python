@@ -87,9 +87,9 @@ static void more_core(void)
 }
 
 /* 2015-07-21, by tiff2766@gmail.com
-   ffi_closure_free, ffi_closure_alloc functions are defined in armv7/ffi.c
-   to resolve duplicated symbols error, I need to disable below functions
-   for armv7 (iOS). */
+ ffi_closure_free, ffi_closure_alloc functions are defined in armv7/ffi.c
+ to resolve duplicated symbols error, I need to disable below functions
+ for armv7 (iOS). */
 #ifndef __arm__
 /******************************************************************/
 

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 47;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -1668,7 +1668,7 @@
 		840A36F51B5E83A90077D6DB /* odictobject.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = odictobject.c; sourceTree = "<group>"; };
 		84141F731A5EDA4600C92847 /* _opcode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _opcode.c; sourceTree = "<group>"; };
 		84141F741A5EDA4600C92847 /* _stat.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _stat.c; sourceTree = "<group>"; };
-		84141F861A5F91DA00C92847 /* Lib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Lib; path = ../Lib; sourceTree = "<group>"; };
+		84141F861A5F91DA00C92847 /* Lib */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Lib; sourceTree = "<group>"; };
 		842BC4BE17CF3A500063A717 /* pyconfig_android.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pyconfig_android.h; sourceTree = "<group>"; };
 		842BC4BF17CF3A500063A717 /* pyconfig_osx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pyconfig_osx.h; sourceTree = "<group>"; };
 		842BC4C017CF3A500063A717 /* pyconfig_win32.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pyconfig_win32.h; sourceTree = "<group>"; };
@@ -3426,7 +3426,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0610;
-				ORGANIZATIONNAME = tiff;
+				ORGANIZATIONNAME = Python.org;
 				TargetAttributes = {
 					84DFB7ED1A5D8C1800EBC872 = {
 						CreatedOnToolsVersion = 6.1.1;
@@ -3437,7 +3437,7 @@
 				};
 			};
 			buildConfigurationList = 8474A24716AF8AA100F004D5 /* Build configuration list for PBXProject "Python3" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 6.3";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (

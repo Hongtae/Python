@@ -295,7 +295,7 @@ static PyMemberDef overlapped_members[] = {
     {NULL}
 };
 
-static PyTypeObject OverlappedType = {
+PyTypeObject OverlappedType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     /* tp_name           */ "_winapi.Overlapped",
     /* tp_basicsize      */ sizeof(OverlappedObject),

@@ -23,12 +23,8 @@ LOCAL_SRC_FILES := \
 	src/inffast.c \
 	src/inflate.c \
 	src/inftrees.c \
-	src/ioapi.c \
-	src/mztools.c \
 	src/trees.c \
 	src/uncompr.c \
-	src/unzip.c \
-	src/zip.c \
 	src/zutil.c
 
 

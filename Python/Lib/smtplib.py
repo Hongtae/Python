@@ -54,7 +54,7 @@ import datetime
 import sys
 from email.base64mime import body_encode as encode_base64
 
-__all__ = ["SMTPException", "SMTPServerDisconnected", "SMTPResponseException",
+__all__ = ["SMTPException", "SMTPNotSupportedError", "SMTPServerDisconnected", "SMTPResponseException",
            "SMTPSenderRefused", "SMTPRecipientsRefused", "SMTPDataError",
            "SMTPConnectError", "SMTPHeloError", "SMTPAuthenticationError",
            "quoteaddr", "quotedata", "SMTP"]
@@ -216,6 +216,8 @@ class SMTP:
         method called 'sendmail' that will do an entire mail transaction.
         """
     debuglevel = 0
+
+    sock = None
     file = None
     helo_resp = None
     ehlo_msg = "ehlo"
@@ -250,6 +252,7 @@ class SMTP:
         if host:
             (code, msg) = self.connect(host, port)
             if code != 220:
+                self.close()
                 raise SMTPConnectError(code, msg)
         if local_hostname is not None:
             self.local_hostname = local_hostname
@@ -332,6 +335,7 @@ class SMTP:
             port = self.default_port
         if self.debuglevel > 0:
             self._print_debug('connect:', (host, port))
+        sys.audit("smtplib.connect", self, host, port)
         self.sock = self._get_socket(host, port, self.timeout)
         self.file = None
         (code, msg) = self.getreply()
@@ -343,12 +347,13 @@ class SMTP:
         """Send `s' to the server."""
         if self.debuglevel > 0:
             self._print_debug('send:', repr(s))
-        if hasattr(self, 'sock') and self.sock:
+        if self.sock:
             if isinstance(s, str):
                 # send is used by the 'data' command, where command_encoding
                 # should not be used, but 'data' needs to convert the string to
                 # binary itself anyway, so that's not a problem.
                 s = s.encode(self.command_encoding)
+            sys.audit("smtplib.send", self, s)
             try:
                 self.sock.sendall(s)
             except OSError:
@@ -512,7 +517,7 @@ class SMTP:
         """SMTP 'noop' command -- doesn't do anything :>"""
         return self.docmd("noop")
 
-    def mail(self, sender, options=[]):
+    def mail(self, sender, options=()):
         """SMTP 'mail' command -- begins mail xfer session.
 
         This method may raise the following exceptions:
@@ -533,7 +538,7 @@ class SMTP:
         self.putcmd("mail", "FROM:%s%s" % (quoteaddr(sender), optionlist))
         return self.getreply()
 
-    def rcpt(self, recip, options=[]):
+    def rcpt(self, recip, options=()):
         """SMTP 'rcpt' command -- indicates 1 recipient for this mail."""
         optionlist = ''
         if options and self.does_esmtp:
@@ -614,7 +619,7 @@ class SMTP:
 
         It will be called to process the server's challenge response; the
         challenge argument it is passed will be a bytes.  It should return
-        bytes data that will be base64 encoded and sent to the server.
+        an ASCII string that will be base64 encoded and sent to the server.
 
         Keyword arguments:
             - initial_response_ok: Allow sending the RFC 4954 initial-response
@@ -630,12 +635,12 @@ class SMTP:
             (code, resp) = self.docmd("AUTH", mechanism + " " + response)
         else:
             (code, resp) = self.docmd("AUTH", mechanism)
-            # Server replies with 334 (challenge) or 535 (not supported)
-            if code == 334:
-                challenge = base64.decodebytes(resp)
-                response = encode_base64(
-                    authobject(challenge).encode('ascii'), eol='')
-                (code, resp) = self.docmd(response)
+        # If server responds with a challenge, send the response.
+        if code == 334:
+            challenge = base64.decodebytes(resp)
+            response = encode_base64(
+                authobject(challenge).encode('ascii'), eol='')
+            (code, resp) = self.docmd(response)
         if code in (235, 503):
             return (code, resp)
         raise SMTPAuthenticationError(code, resp)
@@ -657,11 +662,10 @@ class SMTP:
     def auth_login(self, challenge=None):
         """ Authobject to use with LOGIN authentication. Requires self.user and
         self.password to be set."""
-        (code, resp) = self.docmd(
-            encode_base64(self.user.encode('ascii'), eol=''))
-        if code == 334:
+        if challenge is None:
+            return self.user
+        else:
             return self.password
-        raise SMTPAuthenticationError(code, resp)
 
     def login(self, user, password, *, initial_response_ok=True):
         """Log in on an SMTP server that requires authentication.
@@ -760,6 +764,10 @@ class SMTP:
             if context is not None and certfile is not None:
                 raise ValueError("context and certfile arguments are mutually "
                                  "exclusive")
+            if keyfile is not None or certfile is not None:
+                import warnings
+                warnings.warn("keyfile and certfile are deprecated, use a "
+                              "custom context instead", DeprecationWarning, 2)
             if context is None:
                 context = ssl._create_stdlib_context(certfile=certfile,
                                                      keyfile=keyfile)
@@ -774,10 +782,15 @@ class SMTP:
             self.ehlo_resp = None
             self.esmtp_features = {}
             self.does_esmtp = 0
+        else:
+            # RFC 3207:
+            # 501 Syntax error (no parameters allowed)
+            # 454 TLS not available due to temporary reason
+            raise SMTPResponseException(resp, reply)
         return (resp, reply)
 
-    def sendmail(self, from_addr, to_addrs, msg, mail_options=[],
-                 rcpt_options=[]):
+    def sendmail(self, from_addr, to_addrs, msg, mail_options=(),
+                 rcpt_options=()):
         """This command performs an entire mail transaction.
 
         The arguments are:
@@ -881,7 +894,7 @@ class SMTP:
         return senderrs
 
     def send_message(self, msg, from_addr=None, to_addrs=None,
-                mail_options=[], rcpt_options={}):
+                     mail_options=(), rcpt_options=()):
         """Converts message to a bytestring and passes it to sendmail.
 
         The arguments are as for sendmail, except that msg is an
@@ -896,7 +909,7 @@ class SMTP:
         the recipient addresses contain non-ASCII and the server advertises the
         SMTPUTF8 capability, the policy is cloned with utf8 set to True for the
         serialization, and SMTPUTF8 and BODY=8BITMIME are asserted on the send.
-        If the server does not support SMTPUTF8, an SMPTNotSupported error is
+        If the server does not support SMTPUTF8, an SMTPNotSupported error is
         raised.  Otherwise the generator is called without modifying the
         policy.
 
@@ -924,6 +937,7 @@ class SMTP:
             from_addr = (msg[header_prefix + 'Sender']
                            if (header_prefix + 'Sender') in msg
                            else msg[header_prefix + 'From'])
+            from_addr = email.utils.getaddresses([from_addr])[0][1]
         if to_addrs is None:
             addr_fields = [f for f in (msg[header_prefix + 'To'],
                                        msg[header_prefix + 'Bcc'],
@@ -948,7 +962,7 @@ class SMTP:
             if international:
                 g = email.generator.BytesGenerator(
                     bytesmsg, policy=msg.policy.clone(utf8=True))
-                mail_options += ['SMTPUTF8', 'BODY=8BITMIME']
+                mail_options = (*mail_options, 'SMTPUTF8', 'BODY=8BITMIME')
             else:
                 g = email.generator.BytesGenerator(bytesmsg)
             g.flatten(msg_copy, linesep='\r\n')
@@ -1007,6 +1021,10 @@ if _have_ssl:
             if context is not None and certfile is not None:
                 raise ValueError("context and certfile arguments are mutually "
                                  "exclusive")
+            if keyfile is not None or certfile is not None:
+                import warnings
+                warnings.warn("keyfile and certfile are deprecated, use a "
+                              "custom context instead", DeprecationWarning, 2)
             self.keyfile = keyfile
             self.certfile = certfile
             if context is None:
@@ -1080,8 +1098,6 @@ class LMTP(SMTP):
 # Test the sendmail method, which tests most of the others.
 # Note: This always sends to localhost.
 if __name__ == '__main__':
-    import sys
-
     def prompt(prompt):
         sys.stdout.write(prompt + ": ")
         sys.stdout.flush()

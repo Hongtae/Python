@@ -34,7 +34,7 @@ commentclose = re.compile(r'--\s*>')
 #     explode, so don't do it.
 # see http://www.w3.org/TR/html5/tokenization.html#tag-open-state
 # and http://www.w3.org/TR/html5/tokenization.html#tag-name-state
-tagfind_tolerant = re.compile('([a-zA-Z][^\t\n\r\f />\x00]*)(?:\s|/(?!>))*')
+tagfind_tolerant = re.compile(r'([a-zA-Z][^\t\n\r\f />\x00]*)(?:\s|/(?!>))*')
 attrfind_tolerant = re.compile(
     r'((?<=[\'"\s/])[^\s/>][^\s/=>]*)(\s*=+\s*'
     r'(\'[^\']*\'|"[^"]*"|(?![\'"])[^>\s]*))?(?:\s|/(?!>))*')
@@ -56,7 +56,7 @@ locatestarttagend_tolerant = re.compile(r"""
 endendtag = re.compile('>')
 # the HTML 5 spec, section 8.1.2.2, doesn't allow spaces between
 # </ and the tag name, so maybe this should be fixed
-endtagfind = re.compile('</\s*([a-zA-Z][-.a-zA-Z0-9:_]*)\s*>')
+endtagfind = re.compile(r'</\s*([a-zA-Z][-.a-zA-Z0-9:_]*)\s*>')
 
 
 
@@ -139,7 +139,15 @@ class HTMLParser(_markupbase.ParserBase):
             if self.convert_charrefs and not self.cdata_elem:
                 j = rawdata.find('<', i)
                 if j < 0:
-                    if not end:
+                    # if we can't find the next <, either we are at the end
+                    # or there's more text incoming.  If the latter is True,
+                    # we can't pass the text to handle_data in case we have
+                    # a charref cut in half at end.  Try to determine if
+                    # this is the case before proceeding by looking for an
+                    # & near the end and see if it's followed by a space or ;.
+                    amppos = rawdata.rfind('&', max(i, n-34))
+                    if (amppos >= 0 and
+                        not re.compile(r'[\s;]').search(rawdata, amppos)):
                         break  # wait till we get all the text
                     j = n
             else:
@@ -410,7 +418,7 @@ class HTMLParser(_markupbase.ParserBase):
                 self.handle_data(rawdata[i:gtpos])
                 return gtpos
 
-        self.handle_endtag(elem.lower())
+        self.handle_endtag(elem)
         self.clear_cdata_mode()
         return gtpos
 

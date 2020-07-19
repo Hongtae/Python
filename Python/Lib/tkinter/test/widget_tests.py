@@ -3,7 +3,6 @@
 import unittest
 import sys
 import tkinter
-from tkinter.ttk import Scale
 from tkinter.test.support import (AbstractTkTest, tcl_version, requires_tcl,
                                   get_tk_patchlevel, pixels_conv, tcl_obj_eq)
 import test.support
@@ -63,11 +62,9 @@ class AbstractWidgetTest(AbstractTkTest):
             eq = tcl_obj_eq
         self.assertEqual2(widget[name], expected, eq=eq)
         self.assertEqual2(widget.cget(name), expected, eq=eq)
-        # XXX
-        if not isinstance(widget, Scale):
-            t = widget.configure(name)
-            self.assertEqual(len(t), 5)
-            self.assertEqual2(t[4], expected, eq=eq)
+        t = widget.configure(name)
+        self.assertEqual(len(t), 5)
+        self.assertEqual2(t[4], expected, eq=eq)
 
     def checkInvalidParam(self, widget, name, value, errmsg=None, *,
                           keep_orig=True):
@@ -204,6 +201,31 @@ class AbstractWidgetTest(AbstractTkTest):
             if not isinstance(item, int):
                 self.fail('Invalid bounding box: %r' % (bbox,))
                 break
+
+
+    def test_keys(self):
+        widget = self.create()
+        keys = widget.keys()
+        self.assertEqual(sorted(keys), sorted(widget.configure()))
+        for k in keys:
+            widget[k]
+        # Test if OPTIONS contains all keys
+        if test.support.verbose:
+            aliases = {
+                'bd': 'borderwidth',
+                'bg': 'background',
+                'fg': 'foreground',
+                'invcmd': 'invalidcommand',
+                'vcmd': 'validatecommand',
+            }
+            keys = set(keys)
+            expected = set(self.OPTIONS)
+            for k in sorted(keys - expected):
+                if not (k in aliases and
+                        aliases[k] in keys and
+                        aliases[k] in expected):
+                    print('%s.OPTIONS doesn\'t contain "%s"' %
+                          (self.__class__.__name__, k))
 
 
 class StandardOptionsTests:

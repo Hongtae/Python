@@ -307,7 +307,7 @@ class Test_TestResult(unittest.TestCase):
             self.assertEqual(
                     result.getDescription(self._subtest),
                     'testGetSubTestDescriptionWithoutDocstring (' + __name__ +
-                    '.Test_TestResult) (bar=2, foo=1)')
+                    '.Test_TestResult) (foo=1, bar=2)')
         with self.subTest('some message'):
             result = unittest.TextTestResult(None, True, 1)
             self.assertEqual(
@@ -323,14 +323,33 @@ class Test_TestResult(unittest.TestCase):
                     'testGetSubTestDescriptionWithoutDocstringAndParams '
                     '(' + __name__ + '.Test_TestResult) (<subtest>)')
 
+    def testGetSubTestDescriptionForFalsyValues(self):
+        expected = 'testGetSubTestDescriptionForFalsyValues (%s.Test_TestResult) [%s]'
+        result = unittest.TextTestResult(None, True, 1)
+        for arg in [0, None, []]:
+            with self.subTest(arg):
+                self.assertEqual(
+                    result.getDescription(self._subtest),
+                    expected % (__name__, arg)
+                )
+
     def testGetNestedSubTestDescriptionWithoutDocstring(self):
         with self.subTest(foo=1):
-            with self.subTest(bar=2):
+            with self.subTest(baz=2, bar=3):
                 result = unittest.TextTestResult(None, True, 1)
                 self.assertEqual(
                         result.getDescription(self._subtest),
                         'testGetNestedSubTestDescriptionWithoutDocstring '
-                        '(' + __name__ + '.Test_TestResult) (bar=2, foo=1)')
+                        '(' + __name__ + '.Test_TestResult) (baz=2, bar=3, foo=1)')
+
+    def testGetDuplicatedNestedSubTestDescriptionWithoutDocstring(self):
+        with self.subTest(foo=1, bar=2):
+            with self.subTest(baz=3, bar=4):
+                result = unittest.TextTestResult(None, True, 1)
+                self.assertEqual(
+                        result.getDescription(self._subtest),
+                        'testGetDuplicatedNestedSubTestDescriptionWithoutDocstring '
+                        '(' + __name__ + '.Test_TestResult) (baz=3, bar=4, foo=1)')
 
     @unittest.skipIf(sys.flags.optimize >= 2,
                      "Docstrings are omitted with -O2 and above")
@@ -352,7 +371,7 @@ class Test_TestResult(unittest.TestCase):
             self.assertEqual(
                 result.getDescription(self._subtest),
                ('testGetSubTestDescriptionWithOneLineDocstring '
-                '(' + __name__ + '.Test_TestResult) (bar=2, foo=1)\n'
+                '(' + __name__ + '.Test_TestResult) (foo=1, bar=2)\n'
                 'Tests getDescription() for a method with a docstring.'))
 
     @unittest.skipIf(sys.flags.optimize >= 2,
@@ -380,7 +399,7 @@ class Test_TestResult(unittest.TestCase):
             self.assertEqual(
                 result.getDescription(self._subtest),
                ('testGetSubTestDescriptionWithMultiLineDocstring '
-                '(' + __name__ + '.Test_TestResult) (bar=2, foo=1)\n'
+                '(' + __name__ + '.Test_TestResult) (foo=1, bar=2)\n'
                 'Tests getDescription() for a method with a longer '
                 'docstring.'))
 

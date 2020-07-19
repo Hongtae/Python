@@ -2,21 +2,20 @@ import os
 import sys
 import ssl
 import pprint
-import socket
+import threading
 import urllib.parse
 # Rename HTTPServer to _HTTPServer so as to avoid confusion with HTTPSServer.
 from http.server import (HTTPServer as _HTTPServer,
     SimpleHTTPRequestHandler, BaseHTTPRequestHandler)
 
 from test import support
-threading = support.import_module("threading")
 
 here = os.path.dirname(__file__)
 
 HOST = support.HOST
 CERTFILE = os.path.join(here, 'keycert.pem')
 
-# This one's based on HTTPServer, which is based on SocketServer
+# This one's based on HTTPServer, which is based on socketserver
 
 class HTTPSServer(_HTTPServer):
 

@@ -1,39 +1,61 @@
 #! /usr/bin/env python3
 
-import getopt
-import os
-import os.path
-import re
-import socket
-import subprocess
 import sys
-import threading
-import time
-import tokenize
-import io
-
-import linecache
-from code import InteractiveInterpreter
-from platform import python_version, system
+if __name__ == "__main__":
+    sys.modules['idlelib.pyshell'] = sys.modules['__main__']
 
 try:
     from tkinter import *
 except ImportError:
     print("** IDLE can't import Tkinter.\n"
           "Your Python may not be configured for Tk. **", file=sys.__stderr__)
-    sys.exit(1)
-import tkinter.messagebox as tkMessageBox
+    raise SystemExit(1)
 
-from idlelib.EditorWindow import EditorWindow, fixwordbreaks
-from idlelib.FileList import FileList
-from idlelib.ColorDelegator import ColorDelegator
-from idlelib.UndoDelegator import UndoDelegator
-from idlelib.OutputWindow import OutputWindow
-from idlelib.configHandler import idleConf
+# Valid arguments for the ...Awareness call below are defined in the following.
+# https://msdn.microsoft.com/en-us/library/windows/desktop/dn280512(v=vs.85).aspx
+if sys.platform == 'win32':
+    try:
+        import ctypes
+        PROCESS_SYSTEM_DPI_AWARE = 1  # Int required.
+        ctypes.OleDLL('shcore').SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE)
+    except (ImportError, AttributeError, OSError):
+        pass
+
+import tkinter.messagebox as tkMessageBox
+if TkVersion < 8.5:
+    root = Tk()  # otherwise create root in main
+    root.withdraw()
+    from idlelib.run import fix_scaling
+    fix_scaling(root)
+    tkMessageBox.showerror("Idle Cannot Start",
+            "Idle requires tcl/tk 8.5+, not %s." % TkVersion,
+            parent=root)
+    raise SystemExit(1)
+
+from code import InteractiveInterpreter
+import linecache
+import os
+import os.path
+from platform import python_version
+import re
+import socket
+import subprocess
+from textwrap import TextWrapper
+import threading
+import time
+import tokenize
+import warnings
+
+from idlelib.colorizer import ColorDelegator
+from idlelib.config import idleConf
+from idlelib import debugger
+from idlelib import debugger_r
+from idlelib.editor import EditorWindow, fixwordbreaks
+from idlelib.filelist import FileList
+from idlelib.outwin import OutputWindow
 from idlelib import rpc
-from idlelib import Debugger
-from idlelib import RemoteDebugger
-from idlelib import macosxSupport
+from idlelib.run import idle_formatwarning, StdInputFile, StdOutputFile
+from idlelib.undo import UndoDelegator
 
 HOST = '127.0.0.1' # python execution server on localhost loopback
 PORT = 0  # someday pass in host, port for remote debug capability
@@ -43,20 +65,6 @@ PORT = 0  # someday pass in host, port for remote debug capability
 # temporarily redirect the stream to the shell window to display warnings when
 # checking user's code.
 warning_stream = sys.__stderr__  # None, at least on Windows, if no console.
-import warnings
-
-def idle_formatwarning(message, category, filename, lineno, line=None):
-    """Format warnings the IDLE way."""
-
-    s = "\nWarning (from warnings module):\n"
-    s += '  File \"%s\", line %s\n' % (filename, lineno)
-    if line is None:
-        line = linecache.getline(filename, lineno)
-    line = line.strip()
-    if line:
-        s += "    %s\n" % line
-    s += "%s: %s\n" % (category.__name__, message)
-    return s
 
 def idle_showwarning(
         message, category, filename, lineno, file=None, line=None):
@@ -125,8 +133,9 @@ class PyShellEditorWindow(EditorWindow):
         self.text.bind("<<clear-breakpoint-here>>", self.clear_breakpoint_here)
         self.text.bind("<<open-python-shell>>", self.flist.open_shell)
 
-        self.breakpointPath = os.path.join(idleConf.GetUserCfgDir(),
-                                           'breakpoints.lst')
+        #TODO: don't read/write this from/to .idlerc when testing
+        self.breakpointPath = os.path.join(
+                idleConf.userdir, 'breakpoints.lst')
         # whenever a file is changed, restore breakpoints
         def filename_changed_hook(old_hook=self.io.filename_change_hook,
                                   self=self):
@@ -152,7 +161,7 @@ class PyShellEditorWindow(EditorWindow):
             # possible due to update in restore_file_breaks
             return
         if color:
-            theme = idleConf.GetOption('main','Theme','name')
+            theme = idleConf.CurrentTheme()
             cfg = idleConf.GetHighlight(theme, "break")
         else:
             cfg = {'foreground': '', 'background': ''}
@@ -338,7 +347,7 @@ class ModifiedColorDelegator(ColorDelegator):
 
     def LoadTagDefs(self):
         ColorDelegator.LoadTagDefs(self)
-        theme = idleConf.GetOption('main','Theme','name')
+        theme = idleConf.CurrentTheme()
         self.tagdefs.update({
             "stdin": {'background':None,'foreground':None},
             "stdout": idleConf.GetHighlight(theme, "stdout"),
@@ -379,6 +388,19 @@ class MyRPCClient(rpc.RPCClient):
         "Override the base class - just re-raise EOFError"
         raise EOFError
 
+def restart_line(width, filename):  # See bpo-38141.
+    """Return width long restart line formatted with filename.
+
+    Fill line with balanced '='s, with any extras and at least one at
+    the beginning.  Do not end with a trailing space.
+    """
+    tag = f"= RESTART: {filename or 'Shell'} ="
+    if width >= len(tag):
+        div, mod = divmod((width -len(tag)), 2)
+        return f"{(div+mod)*'='}{tag}{div*'='}"
+    else:
+        return tag[:-2]  # Remove ' ='.
+
 
 class ModifiedInterpreter(InteractiveInterpreter):
 
@@ -386,7 +408,6 @@ class ModifiedInterpreter(InteractiveInterpreter):
         self.tkconsole = tkconsole
         locals = sys.modules['__main__'].__dict__
         InteractiveInterpreter.__init__(self, locals=locals)
-        self.save_warnings_filters = None
         self.restarting = False
         self.subprocess_arglist = None
         self.port = PORT
@@ -410,10 +431,7 @@ class ModifiedInterpreter(InteractiveInterpreter):
         # run from the IDLE source directory.
         del_exitf = idleConf.GetOption('main', 'General', 'delete-exitfunc',
                                        default=False, type='bool')
-        if __name__ == 'idlelib.PyShell':
-            command = "__import__('idlelib.run').run.main(%r)" % (del_exitf,)
-        else:
-            command = "__import__('run').main(%r)" % (del_exitf,)
+        command = "__import__('idlelib.run').run.main(%r)" % (del_exitf,)
         return [sys.executable] + w + ["-c", command, str(self.port)]
 
     def start_subprocess(self):
@@ -468,7 +486,7 @@ class ModifiedInterpreter(InteractiveInterpreter):
         if debug:
             try:
                 # Only close subprocess debugger, don't unregister gui_adap!
-                RemoteDebugger.close_subprocess_debugger(self.rpcclt)
+                debugger_r.close_subprocess_debugger(self.rpcclt)
             except:
                 pass
         # Kill subprocess, spawn a new one, accept connection.
@@ -487,9 +505,8 @@ class ModifiedInterpreter(InteractiveInterpreter):
         console.stop_readline()
         # annotate restart in shell window and mark it
         console.text.delete("iomark", "end-1c")
-        tag = 'RESTART: ' + (filename if filename else 'Shell')
-        halfbar = ((int(console.width) -len(tag) - 4) // 2) * '='
-        console.write("\n{0} {1} {0}".format(halfbar, tag))
+        console.write('\n')
+        console.write(restart_line(console.width, filename))
         console.text.mark_set("restart", "end-1c")
         console.text.mark_gravity("restart", "left")
         if not filename:
@@ -497,7 +514,7 @@ class ModifiedInterpreter(InteractiveInterpreter):
         # restart subprocess debugger
         if debug:
             # Restarted debugger connects to current instance of debug GUI
-            RemoteDebugger.restart_subprocess_debugger(self.rpcclt)
+            debugger_r.restart_subprocess_debugger(self.rpcclt)
             # reload remote debugger breakpoints for all PyShellEditWindows
             debug.load_breakpoints()
         self.compile.compiler.flags = self.original_compiler_flags
@@ -578,7 +595,7 @@ class ModifiedInterpreter(InteractiveInterpreter):
                 if self.tkconsole.getvar("<<toggle-jit-stack-viewer>>"):
                     self.remote_stack_viewer()
             elif how == "ERROR":
-                errmsg = "PyShell.ModifiedInterpreter: Subprocess ERROR:\n"
+                errmsg = "pyshell.ModifiedInterpreter: Subprocess ERROR:\n"
                 print(errmsg, what, file=sys.__stderr__)
                 print(errmsg, what, file=console)
             # we received a response to the currently active seq number:
@@ -613,15 +630,15 @@ class ModifiedInterpreter(InteractiveInterpreter):
         return
 
     def remote_stack_viewer(self):
-        from idlelib import RemoteObjectBrowser
+        from idlelib import debugobj_r
         oid = self.rpcclt.remotequeue("exec", "stackviewer", ("flist",), {})
         if oid is None:
             self.tkconsole.root.bell()
             return
-        item = RemoteObjectBrowser.StubObjectTreeItem(self.rpcclt, oid)
-        from idlelib.TreeWidget import ScrolledCanvas, TreeNode
+        item = debugobj_r.StubObjectTreeItem(self.rpcclt, oid)
+        from idlelib.tree import ScrolledCanvas, TreeNode
         top = Toplevel(self.tkconsole.root)
-        theme = idleConf.GetOption('main','Theme','name')
+        theme = idleConf.CurrentTheme()
         background = idleConf.GetHighlight(theme, 'normal')['background']
         sc = ScrolledCanvas(top, bg=background, highlightthickness=0)
         sc.frame.pack(expand=1, fill="both")
@@ -641,6 +658,9 @@ class ModifiedInterpreter(InteractiveInterpreter):
         if source is None:
             with tokenize.open(filename) as fp:
                 source = fp.read()
+                if use_subprocess:
+                    source = (f"__file__ = r'''{os.path.abspath(filename)}'''\n"
+                              + source + "\ndel __file__")
         try:
             code = compile(source, filename, "exec")
         except (OverflowError, SyntaxError):
@@ -656,27 +676,11 @@ class ModifiedInterpreter(InteractiveInterpreter):
     def runsource(self, source):
         "Extend base class method: Stuff the source in the line cache first"
         filename = self.stuffsource(source)
-        self.more = 0
-        self.save_warnings_filters = warnings.filters[:]
-        warnings.filterwarnings(action="error", category=SyntaxWarning)
         # at the moment, InteractiveInterpreter expects str
         assert isinstance(source, str)
-        #if isinstance(source, str):
-        #    from idlelib import IOBinding
-        #    try:
-        #        source = source.encode(IOBinding.encoding)
-        #    except UnicodeError:
-        #        self.tkconsole.resetoutput()
-        #        self.write("Unsupported characters in input\n")
-        #        return
-        try:
-            # InteractiveInterpreter.runsource() calls its runcode() method,
-            # which is overridden (see below)
-            return InteractiveInterpreter.runsource(self, source, filename)
-        finally:
-            if self.save_warnings_filters is not None:
-                warnings.filters[:] = self.save_warnings_filters
-                self.save_warnings_filters = None
+        # InteractiveInterpreter.runsource() calls its runcode() method,
+        # which is overridden (see below)
+        return InteractiveInterpreter.runsource(self, source, filename)
 
     def stuffsource(self, source):
         "Stuff source in the filename cache"
@@ -755,9 +759,6 @@ class ModifiedInterpreter(InteractiveInterpreter):
         if self.tkconsole.executing:
             self.interp.restart_subprocess()
         self.checklinecache()
-        if self.save_warnings_filters is not None:
-            warnings.filters[:] = self.save_warnings_filters
-            self.save_warnings_filters = None
         debugger = self.debugger
         try:
             self.tkconsole.beginexecuting()
@@ -774,7 +775,7 @@ class ModifiedInterpreter(InteractiveInterpreter):
                     "Exit?",
                     "Do you want to exit altogether?",
                     default="yes",
-                    master=self.tkconsole.text):
+                    parent=self.tkconsole.text):
                     raise
                 else:
                     self.showtraceback()
@@ -812,22 +813,22 @@ class ModifiedInterpreter(InteractiveInterpreter):
             "Run IDLE with the -n command line switch to start without a "
             "subprocess and refer to Help/IDLE Help 'Running without a "
             "subprocess' for further details.",
-            master=self.tkconsole.text)
+            parent=self.tkconsole.text)
 
     def display_no_subprocess_error(self):
         tkMessageBox.showerror(
-            "Subprocess Startup Error",
-            "IDLE's subprocess didn't make connection.  Either IDLE can't "
-            "start a subprocess or personal firewall software is blocking "
-            "the connection.",
-            master=self.tkconsole.text)
+            "Subprocess Connection Error",
+            "IDLE's subprocess didn't make connection.\n"
+            "See the 'Startup failure' section of the IDLE doc, online at\n"
+            "https://docs.python.org/3/library/idle.html#startup-failure",
+            parent=self.tkconsole.text)
 
     def display_executing_dialog(self):
         tkMessageBox.showerror(
             "Already executing",
             "The Python Shell window is already executing a command; "
             "please wait until it is finished.",
-            master=self.tkconsole.text)
+            parent=self.tkconsole.text)
 
 
 class PyShell(OutputWindow):
@@ -844,13 +845,19 @@ class PyShell(OutputWindow):
         ("edit", "_Edit"),
         ("debug", "_Debug"),
         ("options", "_Options"),
-        ("windows", "_Window"),
+        ("window", "_Window"),
         ("help", "_Help"),
     ]
 
+    # Extend right-click context menu
+    rmenu_specs = OutputWindow.rmenu_specs + [
+        ("Squeeze", "<<squeeze-current-text>>"),
+    ]
+
+    allow_line_numbers = False
 
     # New classes
-    from idlelib.IdleHistory import History
+    from idlelib.history import History
 
     def __init__(self, flist=None):
         if use_subprocess:
@@ -863,15 +870,17 @@ class PyShell(OutputWindow):
             fixwordbreaks(root)
             root.withdraw()
             flist = PyShellFileList(root)
-        #
+
         OutputWindow.__init__(self, flist, None, None)
-        #
-##        self.config(usetabs=1, indentwidth=8, context_use_ps1=1)
+
         self.usetabs = True
         # indentwidth must be 8 when using tabs.  See note in EditorWindow:
         self.indentwidth = 8
-        self.context_use_ps1 = True
-        #
+
+        self.sys_ps1 = sys.ps1 if hasattr(sys, 'ps1') else '>>> '
+        self.prompt_last_line = self.sys_ps1.split('\n')[-1]
+        self.prompt = self.sys_ps1  # Changes when debug active
+
         text = self.text
         text.configure(wrap="char")
         text.bind("<<newline-and-indent>>", self.enter_callback)
@@ -884,15 +893,22 @@ class PyShell(OutputWindow):
         if use_subprocess:
             text.bind("<<view-restart>>", self.view_restart_mark)
             text.bind("<<restart-shell>>", self.restart_shell)
-        #
+        squeezer = self.Squeezer(self)
+        text.bind("<<squeeze-current-text>>",
+                  squeezer.squeeze_current_text_event)
+
         self.save_stdout = sys.stdout
         self.save_stderr = sys.stderr
         self.save_stdin = sys.stdin
-        from idlelib import IOBinding
-        self.stdin = PseudoInputFile(self, "stdin", IOBinding.encoding)
-        self.stdout = PseudoOutputFile(self, "stdout", IOBinding.encoding)
-        self.stderr = PseudoOutputFile(self, "stderr", IOBinding.encoding)
-        self.console = PseudoOutputFile(self, "console", IOBinding.encoding)
+        from idlelib import iomenu
+        self.stdin = StdInputFile(self, "stdin",
+                                  iomenu.encoding, iomenu.errors)
+        self.stdout = StdOutputFile(self, "stdout",
+                                    iomenu.encoding, iomenu.errors)
+        self.stderr = StdOutputFile(self, "stderr",
+                                    iomenu.encoding, "backslashreplace")
+        self.console = StdOutputFile(self, "console",
+                                     iomenu.encoding, iomenu.errors)
         if not use_subprocess:
             sys.stdout = self.stdout
             sys.stderr = self.stderr
@@ -900,7 +916,7 @@ class PyShell(OutputWindow):
         try:
             # page help() text to shell.
             import pydoc # import must be done here to capture i/o rebinding.
-            # XXX KBK 27Dec07 use a textView someday, but must work w/o subproc
+            # XXX KBK 27Dec07 use text viewer someday, but must work w/o subproc
             pydoc.pager = pydoc.plainpager
         except:
             sys.stderr = sys.__stderr__
@@ -931,7 +947,7 @@ class PyShell(OutputWindow):
         if self.executing:
             tkMessageBox.showerror("Don't debug now",
                 "You can only toggle the debugger when idle",
-                master=self.text)
+                parent=self.text)
             self.set_debugger_indicator()
             return "break"
         else:
@@ -954,34 +970,34 @@ class PyShell(OutputWindow):
             self.interp.setdebugger(None)
             db.close()
             if self.interp.rpcclt:
-                RemoteDebugger.close_remote_debugger(self.interp.rpcclt)
+                debugger_r.close_remote_debugger(self.interp.rpcclt)
             self.resetoutput()
             self.console.write("[DEBUG OFF]\n")
-            sys.ps1 = ">>> "
+            self.prompt = self.sys_ps1
             self.showprompt()
         self.set_debugger_indicator()
 
     def open_debugger(self):
         if self.interp.rpcclt:
-            dbg_gui = RemoteDebugger.start_remote_debugger(self.interp.rpcclt,
+            dbg_gui = debugger_r.start_remote_debugger(self.interp.rpcclt,
                                                            self)
         else:
-            dbg_gui = Debugger.Debugger(self)
+            dbg_gui = debugger.Debugger(self)
         self.interp.setdebugger(dbg_gui)
         dbg_gui.load_breakpoints()
-        sys.ps1 = "[DEBUG ON]\n>>> "
+        self.prompt = "[DEBUG ON]\n" + self.sys_ps1
         self.showprompt()
         self.set_debugger_indicator()
 
     def beginexecuting(self):
         "Helper for ModifiedInterpreter"
         self.resetoutput()
-        self.executing = 1
+        self.executing = True
 
     def endexecuting(self):
         "Helper for ModifiedInterpreter"
-        self.executing = 0
-        self.canceled = 0
+        self.executing = False
+        self.canceled = False
         self.showprompt()
 
     def close(self):
@@ -989,7 +1005,7 @@ class PyShell(OutputWindow):
         if self.executing:
             response = tkMessageBox.askokcancel(
                 "Kill?",
-                "The program is still running!\n Do you want to kill it?",
+                "Your program is still running!\n Do you want to kill it?",
                 default="ok",
                 parent=self.text)
             if response is False:
@@ -1023,7 +1039,7 @@ class PyShell(OutputWindow):
         return self.shell_title
 
     COPYRIGHT = \
-          'Type "copyright", "credits" or "license()" for more information.'
+          'Type "help", "copyright", "credits" or "license()" for more information.'
 
     def begin(self):
         self.text.mark_set("iomark", "insert")
@@ -1043,6 +1059,7 @@ class PyShell(OutputWindow):
 
         self.write("Python %s on %s\n%s\n%s" %
                    (sys.version, sys.platform, self.COPYRIGHT, nosub))
+        self.text.focus_force()
         self.showprompt()
         import tkinter
         tkinter._default_root = None # 03Jan04 KBK What's this?
@@ -1057,7 +1074,7 @@ class PyShell(OutputWindow):
     def readline(self):
         save = self.reading
         try:
-            self.reading = 1
+            self.reading = True
             self.top.mainloop()  # nested mainloop()
         finally:
             self.reading = save
@@ -1069,11 +1086,11 @@ class PyShell(OutputWindow):
             line = "\n"
         self.resetoutput()
         if self.canceled:
-            self.canceled = 0
+            self.canceled = False
             if not use_subprocess:
                 raise KeyboardInterrupt
         if self.endoffile:
-            self.endoffile = 0
+            self.endoffile = False
             line = ""
         return line
 
@@ -1091,8 +1108,8 @@ class PyShell(OutputWindow):
             self.interp.write("KeyboardInterrupt\n")
             self.showprompt()
             return "break"
-        self.endoffile = 0
-        self.canceled = 1
+        self.endoffile = False
+        self.canceled = True
         if (self.executing and self.interp.rpcclt):
             if self.interp.getdebugger():
                 self.interp.restart_subprocess()
@@ -1112,8 +1129,8 @@ class PyShell(OutputWindow):
             self.resetoutput()
             self.close()
         else:
-            self.canceled = 0
-            self.endoffile = 1
+            self.canceled = False
+            self.endoffile = True
             self.top.quit()
         return "break"
 
@@ -1238,9 +1255,9 @@ class PyShell(OutputWindow):
             tkMessageBox.showerror("No stack trace",
                 "There is no stack trace yet.\n"
                 "(sys.last_traceback is not defined)",
-                master=self.text)
+                parent=self.text)
             return
-        from idlelib.StackViewer import StackBrowser
+        from idlelib.stackviewer import StackBrowser
         StackBrowser(self.root, self.flist)
 
     def view_restart_mark(self, event=None):
@@ -1253,14 +1270,18 @@ class PyShell(OutputWindow):
 
     def showprompt(self):
         self.resetoutput()
-        try:
-            s = str(sys.ps1)
-        except:
-            s = ""
-        self.console.write(s)
+        self.console.write(self.prompt)
         self.text.mark_set("insert", "end-1c")
         self.set_line_and_column()
         self.io.reset_undo()
+
+    def show_warning(self, msg):
+        width = self.interp.tkconsole.width
+        wrapper = TextWrapper(width=width, tabsize=8, expand_tabs=True)
+        wrapped_msg = '\n'.join(wrapper.wrap(msg))
+        if not wrapped_msg.endswith('\n'):
+            wrapped_msg += '\n'
+        self.per.bottom.insert("iomark linestart", wrapped_msg, "stderr")
 
     def resetoutput(self):
         source = self.text.get("iomark", "end-1c")
@@ -1270,18 +1291,9 @@ class PyShell(OutputWindow):
             self.text.insert("end-1c", "\n")
         self.text.mark_set("iomark", "end-1c")
         self.set_line_and_column()
+        self.ctip.remove_calltip_window()
 
     def write(self, s, tags=()):
-        if isinstance(s, str) and len(s) and max(s) > '\uffff':
-            # Tk doesn't support outputting non-BMP characters
-            # Let's assume what printed string is not very long,
-            # find first non-BMP character and construct informative
-            # UnicodeEncodeError exception.
-            for start, char in enumerate(s):
-                if char > '\uffff':
-                    break
-            raise UnicodeEncodeError("UCS-2", char, start, start+1,
-                                     'Non-BMP character not supported in Tk')
         try:
             self.text.mark_gravity("iomark", "right")
             count = OutputWindow.write(self, s, tags, "iomark")
@@ -1290,7 +1302,7 @@ class PyShell(OutputWindow):
             raise ###pass  # ### 11Aug07 KBK if we are expecting exceptions
                            # let's find out what they are and be specific.
         if self.canceled:
-            self.canceled = 0
+            self.canceled = False
             if not use_subprocess:
                 raise KeyboardInterrupt
         return count
@@ -1308,91 +1320,16 @@ class PyShell(OutputWindow):
             return 'disabled'
         return super().rmenu_check_paste()
 
-class PseudoFile(io.TextIOBase):
 
-    def __init__(self, shell, tags, encoding=None):
-        self.shell = shell
-        self.tags = tags
-        self._encoding = encoding
-
-    @property
-    def encoding(self):
-        return self._encoding
-
-    @property
-    def name(self):
-        return '<%s>' % self.tags
-
-    def isatty(self):
-        return True
-
-
-class PseudoOutputFile(PseudoFile):
-
-    def writable(self):
-        return True
-
-    def write(self, s):
-        if self.closed:
-            raise ValueError("write to closed file")
-        if type(s) is not str:
-            if not isinstance(s, str):
-                raise TypeError('must be str, not ' + type(s).__name__)
-            # See issue #19481
-            s = str.__str__(s)
-        return self.shell.write(s, self.tags)
-
-
-class PseudoInputFile(PseudoFile):
-
-    def __init__(self, shell, tags, encoding=None):
-        PseudoFile.__init__(self, shell, tags, encoding)
-        self._line_buffer = ''
-
-    def readable(self):
-        return True
-
-    def read(self, size=-1):
-        if self.closed:
-            raise ValueError("read from closed file")
-        if size is None:
-            size = -1
-        elif not isinstance(size, int):
-            raise TypeError('must be int, not ' + type(size).__name__)
-        result = self._line_buffer
-        self._line_buffer = ''
-        if size < 0:
-            while True:
-                line = self.shell.readline()
-                if not line: break
-                result += line
-        else:
-            while len(result) < size:
-                line = self.shell.readline()
-                if not line: break
-                result += line
-            self._line_buffer = result[size:]
-            result = result[:size]
-        return result
-
-    def readline(self, size=-1):
-        if self.closed:
-            raise ValueError("read from closed file")
-        if size is None:
-            size = -1
-        elif not isinstance(size, int):
-            raise TypeError('must be int, not ' + type(size).__name__)
-        line = self._line_buffer or self.shell.readline()
-        if size < 0:
-            size = len(line)
-        eol = line.find('\n', 0, size)
-        if eol >= 0:
-            size = eol + 1
-        self._line_buffer = line[size:]
-        return line[:size]
-
-    def close(self):
-        self.shell.close()
+def fix_x11_paste(root):
+    "Make paste replace selection on x11.  See issue #5124."
+    if root._windowingsystem == 'x11':
+        for cls in 'Text', 'Entry', 'Spinbox':
+            root.bind_class(
+                cls,
+                '<<Paste>>',
+                'catch {%W delete sel.first sel.last}\n' +
+                        root.bind_class(cls, '<<Paste>>'))
 
 
 usage_msg = """\
@@ -1450,6 +1387,11 @@ echo "import sys; print(sys.argv)" | idle - "foobar"
 """
 
 def main():
+    import getopt
+    from platform import system
+    from idlelib import testing  # bool value
+    from idlelib import macosx
+
     global flist, root, use_subprocess
 
     capture_warnings(True)
@@ -1527,25 +1469,39 @@ def main():
                                     'editor-on-startup', type='bool')
     enable_edit = enable_edit or edit_start
     enable_shell = enable_shell or not enable_edit
-    # start editor and/or shell windows:
+
+    # Setup root.  Don't break user code run in IDLE process.
+    # Don't change environment when testing.
+    if use_subprocess and not testing:
+        NoDefaultRoot()
     root = Tk(className="Idle")
+    root.withdraw()
+    from idlelib.run import fix_scaling
+    fix_scaling(root)
 
     # set application icon
     icondir = os.path.join(os.path.dirname(__file__), 'Icons')
     if system() == 'Windows':
         iconfile = os.path.join(icondir, 'idle.ico')
         root.wm_iconbitmap(default=iconfile)
-    elif TkVersion >= 8.5:
-        ext = '.png' if TkVersion >= 8.6 else '.gif'
+    elif not macosx.isAquaTk():
+        if TkVersion >= 8.6:
+            ext = '.png'
+            sizes = (16, 32, 48, 256)
+        else:
+            ext = '.gif'
+            sizes = (16, 32, 48)
         iconfiles = [os.path.join(icondir, 'idle_%d%s' % (size, ext))
-                     for size in (16, 32, 48)]
-        icons = [PhotoImage(file=iconfile) for iconfile in iconfiles]
+                     for size in sizes]
+        icons = [PhotoImage(master=root, file=iconfile)
+                 for iconfile in iconfiles]
         root.wm_iconphoto(True, *icons)
 
+    # start editor and/or shell windows:
     fixwordbreaks(root)
-    root.withdraw()
+    fix_x11_paste(root)
     flist = PyShellFileList(root)
-    macosxSupport.setupApp(root, flist)
+    macosx.setupApp(root, flist)
 
     if enable_edit:
         if not (cmd or script):
@@ -1560,7 +1516,7 @@ def main():
         shell = flist.open_shell()
         if not shell:
             return # couldn't open shell
-        if macosxSupport.isAquaTk() and flist.dict:
+        if macosx.isAquaTk() and flist.dict:
             # On OSX: when the user has double-clicked on a file that causes
             # IDLE to be launched the shell window will open just in front of
             # the file she wants to see. Lower the interpreter window when
@@ -1591,12 +1547,20 @@ def main():
             shell.interp.execfile(script)
     elif shell:
         # If there is a shell window and no cmd or script in progress,
-        # check for problematic OS X Tk versions and print a warning
-        # message in the IDLE shell window; this is less intrusive
-        # than always opening a separate window.
-        tkversionwarning = macosxSupport.tkVersionWarning(root)
+        # check for problematic issues and print warning message(s) in
+        # the IDLE shell window; this is less intrusive than always
+        # opening a separate window.
+
+        # Warn if using a problematic OS X Tk version.
+        tkversionwarning = macosx.tkVersionWarning(root)
         if tkversionwarning:
-            shell.interp.runcommand("print('%s')" % tkversionwarning)
+            shell.show_warning(tkversionwarning)
+
+        # Warn if the "Prefer tabs when opening documents" system
+        # preference is set to "Always".
+        prefer_tabs_preference_warning = macosx.preferTabsPreferenceWarning()
+        if prefer_tabs_preference_warning:
+            shell.show_warning(prefer_tabs_preference_warning)
 
     while flist.inversedict:  # keep IDLE running while files are open.
         root.mainloop()
@@ -1604,7 +1568,6 @@ def main():
     capture_warnings(False)
 
 if __name__ == "__main__":
-    sys.modules['PyShell'] = sys.modules['__main__']
     main()
 
 capture_warnings(False)  # Make sure turned off; see issue 18081

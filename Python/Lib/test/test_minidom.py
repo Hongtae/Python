@@ -1,7 +1,9 @@
 # test for xml.dom.minidom
 
+import copy
 import pickle
-from test.support import findfile
+import io
+from test import support
 import unittest
 
 import xml.dom.minidom
@@ -10,7 +12,14 @@ from xml.dom.minidom import parse, Node, Document, parseString
 from xml.dom.minidom import getDOMImplementation
 
 
-tstfile = findfile("test.xml", subdir="xmltestdata")
+tstfile = support.findfile("test.xml", subdir="xmltestdata")
+sample = ("<?xml version='1.0' encoding='us-ascii'?>\n"
+          "<!DOCTYPE doc PUBLIC 'http://xml.python.org/public'"
+          " 'http://xml.python.org/system' [\n"
+          "  <!ELEMENT e EMPTY>\n"
+          "  <!ENTITY ent SYSTEM 'http://xml.python.org/entity'>\n"
+          "]><doc attr='value'> text\n"
+          "<?pi sample?> <!-- comment --> <e/> </doc>")
 
 # The tests of DocumentType importing use these helpers to construct
 # the documents to work with, since not all DOM builders actually
@@ -52,17 +61,7 @@ class MinidomTest(unittest.TestCase):
     def testDocumentAsyncAttr(self):
         doc = Document()
         self.assertFalse(doc.async_)
-        with self.assertWarns(DeprecationWarning):
-            self.assertFalse(getattr(doc, 'async', True))
-        with self.assertWarns(DeprecationWarning):
-            setattr(doc, 'async', True)
-        with self.assertWarns(DeprecationWarning):
-            self.assertTrue(getattr(doc, 'async', False))
-        self.assertTrue(doc.async_)
-
         self.assertFalse(Document.async_)
-        with self.assertWarns(DeprecationWarning):
-            self.assertFalse(getattr(Document, 'async', True))
 
     def testParseFromBinaryFile(self):
         with open(tstfile, 'rb') as file:
@@ -327,7 +326,7 @@ class MinidomTest(unittest.TestCase):
         node = child.getAttributeNode("spam")
         self.assertRaises(xml.dom.NotFoundErr, child.removeAttributeNode,
             None)
-        child.removeAttributeNode(node)
+        self.assertIs(node, child.removeAttributeNode(node))
         self.confirm(len(child.attributes) == 0
                 and child.getAttributeNode("spam") is None)
         dom2 = Document()
@@ -837,6 +836,57 @@ class MinidomTest(unittest.TestCase):
 
     def testClonePIDeep(self):
         self.check_clone_pi(1, "testClonePIDeep")
+
+    def check_clone_node_entity(self, clone_document):
+        # bpo-35052: Test user data handler in cloneNode() on a document with
+        # an entity
+        document = xml.dom.minidom.parseString("""
+            <?xml version="1.0" ?>
+            <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+                "http://www.w3.org/TR/html4/strict.dtd"
+                [ <!ENTITY smile "☺"> ]
+            >
+            <doc>Don't let entities make you frown &smile;</doc>
+        """.strip())
+
+        class Handler:
+            def handle(self, operation, key, data, src, dst):
+                self.operation = operation
+                self.key = key
+                self.data = data
+                self.src = src
+                self.dst = dst
+
+        handler = Handler()
+        doctype = document.doctype
+        entity = doctype.entities['smile']
+        entity.setUserData("key", "data", handler)
+
+        if clone_document:
+            # clone Document
+            clone = document.cloneNode(deep=True)
+
+            self.assertEqual(clone.documentElement.firstChild.wholeText,
+                             "Don't let entities make you frown ☺")
+            operation = xml.dom.UserDataHandler.NODE_IMPORTED
+            dst = clone.doctype.entities['smile']
+        else:
+            # clone DocumentType
+            with support.swap_attr(doctype, 'ownerDocument', None):
+                clone = doctype.cloneNode(deep=True)
+
+            operation = xml.dom.UserDataHandler.NODE_CLONED
+            dst = clone.entities['smile']
+
+        self.assertEqual(handler.operation, operation)
+        self.assertEqual(handler.key, "key")
+        self.assertEqual(handler.data, "data")
+        self.assertIs(handler.src, entity)
+        self.assertIs(handler.dst, dst)
+
+    def testCloneNodeEntity(self):
+        self.check_clone_node_entity(False)
+        self.check_clone_node_entity(True)
 
     def testNormalize(self):
         doc = parseString("<doc/>")
@@ -1481,52 +1531,54 @@ class MinidomTest(unittest.TestCase):
         self.confirm(e.isSameNode(doc.getElementById("w"))
                 and a2.isId)
 
+    def assert_recursive_equal(self, doc, doc2):
+        stack = [(doc, doc2)]
+        while stack:
+            n1, n2 = stack.pop()
+            self.assertEqual(n1.nodeType, n2.nodeType)
+            self.assertEqual(len(n1.childNodes), len(n2.childNodes))
+            self.assertEqual(n1.nodeName, n2.nodeName)
+            self.assertFalse(n1.isSameNode(n2))
+            self.assertFalse(n2.isSameNode(n1))
+            if n1.nodeType == Node.DOCUMENT_TYPE_NODE:
+                len(n1.entities)
+                len(n2.entities)
+                len(n1.notations)
+                len(n2.notations)
+                self.assertEqual(len(n1.entities), len(n2.entities))
+                self.assertEqual(len(n1.notations), len(n2.notations))
+                for i in range(len(n1.notations)):
+                    # XXX this loop body doesn't seem to be executed?
+                    no1 = n1.notations.item(i)
+                    no2 = n1.notations.item(i)
+                    self.assertEqual(no1.name, no2.name)
+                    self.assertEqual(no1.publicId, no2.publicId)
+                    self.assertEqual(no1.systemId, no2.systemId)
+                    stack.append((no1, no2))
+                for i in range(len(n1.entities)):
+                    e1 = n1.entities.item(i)
+                    e2 = n2.entities.item(i)
+                    self.assertEqual(e1.notationName, e2.notationName)
+                    self.assertEqual(e1.publicId, e2.publicId)
+                    self.assertEqual(e1.systemId, e2.systemId)
+                    stack.append((e1, e2))
+            if n1.nodeType != Node.DOCUMENT_NODE:
+                self.assertTrue(n1.ownerDocument.isSameNode(doc))
+                self.assertTrue(n2.ownerDocument.isSameNode(doc2))
+            for i in range(len(n1.childNodes)):
+                stack.append((n1.childNodes[i], n2.childNodes[i]))
+
     def testPickledDocument(self):
-        doc = parseString("<?xml version='1.0' encoding='us-ascii'?>\n"
-                    "<!DOCTYPE doc PUBLIC 'http://xml.python.org/public'"
-                    " 'http://xml.python.org/system' [\n"
-                    "  <!ELEMENT e EMPTY>\n"
-                    "  <!ENTITY ent SYSTEM 'http://xml.python.org/entity'>\n"
-                    "]><doc attr='value'> text\n"
-                    "<?pi sample?> <!-- comment --> <e/> </doc>")
+        doc = parseString(sample)
         for proto in range(2, pickle.HIGHEST_PROTOCOL + 1):
             s = pickle.dumps(doc, proto)
             doc2 = pickle.loads(s)
-            stack = [(doc, doc2)]
-            while stack:
-                n1, n2 = stack.pop()
-                self.confirm(n1.nodeType == n2.nodeType
-                        and len(n1.childNodes) == len(n2.childNodes)
-                        and n1.nodeName == n2.nodeName
-                        and not n1.isSameNode(n2)
-                        and not n2.isSameNode(n1))
-                if n1.nodeType == Node.DOCUMENT_TYPE_NODE:
-                    len(n1.entities)
-                    len(n2.entities)
-                    len(n1.notations)
-                    len(n2.notations)
-                    self.confirm(len(n1.entities) == len(n2.entities)
-                            and len(n1.notations) == len(n2.notations))
-                    for i in range(len(n1.notations)):
-                        # XXX this loop body doesn't seem to be executed?
-                        no1 = n1.notations.item(i)
-                        no2 = n1.notations.item(i)
-                        self.confirm(no1.name == no2.name
-                                and no1.publicId == no2.publicId
-                                and no1.systemId == no2.systemId)
-                        stack.append((no1, no2))
-                    for i in range(len(n1.entities)):
-                        e1 = n1.entities.item(i)
-                        e2 = n2.entities.item(i)
-                        self.confirm(e1.notationName == e2.notationName
-                                and e1.publicId == e2.publicId
-                                and e1.systemId == e2.systemId)
-                        stack.append((e1, e2))
-                if n1.nodeType != Node.DOCUMENT_NODE:
-                    self.confirm(n1.ownerDocument.isSameNode(doc)
-                            and n2.ownerDocument.isSameNode(doc2))
-                for i in range(len(n1.childNodes)):
-                    stack.append((n1.childNodes[i], n2.childNodes[i]))
+            self.assert_recursive_equal(doc, doc2)
+
+    def testDeepcopiedDocument(self):
+        doc = parseString(sample)
+        doc2 = copy.deepcopy(doc)
+        self.assert_recursive_equal(doc, doc2)
 
     def testSerializeCommentNodeWithDoubleHyphen(self):
         doc = create_doc_without_doctype()
@@ -1559,6 +1611,41 @@ class MinidomTest(unittest.TestCase):
         doc = parse(tstfile)
         pi = doc.createProcessingInstruction("y", "z")
         pi.nodeValue = "crash"
+
+    def test_minidom_attribute_order(self):
+        xml_str = '<?xml version="1.0" ?><curriculum status="public" company="example"/>'
+        doc = parseString(xml_str)
+        output = io.StringIO()
+        doc.writexml(output)
+        self.assertEqual(output.getvalue(), xml_str)
+
+    def test_toxml_with_attributes_ordered(self):
+        xml_str = '<?xml version="1.0" ?><curriculum status="public" company="example"/>'
+        doc = parseString(xml_str)
+        self.assertEqual(doc.toxml(), xml_str)
+
+    def test_toprettyxml_with_attributes_ordered(self):
+        xml_str = '<?xml version="1.0" ?><curriculum status="public" company="example"/>'
+        doc = parseString(xml_str)
+        self.assertEqual(doc.toprettyxml(),
+                         '<?xml version="1.0" ?>\n'
+                         '<curriculum status="public" company="example"/>\n')
+
+    def test_toprettyxml_with_cdata(self):
+        xml_str = '<?xml version="1.0" ?><root><node><![CDATA[</data>]]></node></root>'
+        doc = parseString(xml_str)
+        self.assertEqual(doc.toprettyxml(),
+                         '<?xml version="1.0" ?>\n'
+                         '<root>\n'
+                         '\t<node><![CDATA[</data>]]></node>\n'
+                         '</root>\n')
+
+    def test_cdata_parsing(self):
+        xml_str = '<?xml version="1.0" ?><root><node><![CDATA[</data>]]></node></root>'
+        dom1 = parseString(xml_str)
+        self.checkWholeText(dom1.getElementsByTagName('node')[0].firstChild, '</data>')
+        dom2 = parseString(dom1.toprettyxml())
+        self.checkWholeText(dom2.getElementsByTagName('node')[0].firstChild, '</data>')
 
 if __name__ == "__main__":
     unittest.main()

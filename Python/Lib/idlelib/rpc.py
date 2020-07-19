@@ -1,4 +1,4 @@
-"""RPC Implemention, originally written for the Python Idle IDE
+"""RPC Implementation, originally written for the Python Idle IDE
 
 For security reasons, GvR requested that Idle's Python execution server process
 connect to the Idle process, which listens for the connection.  Since Idle has
@@ -26,43 +26,46 @@ See the Idle run.main() docstring for further information on how this was
 accomplished in Idle.
 
 """
-
-import sys
-import os
+import builtins
+import copyreg
 import io
-import socket
+import marshal
+import os
+import pickle
+import queue
 import select
+import socket
 import socketserver
 import struct
-import pickle
+import sys
 import threading
-import queue
 import traceback
-import copyreg
 import types
-import marshal
-import builtins
-
 
 def unpickle_code(ms):
+    "Return code object from marshal string ms."
     co = marshal.loads(ms)
     assert isinstance(co, types.CodeType)
     return co
 
 def pickle_code(co):
+    "Return unpickle function and tuple with marshalled co code object."
     assert isinstance(co, types.CodeType)
     ms = marshal.dumps(co)
     return unpickle_code, (ms,)
 
 def dumps(obj, protocol=None):
+    "Return pickled (or marshalled) string for obj."
+    # IDLE passes 'None' to select pickle.DEFAULT_PROTOCOL.
     f = io.BytesIO()
     p = CodePickler(f, protocol)
     p.dump(obj)
     return f.getvalue()
 
+
 class CodePickler(pickle.Pickler):
-    dispatch_table = {types.CodeType: pickle_code}
-    dispatch_table.update(copyreg.dispatch_table)
+    dispatch_table = {types.CodeType: pickle_code, **copyreg.dispatch_table}
+
 
 BUFSIZE = 8*1024
 LOCALHOST = '127.0.0.1'
@@ -487,15 +490,18 @@ class RemoteObject(object):
     # Token mix-in class
     pass
 
+
 def remoteref(obj):
     oid = id(obj)
     objecttable[oid] = obj
     return RemoteProxy(oid)
 
+
 class RemoteProxy(object):
 
     def __init__(self, oid):
         self.oid = oid
+
 
 class RPCHandler(socketserver.BaseRequestHandler, SocketIO):
 
@@ -513,6 +519,7 @@ class RPCHandler(socketserver.BaseRequestHandler, SocketIO):
 
     def get_remote_proxy(self, oid):
         return RPCProxy(self, oid)
+
 
 class RPCClient(SocketIO):
 
@@ -538,6 +545,7 @@ class RPCClient(SocketIO):
 
     def get_remote_proxy(self, oid):
         return RPCProxy(self, oid)
+
 
 class RPCProxy(object):
 
@@ -587,6 +595,7 @@ def _getattributes(obj, attributes):
         if not callable(attr):
             attributes[name] = 1
 
+
 class MethodProxy(object):
 
     def __init__(self, sockio, oid, name):
@@ -594,7 +603,7 @@ class MethodProxy(object):
         self.oid = oid
         self.name = name
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, /, *args, **kwargs):
         value = self.sockio.remotecall(self.oid, self.name, args, kwargs)
         return value
 
@@ -619,3 +628,8 @@ def displayhook(value):
         sys.stdout.write(text)
     sys.stdout.write("\n")
     builtins._ = value
+
+
+if __name__ == '__main__':
+    from unittest import main
+    main('idlelib.idle_test.test_rpc', verbosity=2,)

@@ -14,16 +14,16 @@
  */
 #if defined(HAVE_NDBM_H)
 #include <ndbm.h>
-static char *which_dbm = "GNU gdbm";  /* EMX port of GDBM */
+static const char which_dbm[] = "GNU gdbm";  /* EMX port of GDBM */
 #elif defined(HAVE_GDBM_NDBM_H)
 #include <gdbm/ndbm.h>
-static char *which_dbm = "GNU gdbm";
+static const char which_dbm[] = "GNU gdbm";
 #elif defined(HAVE_GDBM_DASH_NDBM_H)
 #include <gdbm-ndbm.h>
-static char *which_dbm = "GNU gdbm";
+static const char which_dbm[] = "GNU gdbm";
 #elif defined(HAVE_BERKDB_H)
 #include <db.h>
-static char *which_dbm = "Berkeley DB";
+static const char which_dbm[] = "Berkeley DB";
 #else
 #error "No ndbm.h available!"
 #endif
@@ -36,6 +36,7 @@ class _dbm.dbm "dbmobject *" "&Dbmtype"
 
 typedef struct {
     PyObject_HEAD
+    int flags;
     int di_size;        /* -1 means recompute */
     DBM *di_dbm;
 } dbmobject;
@@ -60,9 +61,10 @@ newdbmobject(const char *file, int flags, int mode)
     if (dp == NULL)
         return NULL;
     dp->di_size = -1;
+    dp->flags = flags;
     /* See issue #19296 */
     if ( (dp->di_dbm = dbm_open((char *)file, flags, mode)) == 0 ) {
-        PyErr_SetFromErrno(DbmError);
+        PyErr_SetFromErrnoWithFilename(DbmError, file);
         Py_DECREF(dp);
         return NULL;
     }
@@ -143,13 +145,20 @@ dbm_ass_sub(dbmobject *dp, PyObject *v, PyObject *w)
     if (w == NULL) {
         if ( dbm_delete(dp->di_dbm, krec) < 0 ) {
             dbm_clearerr(dp->di_dbm);
-            PyErr_SetObject(PyExc_KeyError, v);
+            /* we might get a failure for reasons like file corrupted,
+               but we are not able to distinguish it */
+            if (dp->flags & O_RDWR) {
+                PyErr_SetObject(PyExc_KeyError, v);
+            }
+            else {
+                PyErr_SetString(DbmError, "cannot delete item from database");
+            }
             return -1;
         }
     } else {
         if ( !PyArg_Parse(w, "s#", &drec.dptr, &tmp_size) ) {
             PyErr_SetString(PyExc_TypeError,
-                 "dbm mappings have byte or string elements only");
+                 "dbm mappings have bytes or string elements only");
             return -1;
         }
         drec.dsize = tmp_size;
@@ -187,8 +196,7 @@ _dbm_dbm_close_impl(dbmobject *self)
     if (self->di_dbm)
         dbm_close(self->di_dbm);
     self->di_dbm = NULL;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 /*[clinic input]
@@ -239,7 +247,7 @@ dbm_contains(PyObject *self, PyObject *arg)
          return -1;
     }
     if (PyUnicode_Check(arg)) {
-        key.dptr = PyUnicode_AsUTF8AndSize(arg, &size);
+        key.dptr = (char *)PyUnicode_AsUTF8AndSize(arg, &size);
         key.dsize = size;
         if (key.dptr == NULL)
             return -1;
@@ -275,7 +283,7 @@ static PySequenceMethods dbm_as_sequence = {
 _dbm.dbm.get
 
     key: str(accept={str, robuffer}, zeroes=True)
-    default: object(c_default="NULL") = b''
+    default: object = None
     /
 
 Return the value for key if present, otherwise default.
@@ -284,7 +292,7 @@ Return the value for key if present, otherwise default.
 static PyObject *
 _dbm_dbm_get_impl(dbmobject *self, const char *key,
                   Py_ssize_clean_t key_length, PyObject *default_value)
-/*[clinic end generated code: output=b44f95eba8203d93 input=a3a279957f85eb6d]*/
+/*[clinic end generated code: output=b44f95eba8203d93 input=b788eba0ffad2e91]*/
 /*[clinic end generated code: output=4f5c0e523eaf1251 input=9402c0af8582dc69]*/
 {
     datum dbm_key, val;
@@ -336,7 +344,7 @@ _dbm_dbm_setdefault_impl(dbmobject *self, const char *key,
     else {
         if ( !PyArg_Parse(default_value, "s#", &val.dptr, &tmp_size) ) {
             PyErr_SetString(PyExc_TypeError,
-                "dbm mappings have byte string elements only");
+                "dbm mappings have bytes or string elements only");
             return NULL;
         }
         val.dsize = tmp_size;
@@ -382,10 +390,10 @@ static PyTypeObject Dbmtype = {
     sizeof(dbmobject),
     0,
     (destructor)dbm_dealloc,  /*tp_dealloc*/
-    0,                            /*tp_print*/
+    0,                            /*tp_vectorcall_offset*/
     0,                        /*tp_getattr*/
     0,                            /*tp_setattr*/
-    0,                            /*tp_reserved*/
+    0,                            /*tp_as_async*/
     0,                            /*tp_repr*/
     0,                            /*tp_as_number*/
     &dbm_as_sequence,             /*tp_as_sequence*/
@@ -413,7 +421,7 @@ static PyTypeObject Dbmtype = {
 
 _dbm.open as dbmopen
 
-    filename: str
+    filename: unicode
         The filename to open.
 
     flags: str="r"
@@ -430,9 +438,9 @@ Return a database object.
 [clinic start generated code]*/
 
 static PyObject *
-dbmopen_impl(PyModuleDef *module, const char *filename, const char *flags,
+dbmopen_impl(PyObject *module, PyObject *filename, const char *flags,
              int mode)
-/*[clinic end generated code: output=e8d4b36f25c733fd input=226334bade5764e6]*/
+/*[clinic end generated code: output=9527750f5df90764 input=376a9d903a50df59]*/
 {
     int iflags;
 
@@ -451,7 +459,20 @@ dbmopen_impl(PyModuleDef *module, const char *filename, const char *flags,
                         "arg 2 to open should be 'r', 'w', 'c', or 'n'");
         return NULL;
     }
-    return newdbmobject(filename, iflags, mode);
+
+    PyObject *filenamebytes = PyUnicode_EncodeFSDefault(filename);
+    if (filenamebytes == NULL) {
+        return NULL;
+    }
+    const char *name = PyBytes_AS_STRING(filenamebytes);
+    if (strlen(name) != (size_t)PyBytes_GET_SIZE(filenamebytes)) {
+        Py_DECREF(filenamebytes);
+        PyErr_SetString(PyExc_ValueError, "embedded null character");
+        return NULL;
+    }
+    PyObject *self = newdbmobject(name, iflags, mode);
+    Py_DECREF(filenamebytes);
+    return self;
 }
 
 static PyMethodDef dbmmodule_methods[] = {
@@ -484,7 +505,7 @@ PyInit__dbm(void) {
     d = PyModule_GetDict(m);
     if (DbmError == NULL)
         DbmError = PyErr_NewException("_dbm.error",
-                                      PyExc_IOError, NULL);
+                                      PyExc_OSError, NULL);
     s = PyUnicode_FromString(which_dbm);
     if (s != NULL) {
         PyDict_SetItemString(d, "library", s);

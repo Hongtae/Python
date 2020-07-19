@@ -164,7 +164,7 @@ class ProfileHookTestCase(TestCaseBase):
                               (1, 'return', g_ident),
                               ])
 
-    def test_exception_propogation(self):
+    def test_exception_propagation(self):
         def f(p):
             1/0
         def g(p):
@@ -333,6 +333,49 @@ class ProfileSimulatorTestCase(TestCaseBase):
                               (2, 'return', i_ident),
                               (1, 'return', j_ident),
                               ])
+
+    # bpo-34125: profiling method_descriptor with **kwargs
+    def test_unbound_method(self):
+        kwargs = {}
+        def f(p):
+            dict.get({}, 42, **kwargs)
+        f_ident = ident(f)
+        self.check_events(f, [(1, 'call', f_ident),
+                              (1, 'return', f_ident)])
+
+    # Test an invalid call (bpo-34126)
+    def test_unbound_method_no_args(self):
+        def f(p):
+            dict.get()
+        f_ident = ident(f)
+        self.check_events(f, [(1, 'call', f_ident),
+                              (1, 'return', f_ident)])
+
+    # Test an invalid call (bpo-34126)
+    def test_unbound_method_invalid_args(self):
+        def f(p):
+            dict.get(print, 42)
+        f_ident = ident(f)
+        self.check_events(f, [(1, 'call', f_ident),
+                              (1, 'return', f_ident)])
+
+    # Test an invalid call (bpo-34125)
+    def test_unbound_method_no_keyword_args(self):
+        kwargs = {}
+        def f(p):
+            dict.get(**kwargs)
+        f_ident = ident(f)
+        self.check_events(f, [(1, 'call', f_ident),
+                              (1, 'return', f_ident)])
+
+    # Test an invalid call (bpo-34125)
+    def test_unbound_method_invalid_keyword_args(self):
+        kwargs = {}
+        def f(p):
+            dict.get(print, 42, **kwargs)
+        f_ident = ident(f)
+        self.check_events(f, [(1, 'call', f_ident),
+                              (1, 'return', f_ident)])
 
 
 def ident(function):

@@ -157,8 +157,8 @@ class TestDefaultDict(unittest.TestCase):
                 return []
         d = sub()
         self.assertRegex(repr(d),
-            r"defaultdict\(<bound method .*sub\._factory "
-            r"of defaultdict\(\.\.\., \{\}\)>, \{\}\)")
+            r"sub\(<bound method .*sub\._factory "
+            r"of sub\(\.\.\., \{\}\)>, \{\}\)")
 
         # NOTE: printing a subclass of a builtin type does not call its
         # tp_print slot. So this part is essentially the same test as above.
@@ -175,7 +175,7 @@ class TestDefaultDict(unittest.TestCase):
     def test_callable_arg(self):
         self.assertRaises(TypeError, defaultdict, {})
 
-    def test_pickleing(self):
+    def test_pickling(self):
         d = defaultdict(int)
         d[1]
         for proto in range(pickle.HIGHEST_PROTOCOL + 1):

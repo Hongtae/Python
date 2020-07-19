@@ -1,8 +1,7 @@
-#-*- coding: iso-8859-1 -*-
 # pysqlite2/test/userfunctions.py: tests for user-defined functions and
 #                                  aggregates.
 #
-# Copyright (C) 2005-2007 Gerhard Häring <gh@ghaering.de>
+# Copyright (C) 2005-2007 Gerhard HÃ¤ring <gh@ghaering.de>
 #
 # This file is part of pysqlite.
 #
@@ -23,6 +22,7 @@
 # 3. This notice may not be removed or altered from any source distribution.
 
 import unittest
+import unittest.mock
 import sqlite3 as sqlite
 
 def func_returntext():
@@ -54,6 +54,9 @@ def func_isblob(v):
     return isinstance(v, (bytes, memoryview))
 def func_islonglong(v):
     return isinstance(v, int) and v >= 1<<31
+
+def func(*args):
+    return len(args)
 
 class AggrNoStep:
     def __init__(self):
@@ -111,6 +114,19 @@ class AggrCheckType:
     def finalize(self):
         return self.val
 
+class AggrCheckTypes:
+    def __init__(self):
+        self.val = 0
+
+    def step(self, whichType, *vals):
+        theType = {"str": str, "int": int, "float": float, "None": type(None),
+                   "blob": bytes}
+        for val in vals:
+            self.val += int(theType[whichType] is type(val))
+
+    def finalize(self):
+        return self.val
+
 class AggrSum:
     def __init__(self):
         self.val = 0.0
@@ -140,16 +156,15 @@ class FunctionTests(unittest.TestCase):
         self.con.create_function("isnone", 1, func_isnone)
         self.con.create_function("isblob", 1, func_isblob)
         self.con.create_function("islonglong", 1, func_islonglong)
+        self.con.create_function("spam", -1, func)
+        self.con.execute("create table test(t text)")
 
     def tearDown(self):
         self.con.close()
 
     def CheckFuncErrorOnCreate(self):
-        try:
+        with self.assertRaises(sqlite.OperationalError):
             self.con.create_function("bla", -100, lambda x: 2*x)
-            self.fail("should have raised an OperationalError")
-        except sqlite.OperationalError:
-            pass
 
     def CheckFuncRefCount(self):
         def getfunc():
@@ -214,12 +229,10 @@ class FunctionTests(unittest.TestCase):
 
     def CheckFuncException(self):
         cur = self.con.cursor()
-        try:
+        with self.assertRaises(sqlite.OperationalError) as cm:
             cur.execute("select raiseexception()")
             cur.fetchone()
-            self.fail("should have raised OperationalError")
-        except sqlite.OperationalError as e:
-            self.assertEqual(e.args[0], 'user-defined function raised exception')
+        self.assertEqual(str(cm.exception), 'user-defined function raised exception')
 
     def CheckParamString(self):
         cur = self.con.cursor()
@@ -257,6 +270,53 @@ class FunctionTests(unittest.TestCase):
         val = cur.fetchone()[0]
         self.assertEqual(val, 1)
 
+    def CheckAnyArguments(self):
+        cur = self.con.cursor()
+        cur.execute("select spam(?, ?)", (1, 2))
+        val = cur.fetchone()[0]
+        self.assertEqual(val, 2)
+
+    # Regarding deterministic functions:
+    #
+    # Between 3.8.3 and 3.15.0, deterministic functions were only used to
+    # optimize inner loops, so for those versions we can only test if the
+    # sqlite machinery has factored out a call or not. From 3.15.0 and onward,
+    # deterministic functions were permitted in WHERE clauses of partial
+    # indices, which allows testing based on syntax, iso. the query optimizer.
+    @unittest.skipIf(sqlite.sqlite_version_info < (3, 8, 3), "Requires SQLite 3.8.3 or higher")
+    def CheckFuncNonDeterministic(self):
+        mock = unittest.mock.Mock(return_value=None)
+        self.con.create_function("nondeterministic", 0, mock, deterministic=False)
+        if sqlite.sqlite_version_info < (3, 15, 0):
+            self.con.execute("select nondeterministic() = nondeterministic()")
+            self.assertEqual(mock.call_count, 2)
+        else:
+            with self.assertRaises(sqlite.OperationalError):
+                self.con.execute("create index t on test(t) where nondeterministic() is not null")
+
+    @unittest.skipIf(sqlite.sqlite_version_info < (3, 8, 3), "Requires SQLite 3.8.3 or higher")
+    def CheckFuncDeterministic(self):
+        mock = unittest.mock.Mock(return_value=None)
+        self.con.create_function("deterministic", 0, mock, deterministic=True)
+        if sqlite.sqlite_version_info < (3, 15, 0):
+            self.con.execute("select deterministic() = deterministic()")
+            self.assertEqual(mock.call_count, 1)
+        else:
+            try:
+                self.con.execute("create index t on test(t) where deterministic() is not null")
+            except sqlite.OperationalError:
+                self.fail("Unexpected failure while creating partial index")
+
+    @unittest.skipIf(sqlite.sqlite_version_info >= (3, 8, 3), "SQLite < 3.8.3 needed")
+    def CheckFuncDeterministicNotSupported(self):
+        with self.assertRaises(sqlite.NotSupportedError):
+            self.con.create_function("deterministic", 0, int, deterministic=True)
+
+    def CheckFuncDeterministicKeywordOnly(self):
+        with self.assertRaises(TypeError):
+            self.con.create_function("deterministic", 0, int, True)
+
+
 class AggregateTests(unittest.TestCase):
     def setUp(self):
         self.con = sqlite.connect(":memory:")
@@ -279,6 +339,7 @@ class AggregateTests(unittest.TestCase):
         self.con.create_aggregate("excStep", 1, AggrExceptionInStep)
         self.con.create_aggregate("excFinalize", 1, AggrExceptionInFinalize)
         self.con.create_aggregate("checkType", 2, AggrCheckType)
+        self.con.create_aggregate("checkTypes", -1, AggrCheckTypes)
         self.con.create_aggregate("mysum", 1, AggrSum)
 
     def tearDown(self):
@@ -287,55 +348,42 @@ class AggregateTests(unittest.TestCase):
         pass
 
     def CheckAggrErrorOnCreate(self):
-        try:
+        with self.assertRaises(sqlite.OperationalError):
             self.con.create_function("bla", -100, AggrSum)
-            self.fail("should have raised an OperationalError")
-        except sqlite.OperationalError:
-            pass
 
     def CheckAggrNoStep(self):
         cur = self.con.cursor()
-        try:
+        with self.assertRaises(AttributeError) as cm:
             cur.execute("select nostep(t) from test")
-            self.fail("should have raised an AttributeError")
-        except AttributeError as e:
-            self.assertEqual(e.args[0], "'AggrNoStep' object has no attribute 'step'")
+        self.assertEqual(str(cm.exception), "'AggrNoStep' object has no attribute 'step'")
 
     def CheckAggrNoFinalize(self):
         cur = self.con.cursor()
-        try:
+        with self.assertRaises(sqlite.OperationalError) as cm:
             cur.execute("select nofinalize(t) from test")
             val = cur.fetchone()[0]
-            self.fail("should have raised an OperationalError")
-        except sqlite.OperationalError as e:
-            self.assertEqual(e.args[0], "user-defined aggregate's 'finalize' method raised error")
+        self.assertEqual(str(cm.exception), "user-defined aggregate's 'finalize' method raised error")
 
     def CheckAggrExceptionInInit(self):
         cur = self.con.cursor()
-        try:
+        with self.assertRaises(sqlite.OperationalError) as cm:
             cur.execute("select excInit(t) from test")
             val = cur.fetchone()[0]
-            self.fail("should have raised an OperationalError")
-        except sqlite.OperationalError as e:
-            self.assertEqual(e.args[0], "user-defined aggregate's '__init__' method raised error")
+        self.assertEqual(str(cm.exception), "user-defined aggregate's '__init__' method raised error")
 
     def CheckAggrExceptionInStep(self):
         cur = self.con.cursor()
-        try:
+        with self.assertRaises(sqlite.OperationalError) as cm:
             cur.execute("select excStep(t) from test")
             val = cur.fetchone()[0]
-            self.fail("should have raised an OperationalError")
-        except sqlite.OperationalError as e:
-            self.assertEqual(e.args[0], "user-defined aggregate's 'step' method raised error")
+        self.assertEqual(str(cm.exception), "user-defined aggregate's 'step' method raised error")
 
     def CheckAggrExceptionInFinalize(self):
         cur = self.con.cursor()
-        try:
+        with self.assertRaises(sqlite.OperationalError) as cm:
             cur.execute("select excFinalize(t) from test")
             val = cur.fetchone()[0]
-            self.fail("should have raised an OperationalError")
-        except sqlite.OperationalError as e:
-            self.assertEqual(e.args[0], "user-defined aggregate's 'finalize' method raised error")
+        self.assertEqual(str(cm.exception), "user-defined aggregate's 'finalize' method raised error")
 
     def CheckAggrCheckParamStr(self):
         cur = self.con.cursor()
@@ -348,6 +396,12 @@ class AggregateTests(unittest.TestCase):
         cur.execute("select checkType('int', ?)", (42,))
         val = cur.fetchone()[0]
         self.assertEqual(val, 1)
+
+    def CheckAggrCheckParamsInt(self):
+        cur = self.con.cursor()
+        cur.execute("select checkTypes('int', ?, ?)", (42, 24))
+        val = cur.fetchone()[0]
+        self.assertEqual(val, 2)
 
     def CheckAggrCheckParamFloat(self):
         cur = self.con.cursor()
@@ -402,22 +456,14 @@ class AuthorizerTests(unittest.TestCase):
         pass
 
     def test_table_access(self):
-        try:
+        with self.assertRaises(sqlite.DatabaseError) as cm:
             self.con.execute("select * from t2")
-        except sqlite.DatabaseError as e:
-            if not e.args[0].endswith("prohibited"):
-                self.fail("wrong exception text: %s" % e.args[0])
-            return
-        self.fail("should have raised an exception due to missing privileges")
+        self.assertIn('prohibited', str(cm.exception))
 
     def test_column_access(self):
-        try:
+        with self.assertRaises(sqlite.DatabaseError) as cm:
             self.con.execute("select c2 from t1")
-        except sqlite.DatabaseError as e:
-            if not e.args[0].endswith("prohibited"):
-                self.fail("wrong exception text: %s" % e.args[0])
-            return
-        self.fail("should have raised an exception due to missing privileges")
+        self.assertIn('prohibited', str(cm.exception))
 
 class AuthorizerRaiseExceptionTests(AuthorizerTests):
     @staticmethod

@@ -15,3 +15,5 @@ xcuserdata
 ipch/
 Build/**
 __pycache__/
+
+.vs/

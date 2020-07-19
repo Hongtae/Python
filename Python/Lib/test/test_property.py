@@ -3,6 +3,7 @@
 
 import sys
 import unittest
+from test import support
 
 class PropertyBase(Exception):
     pass
@@ -75,13 +76,6 @@ class PropertyNewGetter(object):
     def spam(self):
         """new docstring"""
         return 8
-
-class PropertyWritableDoc(object):
-
-    @property
-    def spam(self):
-        """Eggs"""
-        return "eggs"
 
 class PropertyTests(unittest.TestCase):
     def test_property_decorator_baseclass(self):
@@ -168,10 +162,27 @@ class PropertyTests(unittest.TestCase):
     @unittest.skipIf(sys.flags.optimize >= 2,
                      "Docstrings are omitted with -O2 and above")
     def test_property_decorator_doc_writable(self):
+        class PropertyWritableDoc(object):
+
+            @property
+            def spam(self):
+                """Eggs"""
+                return "eggs"
+
         sub = PropertyWritableDoc()
         self.assertEqual(sub.__class__.spam.__doc__, 'Eggs')
         sub.__class__.spam.__doc__ = 'Spam'
         self.assertEqual(sub.__class__.spam.__doc__, 'Spam')
+
+    @support.refcount_test
+    def test_refleaks_in___init__(self):
+        gettotalrefcount = support.get_attribute(sys, 'gettotalrefcount')
+        fake_prop = property('fget', 'fset', 'fdel', 'doc')
+        refs_before = gettotalrefcount()
+        for i in range(100):
+            fake_prop.__init__('fget', 'fset', 'fdel', 'doc')
+        self.assertAlmostEqual(gettotalrefcount() - refs_before, 0, delta=10)
+
 
 # Issue 5890: subclasses of property do not preserve method __doc__ strings
 class PropertySub(property):

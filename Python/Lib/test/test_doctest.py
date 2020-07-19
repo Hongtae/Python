@@ -7,7 +7,13 @@ import doctest
 import functools
 import os
 import sys
-
+import importlib
+import importlib.abc
+import importlib.util
+import unittest
+import tempfile
+import shutil
+import contextlib
 
 # NOTE: There are some additional tests relating to interaction with
 #       zipimport in the test_zipimport_support test module.
@@ -291,7 +297,7 @@ constructor:
     ...
     ... Non-example text.
     ...
-    ...     >>> print('another\example')
+    ...     >>> print('another\\example')
     ...     another
     ...     example
     ... '''
@@ -324,7 +330,7 @@ containing test:
     >>> test.lineno + e2.lineno
     26
 
-If the docstring contains inconsistant leading whitespace in the
+If the docstring contains inconsistent leading whitespace in the
 expected output of an example, then `DocTest` will raise a ValueError:
 
     >>> docstring = r'''
@@ -435,7 +441,7 @@ We'll simulate a __file__ attr that ends in pyc:
     >>> tests = finder.find(sample_func)
 
     >>> print(tests)  # doctest: +ELLIPSIS
-    [<DocTest sample_func from ...:19 (1 example)>]
+    [<DocTest sample_func from ...:25 (1 example)>]
 
 The exact name depends on how test_doctest was invoked, so allow for
 leading path components.
@@ -659,27 +665,53 @@ plain ol' Python and is guaranteed to be available.
 
     >>> import builtins
     >>> tests = doctest.DocTestFinder().find(builtins)
-    >>> 790 < len(tests) < 810 # approximate number of objects with docstrings
+    >>> 800 < len(tests) < 820 # approximate number of objects with docstrings
     True
     >>> real_tests = [t for t in tests if len(t.examples) > 0]
     >>> len(real_tests) # objects that actually have doctests
-    8
+    13
     >>> for t in real_tests:
     ...     print('{}  {}'.format(len(t.examples), t.name))
     ...
     1  builtins.bin
+    5  builtins.bytearray.hex
+    5  builtins.bytes.hex
     3  builtins.float.as_integer_ratio
     2  builtins.float.fromhex
     2  builtins.float.hex
     1  builtins.hex
     1  builtins.int
+    3  builtins.int.as_integer_ratio
     2  builtins.int.bit_length
+    5  builtins.memoryview.hex
     1  builtins.oct
+    1  builtins.zip
 
 Note here that 'bin', 'oct', and 'hex' are functions; 'float.as_integer_ratio',
 'float.hex', and 'int.bit_length' are methods; 'float.fromhex' is a classmethod,
 and 'int' is a type.
 """
+
+
+class TestDocTestFinder(unittest.TestCase):
+
+    def test_empty_namespace_package(self):
+        pkg_name = 'doctest_empty_pkg'
+        with tempfile.TemporaryDirectory() as parent_dir:
+            pkg_dir = os.path.join(parent_dir, pkg_name)
+            os.mkdir(pkg_dir)
+            sys.path.append(parent_dir)
+            try:
+                mod = importlib.import_module(pkg_name)
+            finally:
+                support.forget(pkg_name)
+                sys.path.pop()
+
+            include_empty_finder = doctest.DocTestFinder(exclude_empty=False)
+            exclude_empty_finder = doctest.DocTestFinder(exclude_empty=True)
+
+            self.assertEqual(len(include_empty_finder.find(mod)), 1)
+            self.assertEqual(len(exclude_empty_finder.find(mod)), 0)
 
 def test_DocTestParser(): r"""
 Unit tests for the `DocTestParser` class.
@@ -1876,7 +1908,6 @@ if not hasattr(sys, 'gettrace') or not sys.gettrace():
         To demonstrate this, we'll create a fake standard input that
         captures our debugger input:
 
-          >>> import tempfile
           >>> real_stdin = sys.stdin
           >>> sys.stdin = _FakeInput([
           ...    'print(x)',  # print data defined by the example
@@ -1917,7 +1948,7 @@ if not hasattr(sys, 'gettrace') or not sys.gettrace():
           ... finally:
           ...     sys.stdin = real_stdin
           --Return--
-          > <doctest test.test_doctest.test_pdb_set_trace[8]>(3)calls_set_trace()->None
+          > <doctest test.test_doctest.test_pdb_set_trace[7]>(3)calls_set_trace()->None
           -> import pdb; pdb.set_trace()
           (Pdb) print(y)
           2
@@ -2432,6 +2463,10 @@ def test_unittest_reportflags():
     Then the default eporting options are ignored:
 
       >>> result = suite.run(unittest.TestResult())
+
+    *NOTE*: These doctest are intentionally not placed in raw string to depict
+    the trailing whitespace using `\x20` in the diff below.
+
       >>> print(result.failures[0][1]) # doctest: +ELLIPSIS
       Traceback ...
       Failed example:
@@ -2445,7 +2480,7 @@ def test_unittest_reportflags():
       Differences (ndiff with -expected +actual):
             a
           - <BLANKLINE>
-          +
+          +\x20
             b
       <BLANKLINE>
       <BLANKLINE>
@@ -2633,12 +2668,52 @@ Test the verbose output:
     >>> sys.argv = save_argv
 """
 
+class TestImporter(importlib.abc.MetaPathFinder, importlib.abc.ResourceLoader):
+
+    def find_spec(self, fullname, path, target=None):
+        return importlib.util.spec_from_file_location(fullname, path, loader=self)
+
+    def get_data(self, path):
+        with open(path, mode='rb') as f:
+            return f.read()
+
+class TestHook:
+
+    def __init__(self, pathdir):
+        self.sys_path = sys.path[:]
+        self.meta_path = sys.meta_path[:]
+        self.path_hooks = sys.path_hooks[:]
+        sys.path.append(pathdir)
+        sys.path_importer_cache.clear()
+        self.modules_before = sys.modules.copy()
+        self.importer = TestImporter()
+        sys.meta_path.append(self.importer)
+
+    def remove(self):
+        sys.path[:] = self.sys_path
+        sys.meta_path[:] = self.meta_path
+        sys.path_hooks[:] = self.path_hooks
+        sys.path_importer_cache.clear()
+        sys.modules.clear()
+        sys.modules.update(self.modules_before)
+
+
+@contextlib.contextmanager
+def test_hook(pathdir):
+    hook = TestHook(pathdir)
+    try:
+        yield hook
+    finally:
+        hook.remove()
+
+
 def test_lineendings(): r"""
-*nix systems use \n line endings, while Windows systems use \r\n.  Python
+*nix systems use \n line endings, while Windows systems use \r\n, and
+old Mac systems used \r, which Python still recognizes as a line ending.  Python
 handles this using universal newline mode for reading files.  Let's make
 sure doctest does so (issue 8473) by creating temporary test files using each
-of the two line disciplines.  One of the two will be the "wrong" one for the
-platform the test is run on.
+of the three line disciplines.  At least one will not match either the universal
+newline \n or os.linesep for the platform the test is run on.
 
 Windows line endings first:
 
@@ -2647,7 +2722,7 @@ Windows line endings first:
     >>> with open(fn, 'wb') as f:
     ...    f.write(b'Test:\r\n\r\n  >>> x = 1 + 1\r\n\r\nDone.\r\n')
     35
-    >>> doctest.testfile(fn, False)
+    >>> doctest.testfile(fn, module_relative=False, verbose=False)
     TestResults(failed=0, attempted=1)
     >>> os.remove(fn)
 
@@ -2657,9 +2732,50 @@ And now *nix line endings:
     >>> with open(fn, 'wb') as f:
     ...     f.write(b'Test:\n\n  >>> x = 1 + 1\n\nDone.\n')
     30
-    >>> doctest.testfile(fn, False)
+    >>> doctest.testfile(fn, module_relative=False, verbose=False)
     TestResults(failed=0, attempted=1)
     >>> os.remove(fn)
+
+And finally old Mac line endings:
+
+    >>> fn = tempfile.mktemp()
+    >>> with open(fn, 'wb') as f:
+    ...     f.write(b'Test:\r\r  >>> x = 1 + 1\r\rDone.\r')
+    30
+    >>> doctest.testfile(fn, module_relative=False, verbose=False)
+    TestResults(failed=0, attempted=1)
+    >>> os.remove(fn)
+
+Now we test with a package loader that has a get_data method, since that
+bypasses the standard universal newline handling so doctest has to do the
+newline conversion itself; let's make sure it does so correctly (issue 1812).
+We'll write a file inside the package that has all three kinds of line endings
+in it, and use a package hook to install a custom loader; on any platform,
+at least one of the line endings will raise a ValueError for inconsistent
+whitespace if doctest does not correctly do the newline conversion.
+
+    >>> dn = tempfile.mkdtemp()
+    >>> pkg = os.path.join(dn, "doctest_testpkg")
+    >>> os.mkdir(pkg)
+    >>> support.create_empty_file(os.path.join(pkg, "__init__.py"))
+    >>> fn = os.path.join(pkg, "doctest_testfile.txt")
+    >>> with open(fn, 'wb') as f:
+    ...     f.write(
+    ...         b'Test:\r\n\r\n'
+    ...         b'  >>> x = 1 + 1\r\n\r\n'
+    ...         b'Done.\r\n'
+    ...         b'Test:\n\n'
+    ...         b'  >>> x = 1 + 1\n\n'
+    ...         b'Done.\n'
+    ...         b'Test:\r\r'
+    ...         b'  >>> x = 1 + 1\r\r'
+    ...         b'Done.\r'
+    ...     )
+    95
+    >>> with test_hook(dn):
+    ...     doctest.testfile("doctest_testfile.txt", package="doctest_testpkg", verbose=False)
+    TestResults(failed=0, attempted=3)
+    >>> shutil.rmtree(dn)
 
 """
 
@@ -2700,7 +2816,7 @@ Check doctest with a non-ascii filename:
     Exception raised:
         Traceback (most recent call last):
           File ...
-            compileflags, 1), test.globs)
+            exec(compile(example.source, filename, "single",
           File "<doctest foo-bär@baz[0]>", line 1, in <module>
             raise Exception('clé')
         Exception: clé
@@ -2719,12 +2835,6 @@ output into something we can doctest against:
     >>> def normalize(s):
     ...     return '\n'.join(s.decode().splitlines())
 
-Note: we also pass TERM='' to all the assert_python calls to avoid a bug
-in the readline library that is triggered in these tests because we are
-running them in a new python process.  See:
-
-  http://lists.gnu.org/archive/html/bug-readline/2013-06/msg00000.html
-
 With those preliminaries out of the way, we'll start with a file with two
 simple tests and no errors.  We'll run both the unadorned doctest command, and
 the verbose version, and then check the output:
@@ -2741,9 +2851,9 @@ the verbose version, and then check the output:
     ...         _ = f.write('\n')
     ...         _ = f.write('And that is it.\n')
     ...     rc1, out1, err1 = script_helper.assert_python_ok(
-    ...             '-m', 'doctest', fn, TERM='')
+    ...             '-m', 'doctest', fn)
     ...     rc2, out2, err2 = script_helper.assert_python_ok(
-    ...             '-m', 'doctest', '-v', fn, TERM='')
+    ...             '-m', 'doctest', '-v', fn)
 
 With no arguments and passing tests, we should get no output:
 
@@ -2775,7 +2885,7 @@ Now we'll write a couple files, one with three tests, the other a python module
 with two tests, both of the files having "errors" in the tests that can be made
 non-errors by applying the appropriate doctest options to the run (ELLIPSIS in
 the first file, NORMALIZE_WHITESPACE in the second).  This combination will
-allow to thoroughly test the -f and -o flags, as well as the doctest command's
+allow thoroughly testing the -f and -o flags, as well as the doctest command's
 ability to process more than one file on the command line and, since the second
 file ends in '.py', its handling of python module files (as opposed to straight
 text files).
@@ -2804,19 +2914,18 @@ text files).
     ...         _ = f.write("       'abc def'\n")
     ...         _ = f.write("\n")
     ...         _ = f.write('   \"\"\"\n')
-    ...     import shutil
     ...     rc1, out1, err1 = script_helper.assert_python_failure(
-    ...             '-m', 'doctest', fn, fn2, TERM='')
+    ...             '-m', 'doctest', fn, fn2)
     ...     rc2, out2, err2 = script_helper.assert_python_ok(
-    ...             '-m', 'doctest', '-o', 'ELLIPSIS', fn, TERM='')
+    ...             '-m', 'doctest', '-o', 'ELLIPSIS', fn)
     ...     rc3, out3, err3 = script_helper.assert_python_ok(
     ...             '-m', 'doctest', '-o', 'ELLIPSIS',
-    ...             '-o', 'NORMALIZE_WHITESPACE', fn, fn2, TERM='')
+    ...             '-o', 'NORMALIZE_WHITESPACE', fn, fn2)
     ...     rc4, out4, err4 = script_helper.assert_python_failure(
-    ...             '-m', 'doctest', '-f', fn, fn2, TERM='')
+    ...             '-m', 'doctest', '-f', fn, fn2)
     ...     rc5, out5, err5 = script_helper.assert_python_ok(
     ...             '-m', 'doctest', '-v', '-o', 'ELLIPSIS',
-    ...             '-o', 'NORMALIZE_WHITESPACE', fn, fn2, TERM='')
+    ...             '-o', 'NORMALIZE_WHITESPACE', fn, fn2)
 
 Our first test run will show the errors from the first file (doctest stops if a
 file has errors).  Note that doctest test-run error output appears on stdout,
@@ -2922,7 +3031,7 @@ We should also check some typical error cases.
 Invalid file name:
 
     >>> rc, out, err = script_helper.assert_python_failure(
-    ...         '-m', 'doctest', 'nosuchfile', TERM='')
+    ...         '-m', 'doctest', 'nosuchfile')
     >>> rc, out
     (1, b'')
     >>> print(normalize(err))                    # doctest: +ELLIPSIS
@@ -2933,13 +3042,54 @@ Invalid file name:
 Invalid doctest option:
 
     >>> rc, out, err = script_helper.assert_python_failure(
-    ...         '-m', 'doctest', '-o', 'nosuchoption', TERM='')
+    ...         '-m', 'doctest', '-o', 'nosuchoption')
     >>> rc, out
     (2, b'')
     >>> print(normalize(err))                    # doctest: +ELLIPSIS
     usage...invalid...nosuchoption...
 
 """
+
+def test_no_trailing_whitespace_stripping():
+    r"""
+    The fancy reports had a bug for a long time where any trailing whitespace on
+    the reported diff lines was stripped, making it impossible to see the
+    differences in line reported as different that differed only in the amount of
+    trailing whitespace.  The whitespace still isn't particularly visible unless
+    you use NDIFF, but at least it is now there to be found.
+
+    *NOTE*: This snippet was intentionally put inside a raw string to get rid of
+    leading whitespace error in executing the example below
+
+    >>> def f(x):
+    ...     r'''
+    ...     >>> print('\n'.join(['a    ', 'b']))
+    ...     a
+    ...     b
+    ...     '''
+    """
+    """
+    *NOTE*: These doctest are not placed in raw string to depict the trailing whitespace
+    using `\x20`
+
+    >>> test = doctest.DocTestFinder().find(f)[0]
+    >>> flags = doctest.REPORT_NDIFF
+    >>> doctest.DocTestRunner(verbose=False, optionflags=flags).run(test)
+    ... # doctest: +ELLIPSIS
+    **********************************************************************
+    File ..., line 3, in f
+    Failed example:
+        print('\n'.join(['a    ', 'b']))
+    Differences (ndiff with -expected +actual):
+        - a
+        + a
+          b
+    TestResults(failed=1, attempted=1)
+
+    *NOTE*: `\x20` is for checking the trailing whitespace on the +a line above.
+    We cannot use actual spaces there, as a commit hook prevents from committing
+    patches that contain trailing whitespace. More info on Issue 24746.
+    """
 
 ######################################################################
 ## Main
@@ -2948,11 +3098,14 @@ Invalid doctest option:
 def test_main():
     # Check the doctest cases in doctest itself:
     ret = support.run_doctest(doctest, verbosity=True)
+
     # Check the doctest cases defined here:
     from test import test_doctest
     support.run_doctest(test_doctest, verbosity=True)
 
-import sys, re, io
+    # Run unittests
+    support.run_unittest(__name__)
+
 
 def test_coverage(coverdir):
     trace = support.import_module('trace')

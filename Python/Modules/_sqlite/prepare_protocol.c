@@ -21,7 +21,6 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "module.h"
 #include "prepare_protocol.h"
 
 int pysqlite_prepare_protocol_init(pysqlite_PrepareProtocol* self, PyObject* args, PyObject* kwargs)
@@ -40,10 +39,10 @@ PyTypeObject pysqlite_PrepareProtocolType= {
         sizeof(pysqlite_PrepareProtocol),               /* tp_basicsize */
         0,                                              /* tp_itemsize */
         (destructor)pysqlite_prepare_protocol_dealloc,  /* tp_dealloc */
-        0,                                              /* tp_print */
+        0,                                              /* tp_vectorcall_offset */
         0,                                              /* tp_getattr */
         0,                                              /* tp_setattr */
-        0,                                              /* tp_reserved */
+        0,                                              /* tp_as_async */
         0,                                              /* tp_repr */
         0,                                              /* tp_as_number */
         0,                                              /* tp_as_sequence */

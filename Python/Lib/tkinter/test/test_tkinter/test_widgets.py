@@ -91,9 +91,10 @@ class ToplevelTest(AbstractToplevelTest, unittest.TestCase):
         widget = self.create()
         self.assertEqual(widget['use'], '')
         parent = self.create(container=True)
-        wid = parent.winfo_id()
-        widget2 = self.create(use=wid)
-        self.assertEqual(int(widget2['use']), wid)
+        wid = hex(parent.winfo_id())
+        with self.subTest(wid=wid):
+            widget2 = self.create(use=wid)
+            self.assertEqual(widget2['use'], wid)
 
 
 @add_standard_options(StandardOptionsTests)
@@ -102,7 +103,7 @@ class FrameTest(AbstractToplevelTest, unittest.TestCase):
         'background', 'borderwidth',
         'class', 'colormap', 'container', 'cursor', 'height',
         'highlightbackground', 'highlightcolor', 'highlightthickness',
-        'relief', 'takefocus', 'visual', 'width',
+        'padx', 'pady', 'relief', 'takefocus', 'visual', 'width',
     )
 
     def create(self, **kwargs):
@@ -376,6 +377,31 @@ class EntryTest(AbstractWidgetTest, unittest.TestCase):
         self.checkCommandParam(widget, 'validatecommand')
         self.checkCommandParam(widget, 'vcmd')
 
+    def test_selection_methods(self):
+        widget = self.create()
+        widget.insert(0, '12345')
+        self.assertFalse(widget.selection_present())
+        widget.selection_range(0, 'end')
+        self.assertEqual(widget.selection_get(), '12345')
+        self.assertTrue(widget.selection_present())
+        widget.selection_from(1)
+        widget.selection_to(2)
+        self.assertEqual(widget.selection_get(), '2')
+        widget.selection_range(3, 4)
+        self.assertEqual(widget.selection_get(), '4')
+        widget.selection_clear()
+        self.assertFalse(widget.selection_present())
+        widget.selection_range(0, 'end')
+        widget.selection_adjust(4)
+        self.assertEqual(widget.selection_get(), '1234')
+        widget.selection_adjust(1)
+        self.assertEqual(widget.selection_get(), '234')
+        widget.selection_adjust(5)
+        self.assertEqual(widget.selection_get(), '2345')
+        widget.selection_adjust(0)
+        self.assertEqual(widget.selection_get(), '12345')
+        widget.selection_adjust(0)
+
 
 @add_standard_options(StandardOptionsTests)
 class SpinboxTest(EntryTest, unittest.TestCase):
@@ -472,6 +498,38 @@ class SpinboxTest(EntryTest, unittest.TestCase):
         self.assertRaises(tkinter.TclError, widget.bbox, None)
         self.assertRaises(TypeError, widget.bbox)
         self.assertRaises(TypeError, widget.bbox, 0, 1)
+
+    def test_selection_methods(self):
+        widget = self.create()
+        widget.insert(0, '12345')
+        self.assertFalse(widget.selection_present())
+        widget.selection_range(0, 'end')
+        self.assertEqual(widget.selection_get(), '12345')
+        self.assertTrue(widget.selection_present())
+        widget.selection_from(1)
+        widget.selection_to(2)
+        self.assertEqual(widget.selection_get(), '2')
+        widget.selection_range(3, 4)
+        self.assertEqual(widget.selection_get(), '4')
+        widget.selection_clear()
+        self.assertFalse(widget.selection_present())
+        widget.selection_range(0, 'end')
+        widget.selection_adjust(4)
+        self.assertEqual(widget.selection_get(), '1234')
+        widget.selection_adjust(1)
+        self.assertEqual(widget.selection_get(), '234')
+        widget.selection_adjust(5)
+        self.assertEqual(widget.selection_get(), '2345')
+        widget.selection_adjust(0)
+        self.assertEqual(widget.selection_get(), '12345')
+
+    def test_selection_element(self):
+        widget = self.create()
+        self.assertEqual(widget.selection_element(), "none")
+        widget.selection_element("buttonup")
+        self.assertEqual(widget.selection_element(), "buttonup")
+        widget.selection_element("buttondown")
+        self.assertEqual(widget.selection_element(), "buttondown")
 
 
 @add_standard_options(StandardOptionsTests)
@@ -636,7 +694,7 @@ class CanvasTest(AbstractWidgetTest, unittest.TestCase):
         'highlightbackground', 'highlightcolor', 'highlightthickness',
         'insertbackground', 'insertborderwidth',
         'insertofftime', 'insertontime', 'insertwidth',
-        'relief', 'scrollregion',
+        'offset', 'relief', 'scrollregion',
         'selectbackground', 'selectborderwidth', 'selectforeground',
         'state', 'takefocus',
         'xscrollcommand', 'xscrollincrement',
@@ -657,6 +715,15 @@ class CanvasTest(AbstractWidgetTest, unittest.TestCase):
     def test_confine(self):
         widget = self.create()
         self.checkBooleanParam(widget, 'confine')
+
+    def test_offset(self):
+        widget = self.create()
+        self.assertEqual(widget['offset'], '0,0')
+        self.checkParams(widget, 'offset',
+                'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw', 'center')
+        self.checkParam(widget, 'offset', '10,20')
+        self.checkParam(widget, 'offset', '#5,6')
+        self.checkInvalidParam(widget, 'offset', 'spam')
 
     def test_scrollregion(self):
         widget = self.create()
@@ -685,6 +752,29 @@ class CanvasTest(AbstractWidgetTest, unittest.TestCase):
         self.checkPixelsParam(widget, 'yscrollincrement',
                               10, 0, 11.2, 13.6, -10, '0.1i')
 
+    @requires_tcl(8, 6)
+    def test_moveto(self):
+        widget = self.create()
+        i1 = widget.create_rectangle(1, 1, 20, 20, tags='group')
+        i2 = widget.create_rectangle(30, 30, 50, 70, tags='group')
+        x1, y1, _, _ = widget.bbox(i1)
+        x2, y2, _, _ = widget.bbox(i2)
+        widget.moveto('group', 200, 100)
+        x1_2, y1_2, _, _ = widget.bbox(i1)
+        x2_2, y2_2, _, _ = widget.bbox(i2)
+        self.assertEqual(x1_2, 200)
+        self.assertEqual(y1_2, 100)
+        self.assertEqual(x2 - x1, x2_2 - x1_2)
+        self.assertEqual(y2 - y1, y2_2 - y1_2)
+        widget.tag_lower(i2, i1)
+        widget.moveto('group', y=50)
+        x1_3, y1_3, _, _ = widget.bbox(i1)
+        x2_3, y2_3, _, _ = widget.bbox(i2)
+        self.assertEqual(y2_3, 50)
+        self.assertEqual(x2_3, x2_2)
+        self.assertEqual(x2_2 - x1_2, x2_3 - x1_3)
+        self.assertEqual(y2_2 - y1_2, y2_3 - y1_3)
+
 
 @add_standard_options(IntegerSizeTests, StandardOptionsTests)
 class ListboxTest(AbstractWidgetTest, unittest.TestCase):
@@ -693,7 +783,7 @@ class ListboxTest(AbstractWidgetTest, unittest.TestCase):
         'disabledforeground', 'exportselection',
         'font', 'foreground', 'height',
         'highlightbackground', 'highlightcolor', 'highlightthickness',
-        'listvariable', 'relief',
+        'justify', 'listvariable', 'relief',
         'selectbackground', 'selectborderwidth', 'selectforeground',
         'selectmode', 'setgrid', 'state',
         'takefocus', 'width', 'xscrollcommand', 'yscrollcommand',
@@ -706,6 +796,8 @@ class ListboxTest(AbstractWidgetTest, unittest.TestCase):
         widget = self.create()
         self.checkEnumParam(widget, 'activestyle',
                             'dotbox', 'none', 'underline')
+
+    test_justify = requires_tcl(8, 6, 5)(StandardOptionsTests.test_justify)
 
     def test_listvariable(self):
         widget = self.create()
@@ -941,7 +1033,9 @@ class PanedWindowTest(AbstractWidgetTest, unittest.TestCase):
     OPTIONS = (
         'background', 'borderwidth', 'cursor',
         'handlepad', 'handlesize', 'height',
-        'opaqueresize', 'orient', 'relief',
+        'opaqueresize', 'orient',
+        'proxybackground', 'proxyborderwidth', 'proxyrelief',
+        'relief',
         'sashcursor', 'sashpad', 'sashrelief', 'sashwidth',
         'showhandle', 'width',
     )
@@ -967,6 +1061,23 @@ class PanedWindowTest(AbstractWidgetTest, unittest.TestCase):
     def test_opaqueresize(self):
         widget = self.create()
         self.checkBooleanParam(widget, 'opaqueresize')
+
+    @requires_tcl(8, 6, 5)
+    def test_proxybackground(self):
+        widget = self.create()
+        self.checkColorParam(widget, 'proxybackground')
+
+    @requires_tcl(8, 6, 5)
+    def test_proxyborderwidth(self):
+        widget = self.create()
+        self.checkPixelsParam(widget, 'proxyborderwidth',
+                              0, 1.3, 2.9, 6, -2, '10p',
+                              conv=noconv)
+
+    @requires_tcl(8, 6, 5)
+    def test_proxyrelief(self):
+        widget = self.create()
+        self.checkReliefParam(widget, 'proxyrelief')
 
     def test_sashcursor(self):
         widget = self.create()

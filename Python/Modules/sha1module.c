@@ -30,7 +30,7 @@ class SHA1Type "SHA1object *" "&PyType_Type"
 
 #if SIZEOF_INT == 4
 typedef unsigned int SHA1_INT32;        /* 32-bit integer */
-typedef PY_LONG_LONG SHA1_INT64;        /* 64-bit integer */
+typedef long long SHA1_INT64;        /* 64-bit integer */
 #else
 /* not defined. compilation will die. */
 #endif
@@ -338,12 +338,12 @@ SHA1Type_copy_impl(SHA1object *self)
 /*[clinic input]
 SHA1Type.digest
 
-Return the digest value as a string of binary data.
+Return the digest value as a bytes object.
 [clinic start generated code]*/
 
 static PyObject *
 SHA1Type_digest_impl(SHA1object *self)
-/*[clinic end generated code: output=2f05302a7aa2b5cb input=205d47e1927fd009]*/
+/*[clinic end generated code: output=2f05302a7aa2b5cb input=13824b35407444bd]*/
 {
     unsigned char digest[SHA1_DIGESTSIZE];
     struct sha1_state temp;
@@ -393,8 +393,7 @@ SHA1Type_update(SHA1object *self, PyObject *obj)
     sha1_process(&self->hash_state, buf.buf, buf.len);
 
     PyBuffer_Release(&buf);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMethodDef SHA1_methods[] = {
@@ -443,14 +442,14 @@ static PyGetSetDef SHA1_getseters[] = {
 static PyTypeObject SHA1type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "_sha1.sha1",               /*tp_name*/
-    sizeof(SHA1object), /*tp_size*/
+    sizeof(SHA1object), /*tp_basicsize*/
     0,                  /*tp_itemsize*/
     /* methods */
     SHA1_dealloc,       /*tp_dealloc*/
-    0,                  /*tp_print*/
+    0,                  /*tp_vectorcall_offset*/
     0,                  /*tp_getattr*/
     0,                  /*tp_setattr*/
-    0,                  /*tp_reserved*/
+    0,                  /*tp_as_async*/
     0,                  /*tp_repr*/
     0,                  /*tp_as_number*/
     0,                  /*tp_as_sequence*/
@@ -486,8 +485,8 @@ Return a new SHA1 hash object; optionally initialized with a string.
 [clinic start generated code]*/
 
 static PyObject *
-_sha1_sha1_impl(PyModuleDef *module, PyObject *string)
-/*[clinic end generated code: output=3e4e841386b9e8db input=27ea54281d995ec2]*/
+_sha1_sha1_impl(PyObject *module, PyObject *string)
+/*[clinic end generated code: output=e5982830d1dece51 input=27ea54281d995ec2]*/
 {
     SHA1object *new;
     Py_buffer buf;

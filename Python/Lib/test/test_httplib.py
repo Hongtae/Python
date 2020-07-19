@@ -4,7 +4,10 @@ import io
 import itertools
 import os
 import array
+import re
 import socket
+import threading
+import warnings
 
 import unittest
 TestCase = unittest.TestCase
@@ -255,8 +258,8 @@ class HeaderTests(TestCase):
         self.assertIn(b'\xa0NonbreakSpace: value', conn._buffer)
 
     def test_ipv6host_header(self):
-        # Default host header on IPv6 transaction should wrapped by [] if
-        # its actual IPv6 address
+        # Default host header on IPv6 transaction should be wrapped by [] if
+        # it is an IPv6 address
         expected = b'GET /foo HTTP/1.1\r\nHost: [2001::]:81\r\n' \
                    b'Accept-Encoding: identity\r\n\r\n'
         conn = client.HTTPConnection('[2001::]:81')
@@ -282,6 +285,36 @@ class HeaderTests(TestCase):
 
         self.assertEqual(resp.getheader('First'), 'val')
         self.assertEqual(resp.getheader('Second'), 'val')
+
+    def test_parse_all_octets(self):
+        # Ensure no valid header field octet breaks the parser
+        body = (
+            b'HTTP/1.1 200 OK\r\n'
+            b"!#$%&'*+-.^_`|~: value\r\n"  # Special token characters
+            b'VCHAR: ' + bytes(range(0x21, 0x7E + 1)) + b'\r\n'
+            b'obs-text: ' + bytes(range(0x80, 0xFF + 1)) + b'\r\n'
+            b'obs-fold: text\r\n'
+            b' folded with space\r\n'
+            b'\tfolded with tab\r\n'
+            b'Content-Length: 0\r\n'
+            b'\r\n'
+        )
+        sock = FakeSocket(body)
+        resp = client.HTTPResponse(sock)
+        resp.begin()
+        self.assertEqual(resp.getheader('Content-Length'), '0')
+        self.assertEqual(resp.msg['Content-Length'], '0')
+        self.assertEqual(resp.getheader("!#$%&'*+-.^_`|~"), 'value')
+        self.assertEqual(resp.msg["!#$%&'*+-.^_`|~"], 'value')
+        vchar = ''.join(map(chr, range(0x21, 0x7E + 1)))
+        self.assertEqual(resp.getheader('VCHAR'), vchar)
+        self.assertEqual(resp.msg['VCHAR'], vchar)
+        self.assertIsNotNone(resp.getheader('obs-text'))
+        self.assertIn('obs-text', resp.msg)
+        for folded in (resp.getheader('obs-fold'), resp.msg['obs-fold']):
+            self.assertTrue(folded.startswith('text'))
+            self.assertIn(' folded with space', folded)
+            self.assertTrue(folded.endswith('folded with tab'))
 
     def test_invalid_headers(self):
         conn = client.HTTPConnection('example.com')
@@ -313,6 +346,173 @@ class HeaderTests(TestCase):
                 with self.assertRaisesRegex(ValueError, 'Invalid header'):
                     conn.putheader(name, value)
 
+    def test_headers_debuglevel(self):
+        body = (
+            b'HTTP/1.1 200 OK\r\n'
+            b'First: val\r\n'
+            b'Second: val1\r\n'
+            b'Second: val2\r\n'
+        )
+        sock = FakeSocket(body)
+        resp = client.HTTPResponse(sock, debuglevel=1)
+        with support.captured_stdout() as output:
+            resp.begin()
+        lines = output.getvalue().splitlines()
+        self.assertEqual(lines[0], "reply: 'HTTP/1.1 200 OK\\r\\n'")
+        self.assertEqual(lines[1], "header: First: val")
+        self.assertEqual(lines[2], "header: Second: val1")
+        self.assertEqual(lines[3], "header: Second: val2")
+
+
+class HttpMethodTests(TestCase):
+    def test_invalid_method_names(self):
+        methods = (
+            'GET\r',
+            'POST\n',
+            'PUT\n\r',
+            'POST\nValue',
+            'POST\nHOST:abc',
+            'GET\nrHost:abc\n',
+            'POST\rRemainder:\r',
+            'GET\rHOST:\n',
+            '\nPUT'
+        )
+
+        for method in methods:
+            with self.assertRaisesRegex(
+                    ValueError, "method can't contain control characters"):
+                conn = client.HTTPConnection('example.com')
+                conn.sock = FakeSocket(None)
+                conn.request(method=method, url="/")
+
+
+class TransferEncodingTest(TestCase):
+    expected_body = b"It's just a flesh wound"
+
+    def test_endheaders_chunked(self):
+        conn = client.HTTPConnection('example.com')
+        conn.sock = FakeSocket(b'')
+        conn.putrequest('POST', '/')
+        conn.endheaders(self._make_body(), encode_chunked=True)
+
+        _, _, body = self._parse_request(conn.sock.data)
+        body = self._parse_chunked(body)
+        self.assertEqual(body, self.expected_body)
+
+    def test_explicit_headers(self):
+        # explicit chunked
+        conn = client.HTTPConnection('example.com')
+        conn.sock = FakeSocket(b'')
+        # this shouldn't actually be automatically chunk-encoded because the
+        # calling code has explicitly stated that it's taking care of it
+        conn.request(
+            'POST', '/', self._make_body(), {'Transfer-Encoding': 'chunked'})
+
+        _, headers, body = self._parse_request(conn.sock.data)
+        self.assertNotIn('content-length', [k.lower() for k in headers.keys()])
+        self.assertEqual(headers['Transfer-Encoding'], 'chunked')
+        self.assertEqual(body, self.expected_body)
+
+        # explicit chunked, string body
+        conn = client.HTTPConnection('example.com')
+        conn.sock = FakeSocket(b'')
+        conn.request(
+            'POST', '/', self.expected_body.decode('latin-1'),
+            {'Transfer-Encoding': 'chunked'})
+
+        _, headers, body = self._parse_request(conn.sock.data)
+        self.assertNotIn('content-length', [k.lower() for k in headers.keys()])
+        self.assertEqual(headers['Transfer-Encoding'], 'chunked')
+        self.assertEqual(body, self.expected_body)
+
+        # User-specified TE, but request() does the chunk encoding
+        conn = client.HTTPConnection('example.com')
+        conn.sock = FakeSocket(b'')
+        conn.request('POST', '/',
+            headers={'Transfer-Encoding': 'gzip, chunked'},
+            encode_chunked=True,
+            body=self._make_body())
+        _, headers, body = self._parse_request(conn.sock.data)
+        self.assertNotIn('content-length', [k.lower() for k in headers])
+        self.assertEqual(headers['Transfer-Encoding'], 'gzip, chunked')
+        self.assertEqual(self._parse_chunked(body), self.expected_body)
+
+    def test_request(self):
+        for empty_lines in (False, True,):
+            conn = client.HTTPConnection('example.com')
+            conn.sock = FakeSocket(b'')
+            conn.request(
+                'POST', '/', self._make_body(empty_lines=empty_lines))
+
+            _, headers, body = self._parse_request(conn.sock.data)
+            body = self._parse_chunked(body)
+            self.assertEqual(body, self.expected_body)
+            self.assertEqual(headers['Transfer-Encoding'], 'chunked')
+
+            # Content-Length and Transfer-Encoding SHOULD not be sent in the
+            # same request
+            self.assertNotIn('content-length', [k.lower() for k in headers])
+
+    def test_empty_body(self):
+        # Zero-length iterable should be treated like any other iterable
+        conn = client.HTTPConnection('example.com')
+        conn.sock = FakeSocket(b'')
+        conn.request('POST', '/', ())
+        _, headers, body = self._parse_request(conn.sock.data)
+        self.assertEqual(headers['Transfer-Encoding'], 'chunked')
+        self.assertNotIn('content-length', [k.lower() for k in headers])
+        self.assertEqual(body, b"0\r\n\r\n")
+
+    def _make_body(self, empty_lines=False):
+        lines = self.expected_body.split(b' ')
+        for idx, line in enumerate(lines):
+            # for testing handling empty lines
+            if empty_lines and idx % 2:
+                yield b''
+            if idx < len(lines) - 1:
+                yield line + b' '
+            else:
+                yield line
+
+    def _parse_request(self, data):
+        lines = data.split(b'\r\n')
+        request = lines[0]
+        headers = {}
+        n = 1
+        while n < len(lines) and len(lines[n]) > 0:
+            key, val = lines[n].split(b':')
+            key = key.decode('latin-1').strip()
+            headers[key] = val.decode('latin-1').strip()
+            n += 1
+
+        return request, headers, b'\r\n'.join(lines[n + 1:])
+
+    def _parse_chunked(self, data):
+        body = []
+        trailers = {}
+        n = 0
+        lines = data.split(b'\r\n')
+        # parse body
+        while True:
+            size, chunk = lines[n:n+2]
+            size = int(size, 16)
+
+            if size == 0:
+                n += 1
+                break
+
+            self.assertEqual(size, len(chunk))
+            body.append(chunk)
+
+            n += 2
+            # we /should/ hit the end chunk, but check against the size of
+            # lines so we're not stuck in an infinite loop should we get
+            # malformed data
+            if n > len(lines):
+                break
+
+        return b''.join(body)
+
 
 class BasicTest(TestCase):
     def test_status_lines(self):
@@ -338,11 +538,11 @@ class BasicTest(TestCase):
 
     def test_bad_status_repr(self):
         exc = client.BadStatusLine('')
-        self.assertEqual(repr(exc), '''BadStatusLine("\'\'",)''')
+        self.assertEqual(repr(exc), '''BadStatusLine("''")''')
 
     def test_partial_reads(self):
-        # if we have a length, the system knows when to close itself
-        # same behaviour than when we read the whole thing with read()
+        # if we have Content-Length, HTTPResponse knows when to close itself,
+        # the same behaviour as when we read the whole thing with read()
         body = "HTTP/1.1 200 Ok\r\nContent-Length: 4\r\n\r\nText"
         sock = FakeSocket(body)
         resp = client.HTTPResponse(sock)
@@ -355,9 +555,24 @@ class BasicTest(TestCase):
         resp.close()
         self.assertTrue(resp.closed)
 
+    def test_mixed_reads(self):
+        # readline() should update the remaining length, so that read() knows
+        # how much data is left and does not raise IncompleteRead
+        body = "HTTP/1.1 200 Ok\r\nContent-Length: 13\r\n\r\nText\r\nAnother"
+        sock = FakeSocket(body)
+        resp = client.HTTPResponse(sock)
+        resp.begin()
+        self.assertEqual(resp.readline(), b'Text\r\n')
+        self.assertFalse(resp.isclosed())
+        self.assertEqual(resp.read(), b'Another')
+        self.assertTrue(resp.isclosed())
+        self.assertFalse(resp.closed)
+        resp.close()
+        self.assertTrue(resp.closed)
+
     def test_partial_readintos(self):
-        # if we have a length, the system knows when to close itself
-        # same behaviour than when we read the whole thing with read()
+        # if we have Content-Length, HTTPResponse knows when to close itself,
+        # the same behaviour as when we read the whole thing with read()
         body = "HTTP/1.1 200 Ok\r\nContent-Length: 4\r\n\r\nText"
         sock = FakeSocket(body)
         resp = client.HTTPResponse(sock)
@@ -519,7 +734,9 @@ class BasicTest(TestCase):
 
     def test_send_file(self):
         expected = (b'GET /foo HTTP/1.1\r\nHost: example.com\r\n'
-                    b'Accept-Encoding: identity\r\nContent-Length:')
+                    b'Accept-Encoding: identity\r\n'
+                    b'Transfer-Encoding: chunked\r\n'
+                    b'\r\n')
 
         with open(__file__, 'rb') as body:
             conn = client.HTTPConnection('example.com')
@@ -549,11 +766,11 @@ class BasicTest(TestCase):
             yield None
             yield 'data_two'
 
-        class UpdatingFile():
+        class UpdatingFile(io.TextIOBase):
             mode = 'r'
             d = data()
             def read(self, blocksize=-1):
-                return self.d.__next__()
+                return next(self.d)
 
         expected = b'data'
 
@@ -578,6 +795,29 @@ class BasicTest(TestCase):
         sock = FakeSocket("")
         conn.sock = sock
         conn.request('GET', '/foo', body(), {'Content-Length': '11'})
+        self.assertEqual(sock.data, expected)
+
+    def test_blocksize_request(self):
+        """Check that request() respects the configured block size."""
+        blocksize = 8  # For easy debugging.
+        conn = client.HTTPConnection('example.com', blocksize=blocksize)
+        sock = FakeSocket(None)
+        conn.sock = sock
+        expected = b"a" * blocksize + b"b"
+        conn.request("PUT", "/", io.BytesIO(expected), {"Content-Length": "9"})
+        self.assertEqual(sock.sendall_calls, 3)
+        body = sock.data.split(b"\r\n\r\n", 1)[1]
+        self.assertEqual(body, expected)
+
+    def test_blocksize_send(self):
+        """Check that send() respects the configured block size."""
+        blocksize = 8  # For easy debugging.
+        conn = client.HTTPConnection('example.com', blocksize=blocksize)
+        sock = FakeSocket(None)
+        conn.sock = sock
+        expected = b"a" * blocksize + b"b"
+        conn.send(io.BytesIO(expected))
+        self.assertEqual(sock.sendall_calls, 2)
         self.assertEqual(sock.data, expected)
 
     def test_send_type_error(self):
@@ -827,7 +1067,7 @@ class BasicTest(TestCase):
         resp.begin()
         self.assertEqual(resp.read(), expected)
         # we should have reached the end of the file
-        self.assertEqual(sock.file.read(100), b"") #we read to the end
+        self.assertEqual(sock.file.read(), b"") #we read to the end
         resp.close()
 
     def test_chunked_sync(self):
@@ -839,20 +1079,142 @@ class BasicTest(TestCase):
         resp.begin()
         self.assertEqual(resp.read(), expected)
         # the file should now have our extradata ready to be read
-        self.assertEqual(sock.file.read(100), extradata.encode("ascii")) #we read to the end
+        self.assertEqual(sock.file.read(), extradata.encode("ascii")) #we read to the end
         resp.close()
 
     def test_content_length_sync(self):
         """Check that we don't read past the end of the Content-Length stream"""
-        extradata = "extradata"
+        extradata = b"extradata"
         expected = b"Hello123\r\n"
-        sock = FakeSocket('HTTP/1.1 200 OK\r\nContent-Length: 10\r\n\r\nHello123\r\n' + extradata)
+        sock = FakeSocket(b'HTTP/1.1 200 OK\r\nContent-Length: 10\r\n\r\n' + expected + extradata)
         resp = client.HTTPResponse(sock, method="GET")
         resp.begin()
         self.assertEqual(resp.read(), expected)
         # the file should now have our extradata ready to be read
-        self.assertEqual(sock.file.read(100), extradata.encode("ascii")) #we read to the end
+        self.assertEqual(sock.file.read(), extradata) #we read to the end
         resp.close()
+
+    def test_readlines_content_length(self):
+        extradata = b"extradata"
+        expected = b"Hello123\r\n"
+        sock = FakeSocket(b'HTTP/1.1 200 OK\r\nContent-Length: 10\r\n\r\n' + expected + extradata)
+        resp = client.HTTPResponse(sock, method="GET")
+        resp.begin()
+        self.assertEqual(resp.readlines(2000), [expected])
+        # the file should now have our extradata ready to be read
+        self.assertEqual(sock.file.read(), extradata) #we read to the end
+        resp.close()
+
+    def test_read1_content_length(self):
+        extradata = b"extradata"
+        expected = b"Hello123\r\n"
+        sock = FakeSocket(b'HTTP/1.1 200 OK\r\nContent-Length: 10\r\n\r\n' + expected + extradata)
+        resp = client.HTTPResponse(sock, method="GET")
+        resp.begin()
+        self.assertEqual(resp.read1(2000), expected)
+        # the file should now have our extradata ready to be read
+        self.assertEqual(sock.file.read(), extradata) #we read to the end
+        resp.close()
+
+    def test_readline_bound_content_length(self):
+        extradata = b"extradata"
+        expected = b"Hello123\r\n"
+        sock = FakeSocket(b'HTTP/1.1 200 OK\r\nContent-Length: 10\r\n\r\n' + expected + extradata)
+        resp = client.HTTPResponse(sock, method="GET")
+        resp.begin()
+        self.assertEqual(resp.readline(10), expected)
+        self.assertEqual(resp.readline(10), b"")
+        # the file should now have our extradata ready to be read
+        self.assertEqual(sock.file.read(), extradata) #we read to the end
+        resp.close()
+
+    def test_read1_bound_content_length(self):
+        extradata = b"extradata"
+        expected = b"Hello123\r\n"
+        sock = FakeSocket(b'HTTP/1.1 200 OK\r\nContent-Length: 30\r\n\r\n' + expected*3 + extradata)
+        resp = client.HTTPResponse(sock, method="GET")
+        resp.begin()
+        self.assertEqual(resp.read1(20), expected*2)
+        self.assertEqual(resp.read(), expected)
+        # the file should now have our extradata ready to be read
+        self.assertEqual(sock.file.read(), extradata) #we read to the end
+        resp.close()
+
+    def test_response_fileno(self):
+        # Make sure fd returned by fileno is valid.
+        serv = socket.create_server((HOST, 0))
+        self.addCleanup(serv.close)
+
+        result = None
+        def run_server():
+            [conn, address] = serv.accept()
+            with conn, conn.makefile("rb") as reader:
+                # Read the request header until a blank line
+                while True:
+                    line = reader.readline()
+                    if not line.rstrip(b"\r\n"):
+                        break
+                conn.sendall(b"HTTP/1.1 200 Connection established\r\n\r\n")
+                nonlocal result
+                result = reader.read()
+
+        thread = threading.Thread(target=run_server)
+        thread.start()
+        self.addCleanup(thread.join, float(1))
+        conn = client.HTTPConnection(*serv.getsockname())
+        conn.request("CONNECT", "dummy:1234")
+        response = conn.getresponse()
+        try:
+            self.assertEqual(response.status, client.OK)
+            s = socket.socket(fileno=response.fileno())
+            try:
+                s.sendall(b"proxied data\n")
+            finally:
+                s.detach()
+        finally:
+            response.close()
+            conn.close()
+        thread.join()
+        self.assertEqual(result, b"proxied data\n")
+
+    def test_putrequest_override_domain_validation(self):
+        """
+        It should be possible to override the default validation
+        behavior in putrequest (bpo-38216).
+        """
+        class UnsafeHTTPConnection(client.HTTPConnection):
+            def _validate_path(self, url):
+                pass
+
+        conn = UnsafeHTTPConnection('example.com')
+        conn.sock = FakeSocket('')
+        conn.putrequest('GET', '/\x00')
+
+    def test_putrequest_override_host_validation(self):
+        class UnsafeHTTPConnection(client.HTTPConnection):
+            def _validate_host(self, url):
+                pass
+
+        conn = UnsafeHTTPConnection('example.com\r\n')
+        conn.sock = FakeSocket('')
+        # set skip_host so a ValueError is not raised upon adding the
+        # invalid URL as the value of the "Host:" header
+        conn.putrequest('GET', '/', skip_host=1)
+
+    def test_putrequest_override_encoding(self):
+        """
+        It should be possible to override the default encoding
+        to transmit bytes in another encoding even if invalid
+        (bpo-36274).
+        """
+        class UnsafeHTTPConnection(client.HTTPConnection):
+            def _encode_request(self, str_url):
+                return str_url.encode('utf-8')
+
+        conn = UnsafeHTTPConnection('example.com')
+        conn.sock = FakeSocket('')
+        conn.putrequest('GET', '/☃')
+
 
 class ExtendedReadTest(TestCase):
     """
@@ -978,6 +1340,7 @@ class ExtendedReadTest(TestCase):
         p = self.resp.peek(0)
         self.assertLessEqual(0, len(p))
 
+
 class ExtendedReadTestChunked(ExtendedReadTest):
     """
     Test peek(), read1(), readline() in chunked mode
@@ -1042,7 +1405,7 @@ class OfflineTest(TestCase):
         # intentionally omitted for simplicity
         blacklist = {"HTTPMessage", "parse_headers"}
         for name in dir(client):
-            if name in blacklist:
+            if name.startswith("_") or name in blacklist:
                 continue
             module_object = getattr(client, name)
             if getattr(module_object, "__module__", None) == "http.client":
@@ -1092,6 +1455,7 @@ class OfflineTest(TestCase):
             'UNSUPPORTED_MEDIA_TYPE',
             'REQUESTED_RANGE_NOT_SATISFIABLE',
             'EXPECTATION_FAILED',
+            'MISDIRECTED_REQUEST',
             'UNPROCESSABLE_ENTITY',
             'LOCKED',
             'FAILED_DEPENDENCY',
@@ -1099,6 +1463,7 @@ class OfflineTest(TestCase):
             'PRECONDITION_REQUIRED',
             'TOO_MANY_REQUESTS',
             'REQUEST_HEADER_FIELDS_TOO_LARGE',
+            'UNAVAILABLE_FOR_LEGAL_REASONS',
             'INTERNAL_SERVER_ERROR',
             'NOT_IMPLEMENTED',
             'BAD_GATEWAY',
@@ -1140,7 +1505,7 @@ class SourceAddressTest(TestCase):
     def testHTTPSConnectionSourceAddress(self):
         self.conn = client.HTTPSConnection(HOST, self.port,
                 source_address=('', self.source_port))
-        # We don't test anything here other the constructor not barfing as
+        # We don't test anything here other than the constructor not barfing as
         # this code doesn't deal with setting up an active running SSL server
         # for an ssl_wrapped connect() to actually return from.
 
@@ -1300,6 +1665,7 @@ class HTTPSTest(TestCase):
             resp = h.getresponse()
             h.close()
             self.assertIn('nginx', resp.getheader('server'))
+            resp.close()
 
     @support.system_must_validate_cert
     def test_networked_trusted_by_default_cert(self):
@@ -1310,6 +1676,7 @@ class HTTPSTest(TestCase):
             h.request('GET', '/')
             resp = h.getresponse()
             content_type = resp.getheader('content-type')
+            resp.close()
             h.close()
             self.assertIn('text/html', content_type)
 
@@ -1317,14 +1684,32 @@ class HTTPSTest(TestCase):
         # We feed the server's cert as a validating cert
         import ssl
         support.requires('network')
-        with support.transient_internet('self-signed.pythontest.net'):
-            context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-            context.verify_mode = ssl.CERT_REQUIRED
+        selfsigned_pythontestdotnet = 'self-signed.pythontest.net'
+        with support.transient_internet(selfsigned_pythontestdotnet):
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+            self.assertEqual(context.verify_mode, ssl.CERT_REQUIRED)
+            self.assertEqual(context.check_hostname, True)
             context.load_verify_locations(CERT_selfsigned_pythontestdotnet)
-            h = client.HTTPSConnection('self-signed.pythontest.net', 443, context=context)
-            h.request('GET', '/')
-            resp = h.getresponse()
+            try:
+                h = client.HTTPSConnection(selfsigned_pythontestdotnet, 443,
+                                           context=context)
+                h.request('GET', '/')
+                resp = h.getresponse()
+            except ssl.SSLError as ssl_err:
+                ssl_err_str = str(ssl_err)
+                # In the error message of [SSL: CERTIFICATE_VERIFY_FAILED] on
+                # modern Linux distros (Debian Buster, etc) default OpenSSL
+                # configurations it'll fail saying "key too weak" until we
+                # address https://bugs.python.org/issue36816 to use a proper
+                # key size on self-signed.pythontest.net.
+                if re.search(r'(?i)key.too.weak', ssl_err_str):
+                    raise unittest.SkipTest(
+                        f'Got {ssl_err_str} trying to connect '
+                        f'to {selfsigned_pythontestdotnet}. '
+                        'See https://bugs.python.org/issue36816.')
+                raise
             server_string = resp.getheader('server')
+            resp.close()
             h.close()
             self.assertIn('nginx', server_string)
 
@@ -1333,8 +1718,7 @@ class HTTPSTest(TestCase):
         import ssl
         support.requires('network')
         with support.transient_internet('self-signed.pythontest.net'):
-            context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-            context.verify_mode = ssl.CERT_REQUIRED
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
             context.load_verify_locations(CERT_localhost)
             h = client.HTTPSConnection('self-signed.pythontest.net', 443, context=context)
             with self.assertRaises(ssl.SSLError) as exc_info:
@@ -1354,47 +1738,54 @@ class HTTPSTest(TestCase):
         # The (valid) cert validates the HTTP hostname
         import ssl
         server = self.make_server(CERT_localhost)
-        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-        context.verify_mode = ssl.CERT_REQUIRED
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         context.load_verify_locations(CERT_localhost)
         h = client.HTTPSConnection('localhost', server.port, context=context)
+        self.addCleanup(h.close)
         h.request('GET', '/nonexistent')
         resp = h.getresponse()
+        self.addCleanup(resp.close)
         self.assertEqual(resp.status, 404)
 
     def test_local_bad_hostname(self):
         # The (valid) cert doesn't validate the HTTP hostname
         import ssl
         server = self.make_server(CERT_fakehostname)
-        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-        context.verify_mode = ssl.CERT_REQUIRED
-        context.check_hostname = True
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         context.load_verify_locations(CERT_fakehostname)
         h = client.HTTPSConnection('localhost', server.port, context=context)
         with self.assertRaises(ssl.CertificateError):
             h.request('GET', '/')
         # Same with explicit check_hostname=True
-        h = client.HTTPSConnection('localhost', server.port, context=context,
-                                   check_hostname=True)
+        with support.check_warnings(('', DeprecationWarning)):
+            h = client.HTTPSConnection('localhost', server.port,
+                                       context=context, check_hostname=True)
         with self.assertRaises(ssl.CertificateError):
             h.request('GET', '/')
         # With check_hostname=False, the mismatching is ignored
         context.check_hostname = False
-        h = client.HTTPSConnection('localhost', server.port, context=context,
-                                   check_hostname=False)
+        with support.check_warnings(('', DeprecationWarning)):
+            h = client.HTTPSConnection('localhost', server.port,
+                                       context=context, check_hostname=False)
         h.request('GET', '/nonexistent')
         resp = h.getresponse()
+        resp.close()
+        h.close()
         self.assertEqual(resp.status, 404)
         # The context's check_hostname setting is used if one isn't passed to
         # HTTPSConnection.
         context.check_hostname = False
         h = client.HTTPSConnection('localhost', server.port, context=context)
         h.request('GET', '/nonexistent')
-        self.assertEqual(h.getresponse().status, 404)
+        resp = h.getresponse()
+        self.assertEqual(resp.status, 404)
+        resp.close()
+        h.close()
         # Passing check_hostname to HTTPSConnection should override the
         # context's setting.
-        h = client.HTTPSConnection('localhost', server.port, context=context,
-                                   check_hostname=True)
+        with support.check_warnings(('', DeprecationWarning)):
+            h = client.HTTPSConnection('localhost', server.port,
+                                       context=context, check_hostname=True)
         with self.assertRaises(ssl.CertificateError):
             h.request('GET', '/')
 
@@ -1418,6 +1809,27 @@ class HTTPSTest(TestCase):
             self.assertEqual(h, c.host)
             self.assertEqual(p, c.port)
 
+    def test_tls13_pha(self):
+        import ssl
+        if not ssl.HAS_TLSv1_3:
+            self.skipTest('TLS 1.3 support required')
+        # just check status of PHA flag
+        h = client.HTTPSConnection('localhost', 443)
+        self.assertTrue(h._context.post_handshake_auth)
+
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        self.assertFalse(context.post_handshake_auth)
+        h = client.HTTPSConnection('localhost', 443, context=context)
+        self.assertIs(h._context, context)
+        self.assertFalse(h._context.post_handshake_auth)
+
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', 'key_file, cert_file and check_hostname are deprecated',
+                                    DeprecationWarning)
+            h = client.HTTPSConnection('localhost', 443, context=context,
+                                       cert_file=CERT_localhost)
+        self.assertTrue(h._context.post_handshake_auth)
+
 
 class RequestBodyTest(TestCase):
     """Test cases where a request includes a message body."""
@@ -1432,6 +1844,26 @@ class RequestBodyTest(TestCase):
         f.readline()  # read the request line
         message = client.parse_headers(f)
         return message, f
+
+    def test_list_body(self):
+        # Note that no content-length is automatically calculated for
+        # an iterable.  The request will fall back to send chunked
+        # transfer encoding.
+        cases = (
+            ([b'foo', b'bar'], b'3\r\nfoo\r\n3\r\nbar\r\n0\r\n\r\n'),
+            ((b'foo', b'bar'), b'3\r\nfoo\r\n3\r\nbar\r\n0\r\n\r\n'),
+        )
+        for body, expected in cases:
+            with self.subTest(body):
+                self.conn = client.HTTPConnection('example.com')
+                self.conn.sock = self.sock = FakeSocket('')
+
+                self.conn.request('PUT', '/url', body)
+                msg, f = self.get_headers_and_fp()
+                self.assertNotIn('Content-Type', msg)
+                self.assertNotIn('Content-Length', msg)
+                self.assertEqual(msg.get('Transfer-Encoding'), 'chunked')
+                self.assertEqual(expected, f.read())
 
     def test_manual_content_length(self):
         # Set an incorrect content-length so that we can verify that
@@ -1466,7 +1898,7 @@ class RequestBodyTest(TestCase):
         self.assertEqual("5", message.get("content-length"))
         self.assertEqual(b'body\xc1', f.read())
 
-    def test_file_body(self):
+    def test_text_file_body(self):
         self.addCleanup(support.unlink, support.TESTFN)
         with open(support.TESTFN, "w") as f:
             f.write("body")
@@ -1475,8 +1907,11 @@ class RequestBodyTest(TestCase):
             message, f = self.get_headers_and_fp()
             self.assertEqual("text/plain", message.get_content_type())
             self.assertIsNone(message.get_charset())
-            self.assertEqual("4", message.get("content-length"))
-            self.assertEqual(b'body', f.read())
+            # No content-length will be determined for files; the body
+            # will be sent using chunked transfer encoding instead.
+            self.assertIsNone(message.get("content-length"))
+            self.assertEqual("chunked", message.get("transfer-encoding"))
+            self.assertEqual(b'4\r\nbody\r\n0\r\n\r\n', f.read())
 
     def test_binary_file_body(self):
         self.addCleanup(support.unlink, support.TESTFN)
@@ -1487,8 +1922,9 @@ class RequestBodyTest(TestCase):
             message, f = self.get_headers_and_fp()
             self.assertEqual("text/plain", message.get_content_type())
             self.assertIsNone(message.get_charset())
-            self.assertEqual("5", message.get("content-length"))
-            self.assertEqual(b'body\xc1', f.read())
+            self.assertEqual("chunked", message.get("Transfer-Encoding"))
+            self.assertNotIn("Content-Length", message)
+            self.assertEqual(b'5\r\nbody\xc1\r\n0\r\n\r\n', f.read())
 
 
 class HTTPResponseTest(TestCase):
@@ -1599,13 +2035,5 @@ class TunnelTests(TestCase):
         self.assertIn('header: {}'.format(expected_header), lines)
 
 
-@support.reap_threads
-def test_main(verbose=None):
-    support.run_unittest(HeaderTests, OfflineTest, BasicTest, TimeoutTest,
-                         PersistenceTest,
-                         HTTPSTest, RequestBodyTest, SourceAddressTest,
-                         HTTPResponseTest, ExtendedReadTest,
-                         ExtendedReadTestChunked, TunnelTests)
-
 if __name__ == '__main__':
-    test_main()
+    unittest.main(verbosity=2)

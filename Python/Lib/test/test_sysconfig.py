@@ -5,8 +5,9 @@ import subprocess
 import shutil
 from copy import copy
 
-from test.support import (run_unittest, TESTFN, unlink, check_warnings,
-                          captured_stdout, skip_unless_symlink)
+from test.support import (import_module, TESTFN, unlink, check_warnings,
+                          captured_stdout, skip_unless_symlink, change_cwd,
+                          PythonSymlink)
 
 import sysconfig
 from sysconfig import (get_paths, get_platform, get_config_vars,
@@ -118,13 +119,6 @@ class TestSysConfig(unittest.TestCase):
                        '[MSC v.1310 32 bit (Amd64)]')
         sys.platform = 'win32'
         self.assertEqual(get_platform(), 'win-amd64')
-
-        # windows XP, itanium
-        os.name = 'nt'
-        sys.version = ('2.4.4 (#71, Oct 18 2006, 08:34:43) '
-                       '[MSC v.1310 32 bit (Itanium)]')
-        sys.platform = 'win32'
-        self.assertEqual(get_platform(), 'win-ia64')
 
         # macbook
         os.name = 'posix'
@@ -239,26 +233,10 @@ class TestSysConfig(unittest.TestCase):
         self.assertEqual(get_scheme_names(), wanted)
 
     @skip_unless_symlink
-    def test_symlink(self):
-        # On Windows, the EXE needs to know where pythonXY.dll is at so we have
-        # to add the directory to the path.
-        if sys.platform == "win32":
-            os.environ["PATH"] = "{};{}".format(
-                os.path.dirname(sys.executable), os.environ["PATH"])
-
-        # Issue 7880
-        def get(python):
-            cmd = [python, '-c',
-                   'import sysconfig; print(sysconfig.get_platform())']
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=os.environ)
-            return p.communicate()
-        real = os.path.realpath(sys.executable)
-        link = os.path.abspath(TESTFN)
-        os.symlink(real, link)
-        try:
-            self.assertEqual(get(real), get(link))
-        finally:
-            unlink(link)
+    def test_symlink(self): # Issue 7880
+        with PythonSymlink() as py:
+            cmd = "-c", "import sysconfig; print(sysconfig.get_platform())"
+            self.assertEqual(py.call_real(*cmd), py.call_link(*cmd))
 
     def test_user_similar(self):
         # Issue #8759: make sure the posix scheme for the users
@@ -361,12 +339,8 @@ class TestSysConfig(unittest.TestCase):
         # srcdir should be independent of the current working directory
         # See Issues #15322, #15364.
         srcdir = sysconfig.get_config_var('srcdir')
-        cwd = os.getcwd()
-        try:
-            os.chdir('..')
+        with change_cwd(os.pardir):
             srcdir2 = sysconfig.get_config_var('srcdir')
-        finally:
-            os.chdir(cwd)
         self.assertEqual(srcdir, srcdir2)
 
     @unittest.skipIf(sysconfig.get_config_var('EXT_SUFFIX') is None,
@@ -389,17 +363,20 @@ class TestSysConfig(unittest.TestCase):
         self.assertIsNotNone(vars['SO'])
         self.assertEqual(vars['SO'], vars['EXT_SUFFIX'])
 
-    @unittest.skipUnless(sys.platform == 'linux', 'Linux-specific test')
+    @unittest.skipUnless(sys.platform == 'linux' and
+                         hasattr(sys.implementation, '_multiarch'),
+                         'multiarch-specific test')
     def test_triplet_in_ext_suffix(self):
-        import ctypes, platform, re
+        ctypes = import_module('ctypes')
+        import platform, re
         machine = platform.machine()
         suffix = sysconfig.get_config_var('EXT_SUFFIX')
         if re.match('(aarch64|arm|mips|ppc|powerpc|s390|sparc)', machine):
             self.assertTrue('linux' in suffix, suffix)
         if re.match('(i[3-6]86|x86_64)$', machine):
             if ctypes.sizeof(ctypes.c_char_p()) == 4:
-                self.assertTrue(suffix.endswith('i386-linux-gnu.so') \
-                                or suffix.endswith('x86_64-linux-gnux32.so'),
+                self.assertTrue(suffix.endswith('i386-linux-gnu.so') or
+                                suffix.endswith('x86_64-linux-gnux32.so'),
                                 suffix)
             else: # 8 byte pointer size
                 self.assertTrue(suffix.endswith('x86_64-linux-gnu.so'), suffix)
@@ -425,6 +402,8 @@ class MakefileTests(unittest.TestCase):
             print("var3=42", file=makefile)
             print("var4=$/invalid", file=makefile)
             print("var5=dollar$$5", file=makefile)
+            print("var6=${var3}/lib/python3.5/config-$(VAR2)$(var5)"
+                  "-x86_64-linux-gnu", file=makefile)
         vars = sysconfig._parse_makefile(TESTFN)
         self.assertEqual(vars, {
             'var1': 'ab42',
@@ -432,11 +411,9 @@ class MakefileTests(unittest.TestCase):
             'var3': 42,
             'var4': '$/invalid',
             'var5': 'dollar$5',
+            'var6': '42/lib/python3.5/config-b42dollar$5-x86_64-linux-gnu',
         })
 
 
-def test_main():
-    run_unittest(TestSysConfig, MakefileTests)
-
 if __name__ == "__main__":
-    test_main()
+    unittest.main()

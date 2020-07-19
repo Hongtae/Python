@@ -36,13 +36,12 @@ python ftplib.py -d localhost -l -p -l
 # Modified by Giampaolo Rodola' to add TLS support.
 #
 
-import os
 import sys
 import socket
-import warnings
 from socket import _GLOBAL_DEFAULT_TIMEOUT
 
-__all__ = ["FTP"]
+__all__ = ["FTP", "error_reply", "error_temp", "error_perm", "error_proto",
+           "all_errors"]
 
 # Magic number from <socket.h>
 MSG_OOB = 0x1                           # Process data out of band
@@ -149,6 +148,7 @@ class FTP:
             self.timeout = timeout
         if source_address is not None:
             self.source_address = source_address
+        sys.audit("ftplib.connect", self, self.host, self.port)
         self.sock = socket.create_connection((self.host, self.port), self.timeout,
                                              source_address=self.source_address)
         self.af = self.sock.family
@@ -187,6 +187,9 @@ class FTP:
 
     # Internal: send one line to the server, appending CRLF
     def putline(self, line):
+        if '\r' in line or '\n' in line:
+            raise ValueError('an illegal newline character should not be contained')
+        sys.audit("ftplib.sendcmd", self, line)
         line = line + CRLF
         if self.debugging > 1:
             print('*put*', self.sanitize(line))
@@ -287,7 +290,7 @@ class FTP:
         return self.voidcmd(cmd)
 
     def sendeprt(self, host, port):
-        '''Send a EPRT command with the current host and the given port number.'''
+        '''Send an EPRT command with the current host and the given port number.'''
         af = 0
         if self.af == socket.AF_INET:
             af = 1
@@ -301,26 +304,7 @@ class FTP:
 
     def makeport(self):
         '''Create a new socket and send a PORT command for it.'''
-        err = None
-        sock = None
-        for res in socket.getaddrinfo(None, 0, self.af, socket.SOCK_STREAM, 0, socket.AI_PASSIVE):
-            af, socktype, proto, canonname, sa = res
-            try:
-                sock = socket.socket(af, socktype, proto)
-                sock.bind(sa)
-            except OSError as _:
-                err = _
-                if sock:
-                    sock.close()
-                sock = None
-                continue
-            break
-        if sock is None:
-            if err is not None:
-                raise err
-            else:
-                raise OSError("getaddrinfo returns an empty list")
-        sock.listen(1)
+        sock = socket.create_server(("", 0), family=self.af, backlog=1)
         port = sock.getsockname()[1] # Get proper port
         host = self.sock.getsockname()[0] # Get proper host
         if self.af == socket.AF_INET:
@@ -718,7 +702,7 @@ else:
         '221 Goodbye.'
         >>>
         '''
-        ssl_version = ssl.PROTOCOL_SSLv23
+        ssl_version = ssl.PROTOCOL_TLS_CLIENT
 
         def __init__(self, host='', user='', passwd='', acct='', keyfile=None,
                      certfile=None, context=None,
@@ -729,6 +713,10 @@ else:
             if context is not None and certfile is not None:
                 raise ValueError("context and certfile arguments are mutually "
                                  "exclusive")
+            if keyfile is not None or certfile is not None:
+                import warnings
+                warnings.warn("keyfile and certfile are deprecated, use a "
+                              "custom context instead", DeprecationWarning, 2)
             self.keyfile = keyfile
             self.certfile = certfile
             if context is None:
@@ -748,7 +736,7 @@ else:
             '''Set up secure control connection by using TLS/SSL.'''
             if isinstance(self.sock, ssl.SSLSocket):
                 raise ValueError("Already using TLS")
-            if self.ssl_version >= ssl.PROTOCOL_SSLv23:
+            if self.ssl_version >= ssl.PROTOCOL_TLS:
                 resp = self.voidcmd('AUTH TLS')
             else:
                 resp = self.voidcmd('AUTH SSL')
@@ -822,7 +810,7 @@ def parse150(resp):
     if _150_re is None:
         import re
         _150_re = re.compile(
-            "150 .* \((\d+) bytes\)", re.IGNORECASE | re.ASCII)
+            r"150 .* \((\d+) bytes\)", re.IGNORECASE | re.ASCII)
     m = _150_re.match(resp)
     if not m:
         return None
@@ -852,7 +840,7 @@ def parse227(resp):
 
 
 def parse229(resp, peer):
-    '''Parse the '229' response for a EPSV request.
+    '''Parse the '229' response for an EPSV request.
     Raises error_proto if it does not contain '(|||port|)'
     Return ('host.addr.as.numbers', port#) tuple.'''
 

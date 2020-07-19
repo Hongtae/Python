@@ -30,7 +30,7 @@ class MD5Type "MD5object *" "&PyType_Type"
 
 #if SIZEOF_INT == 4
 typedef unsigned int MD5_INT32; /* 32-bit integer */
-typedef PY_LONG_LONG MD5_INT64; /* 64-bit integer */
+typedef long long MD5_INT64; /* 64-bit integer */
 #else
 /* not defined. compilation will die. */
 #endif
@@ -119,7 +119,7 @@ typedef struct {
     a = (a + I(b,c,d) + M + t); a = ROLc(a, s) + b;
 
 
-static void md5_compress(struct md5_state *md5, unsigned char *buf)
+static void md5_compress(struct md5_state *md5, const unsigned char *buf)
 {
     MD5_INT32 i, W[16], a, b, c, d;
 
@@ -242,7 +242,7 @@ md5_process(struct md5_state *md5, const unsigned char *in, Py_ssize_t inlen)
 
     while (inlen > 0) {
         if (md5->curlen == 0 && inlen >= MD5_BLOCKSIZE) {
-           md5_compress(md5, (unsigned char *)in);
+           md5_compress(md5, in);
            md5->length    += MD5_BLOCKSIZE * 8;
            in             += MD5_BLOCKSIZE;
            inlen          -= MD5_BLOCKSIZE;
@@ -293,7 +293,7 @@ md5_done(struct md5_state *md5, unsigned char *out)
         md5->curlen = 0;
     }
 
-    /* pad upto 56 bytes of zeroes */
+    /* pad up to 56 bytes of zeroes */
     while (md5->curlen < 56) {
         md5->buf[md5->curlen++] = (unsigned char)0;
     }
@@ -361,12 +361,12 @@ MD5Type_copy_impl(MD5object *self)
 /*[clinic input]
 MD5Type.digest
 
-Return the digest value as a string of binary data.
+Return the digest value as a bytes object.
 [clinic start generated code]*/
 
 static PyObject *
 MD5Type_digest_impl(MD5object *self)
-/*[clinic end generated code: output=eb691dc4190a07ec input=7b96e65389412a34]*/
+/*[clinic end generated code: output=eb691dc4190a07ec input=bc0c4397c2994be6]*/
 {
     unsigned char digest[MD5_DIGESTSIZE];
     struct md5_state temp;
@@ -416,8 +416,7 @@ MD5Type_update(MD5object *self, PyObject *obj)
     md5_process(&self->hash_state, buf.buf, buf.len);
 
     PyBuffer_Release(&buf);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMethodDef MD5_methods[] = {
@@ -466,14 +465,14 @@ static PyGetSetDef MD5_getseters[] = {
 static PyTypeObject MD5type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "_md5.md5",         /*tp_name*/
-    sizeof(MD5object),  /*tp_size*/
+    sizeof(MD5object),  /*tp_basicsize*/
     0,                  /*tp_itemsize*/
     /* methods */
     MD5_dealloc,        /*tp_dealloc*/
-    0,                  /*tp_print*/
+    0,                  /*tp_vectorcall_offset*/
     0,                  /*tp_getattr*/
     0,                  /*tp_setattr*/
-    0,                  /*tp_reserved*/
+    0,                  /*tp_as_async*/
     0,                  /*tp_repr*/
     0,                  /*tp_as_number*/
     0,                  /*tp_as_sequence*/
@@ -509,8 +508,8 @@ Return a new MD5 hash object; optionally initialized with a string.
 [clinic start generated code]*/
 
 static PyObject *
-_md5_md5_impl(PyModuleDef *module, PyObject *string)
-/*[clinic end generated code: output=3527436a2090b956 input=d12ef8f72d684f7b]*/
+_md5_md5_impl(PyObject *module, PyObject *string)
+/*[clinic end generated code: output=2cfd0f8c091b97e6 input=d12ef8f72d684f7b]*/
 {
     MD5object *new;
     Py_buffer buf;

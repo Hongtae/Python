@@ -60,14 +60,12 @@ SubString_init(SubString *str, PyObject *s, Py_ssize_t start, Py_ssize_t end)
 Py_LOCAL_INLINE(PyObject *)
 SubString_new_object(SubString *str)
 {
-    if (str->str == NULL) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
+    if (str->str == NULL)
+        Py_RETURN_NONE;
     return PyUnicode_Substring(str->str, str->start, str->end);
 }
 
-/* return a new string.  if str->str is NULL, return None */
+/* return a new string.  if str->str is NULL, return a new empty string */
 Py_LOCAL_INLINE(PyObject *)
 SubString_new_object_or_empty(SubString *str)
 {
@@ -412,18 +410,22 @@ get_field_object(SubString *input, PyObject *args, PyObject *kwargs,
     if (index == -1) {
         /* look up in kwargs */
         PyObject *key = SubString_new_object(&first);
-        if (key == NULL)
+        if (key == NULL) {
             goto error;
-
-        /* Use PyObject_GetItem instead of PyDict_GetItem because this
-           code is no longer just used with kwargs. It might be passed
-           a non-dict when called through format_map. */
-        if ((kwargs == NULL) || (obj = PyObject_GetItem(kwargs, key)) == NULL) {
+        }
+        if (kwargs == NULL) {
             PyErr_SetObject(PyExc_KeyError, key);
             Py_DECREF(key);
             goto error;
         }
+        /* Use PyObject_GetItem instead of PyDict_GetItem because this
+           code is no longer just used with kwargs. It might be passed
+           a non-dict when called through format_map. */
+        obj = PyObject_GetItem(kwargs, key);
         Py_DECREF(key);
+        if (obj == NULL) {
+            goto error;
+        }
     }
     else {
         /* If args is NULL, we have a format string with a positional field
@@ -438,8 +440,13 @@ get_field_object(SubString *input, PyObject *args, PyObject *kwargs,
 
         /* look up in args */
         obj = PySequence_GetItem(args, index);
-        if (obj == NULL)
-            goto error;
+        if (obj == NULL) {
+            PyErr_Format(PyExc_IndexError,
+                         "Replacement index %zd out of range for positional "
+                         "args tuple",
+                         index);
+             goto error;
+        }
     }
 
     /* iterate over the rest of the field_name */
@@ -1064,10 +1071,10 @@ static PyTypeObject PyFormatterIter_Type = {
     0,                                  /* tp_itemsize */
     /* methods */
     (destructor)formatteriter_dealloc,  /* tp_dealloc */
-    0,                                  /* tp_print */
+    0,                                  /* tp_vectorcall_offset */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
-    0,                                  /* tp_reserved */
+    0,                                  /* tp_as_async */
     0,                                  /* tp_repr */
     0,                                  /* tp_as_number */
     0,                                  /* tp_as_sequence */
@@ -1200,10 +1207,10 @@ static PyTypeObject PyFieldNameIter_Type = {
     0,                                  /* tp_itemsize */
     /* methods */
     (destructor)fieldnameiter_dealloc,  /* tp_dealloc */
-    0,                                  /* tp_print */
+    0,                                  /* tp_vectorcall_offset */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
-    0,                                  /* tp_reserved */
+    0,                                  /* tp_as_async */
     0,                                  /* tp_repr */
     0,                                  /* tp_as_number */
     0,                                  /* tp_as_sequence */
@@ -1226,7 +1233,7 @@ static PyTypeObject PyFieldNameIter_Type = {
     0};
 
 /* unicode_formatter_field_name_split is used to implement
-   string.Formatter.vformat.  it takes an PEP 3101 "field name", and
+   string.Formatter.vformat.  it takes a PEP 3101 "field name", and
    returns a tuple of (first, rest): "first", the part before the
    first '.' or '['; and "rest", an iterator for the rest of the field
    name.  it's a wrapper around stringlib/string_format.h's

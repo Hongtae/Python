@@ -120,6 +120,39 @@ class Test_TestSkipping(unittest.TestCase):
         self.assertEqual(result.expectedFailures[0][0], test)
         self.assertTrue(result.wasSuccessful())
 
+    def test_expected_failure_with_wrapped_class(self):
+        @unittest.expectedFailure
+        class Foo(unittest.TestCase):
+            def test_1(self):
+                self.assertTrue(False)
+
+        events = []
+        result = LoggingResult(events)
+        test = Foo("test_1")
+        test.run(result)
+        self.assertEqual(events,
+                         ['startTest', 'addExpectedFailure', 'stopTest'])
+        self.assertEqual(result.expectedFailures[0][0], test)
+        self.assertTrue(result.wasSuccessful())
+
+    def test_expected_failure_with_wrapped_subclass(self):
+        class Foo(unittest.TestCase):
+            def test_1(self):
+                self.assertTrue(False)
+
+        @unittest.expectedFailure
+        class Bar(Foo):
+            pass
+
+        events = []
+        result = LoggingResult(events)
+        test = Bar("test_1")
+        test.run(result)
+        self.assertEqual(events,
+                         ['startTest', 'addExpectedFailure', 'stopTest'])
+        self.assertEqual(result.expectedFailures[0][0], test)
+        self.assertTrue(result.wasSuccessful())
+
     def test_expected_failure_subtests(self):
         # A failure in any subtest counts as the expected failure of the
         # whole test.
@@ -222,6 +255,17 @@ class Test_TestSkipping(unittest.TestCase):
         suite.run(result)
         self.assertEqual(result.skipped, [(test, "testing")])
 
+    def test_skip_without_reason(self):
+        class Foo(unittest.TestCase):
+            @unittest.skip
+            def test_1(self):
+                pass
+
+        result = unittest.TestResult()
+        test = Foo("test_1")
+        suite = unittest.TestSuite([test])
+        suite.run(result)
+        self.assertEqual(result.skipped, [(test, "")])
 
 if __name__ == "__main__":
     unittest.main()

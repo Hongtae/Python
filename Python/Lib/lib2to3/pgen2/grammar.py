@@ -16,7 +16,7 @@ fallback token code OP, but the parser needs the actual token code.
 import pickle
 
 # Local imports
-from . import token, tokenize
+from . import token
 
 
 class Grammar(object):
@@ -87,13 +87,17 @@ class Grammar(object):
     def dump(self, filename):
         """Dump the grammar tables to a pickle file."""
         with open(filename, "wb") as f:
-            pickle.dump(self.__dict__, f, 2)
+            pickle.dump(self.__dict__, f, pickle.HIGHEST_PROTOCOL)
 
     def load(self, filename):
         """Load the grammar tables from a pickle file."""
         with open(filename, "rb") as f:
             d = pickle.load(f)
         self.__dict__.update(d)
+
+    def loads(self, pkl):
+        """Load the grammar tables from a pickle bytes object."""
+        self.__dict__.update(pickle.loads(pkl))
 
     def copy(self):
         """
@@ -174,6 +178,7 @@ opmap_raw = """
 // DOUBLESLASH
 //= DOUBLESLASHEQUAL
 -> RARROW
+:= COLONEQUAL
 """
 
 opmap = {}

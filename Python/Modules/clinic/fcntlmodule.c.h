@@ -19,22 +19,39 @@ PyDoc_STRVAR(fcntl_fcntl__doc__,
 "corresponding to the return value of the fcntl call in the C code.");
 
 #define FCNTL_FCNTL_METHODDEF    \
-    {"fcntl", (PyCFunction)fcntl_fcntl, METH_VARARGS, fcntl_fcntl__doc__},
+    {"fcntl", (PyCFunction)(void(*)(void))fcntl_fcntl, METH_FASTCALL, fcntl_fcntl__doc__},
 
 static PyObject *
-fcntl_fcntl_impl(PyModuleDef *module, int fd, int code, PyObject *arg);
+fcntl_fcntl_impl(PyObject *module, int fd, int code, PyObject *arg);
 
 static PyObject *
-fcntl_fcntl(PyModuleDef *module, PyObject *args)
+fcntl_fcntl(PyObject *module, PyObject *const *args, Py_ssize_t nargs)
 {
     PyObject *return_value = NULL;
     int fd;
     int code;
     PyObject *arg = NULL;
 
-    if (!PyArg_ParseTuple(args, "O&i|O:fcntl",
-        conv_descriptor, &fd, &code, &arg))
+    if (!_PyArg_CheckPositional("fcntl", nargs, 2, 3)) {
         goto exit;
+    }
+    if (!conv_descriptor(args[0], &fd)) {
+        goto exit;
+    }
+    if (PyFloat_Check(args[1])) {
+        PyErr_SetString(PyExc_TypeError,
+                        "integer argument expected, got float" );
+        goto exit;
+    }
+    code = _PyLong_AsInt(args[1]);
+    if (code == -1 && PyErr_Occurred()) {
+        goto exit;
+    }
+    if (nargs < 3) {
+        goto skip_optional;
+    }
+    arg = args[2];
+skip_optional:
     return_value = fcntl_fcntl_impl(module, fd, code, arg);
 
 exit:
@@ -75,14 +92,14 @@ PyDoc_STRVAR(fcntl_ioctl__doc__,
 "code.");
 
 #define FCNTL_IOCTL_METHODDEF    \
-    {"ioctl", (PyCFunction)fcntl_ioctl, METH_VARARGS, fcntl_ioctl__doc__},
+    {"ioctl", (PyCFunction)(void(*)(void))fcntl_ioctl, METH_FASTCALL, fcntl_ioctl__doc__},
 
 static PyObject *
-fcntl_ioctl_impl(PyModuleDef *module, int fd, unsigned int code,
+fcntl_ioctl_impl(PyObject *module, int fd, unsigned int code,
                  PyObject *ob_arg, int mutate_arg);
 
 static PyObject *
-fcntl_ioctl(PyModuleDef *module, PyObject *args)
+fcntl_ioctl(PyObject *module, PyObject *const *args, Py_ssize_t nargs)
 {
     PyObject *return_value = NULL;
     int fd;
@@ -90,9 +107,33 @@ fcntl_ioctl(PyModuleDef *module, PyObject *args)
     PyObject *ob_arg = NULL;
     int mutate_arg = 1;
 
-    if (!PyArg_ParseTuple(args, "O&I|Op:ioctl",
-        conv_descriptor, &fd, &code, &ob_arg, &mutate_arg))
+    if (!_PyArg_CheckPositional("ioctl", nargs, 2, 4)) {
         goto exit;
+    }
+    if (!conv_descriptor(args[0], &fd)) {
+        goto exit;
+    }
+    if (PyFloat_Check(args[1])) {
+        PyErr_SetString(PyExc_TypeError,
+                        "integer argument expected, got float" );
+        goto exit;
+    }
+    code = (unsigned int)PyLong_AsUnsignedLongMask(args[1]);
+    if (code == (unsigned int)-1 && PyErr_Occurred()) {
+        goto exit;
+    }
+    if (nargs < 3) {
+        goto skip_optional;
+    }
+    ob_arg = args[2];
+    if (nargs < 4) {
+        goto skip_optional;
+    }
+    mutate_arg = PyObject_IsTrue(args[3]);
+    if (mutate_arg < 0) {
+        goto exit;
+    }
+skip_optional:
     return_value = fcntl_ioctl_impl(module, fd, code, ob_arg, mutate_arg);
 
 exit:
@@ -109,21 +150,33 @@ PyDoc_STRVAR(fcntl_flock__doc__,
 "function is emulated using fcntl()).");
 
 #define FCNTL_FLOCK_METHODDEF    \
-    {"flock", (PyCFunction)fcntl_flock, METH_VARARGS, fcntl_flock__doc__},
+    {"flock", (PyCFunction)(void(*)(void))fcntl_flock, METH_FASTCALL, fcntl_flock__doc__},
 
 static PyObject *
-fcntl_flock_impl(PyModuleDef *module, int fd, int code);
+fcntl_flock_impl(PyObject *module, int fd, int code);
 
 static PyObject *
-fcntl_flock(PyModuleDef *module, PyObject *args)
+fcntl_flock(PyObject *module, PyObject *const *args, Py_ssize_t nargs)
 {
     PyObject *return_value = NULL;
     int fd;
     int code;
 
-    if (!PyArg_ParseTuple(args, "O&i:flock",
-        conv_descriptor, &fd, &code))
+    if (!_PyArg_CheckPositional("flock", nargs, 2, 2)) {
         goto exit;
+    }
+    if (!conv_descriptor(args[0], &fd)) {
+        goto exit;
+    }
+    if (PyFloat_Check(args[1])) {
+        PyErr_SetString(PyExc_TypeError,
+                        "integer argument expected, got float" );
+        goto exit;
+    }
+    code = _PyLong_AsInt(args[1]);
+    if (code == -1 && PyErr_Occurred()) {
+        goto exit;
+    }
     return_value = fcntl_flock_impl(module, fd, code);
 
 exit:
@@ -145,7 +198,7 @@ PyDoc_STRVAR(fcntl_lockf__doc__,
 "\n"
 "When operation is LOCK_SH or LOCK_EX, it can also be bitwise ORed with\n"
 "LOCK_NB to avoid blocking on lock acquisition.  If LOCK_NB is used and the\n"
-"lock cannot be acquired, an IOError will be raised and the exception will\n"
+"lock cannot be acquired, an OSError will be raised and the exception will\n"
 "have an errno attribute set to EACCES or EAGAIN (depending on the operating\n"
 "system -- for portability, check for either value).\n"
 "\n"
@@ -158,14 +211,14 @@ PyDoc_STRVAR(fcntl_lockf__doc__,
 "    2 - relative to the end of the file (SEEK_END)");
 
 #define FCNTL_LOCKF_METHODDEF    \
-    {"lockf", (PyCFunction)fcntl_lockf, METH_VARARGS, fcntl_lockf__doc__},
+    {"lockf", (PyCFunction)(void(*)(void))fcntl_lockf, METH_FASTCALL, fcntl_lockf__doc__},
 
 static PyObject *
-fcntl_lockf_impl(PyModuleDef *module, int fd, int code, PyObject *lenobj,
+fcntl_lockf_impl(PyObject *module, int fd, int code, PyObject *lenobj,
                  PyObject *startobj, int whence);
 
 static PyObject *
-fcntl_lockf(PyModuleDef *module, PyObject *args)
+fcntl_lockf(PyObject *module, PyObject *const *args, Py_ssize_t nargs)
 {
     PyObject *return_value = NULL;
     int fd;
@@ -174,12 +227,45 @@ fcntl_lockf(PyModuleDef *module, PyObject *args)
     PyObject *startobj = NULL;
     int whence = 0;
 
-    if (!PyArg_ParseTuple(args, "O&i|OOi:lockf",
-        conv_descriptor, &fd, &code, &lenobj, &startobj, &whence))
+    if (!_PyArg_CheckPositional("lockf", nargs, 2, 5)) {
         goto exit;
+    }
+    if (!conv_descriptor(args[0], &fd)) {
+        goto exit;
+    }
+    if (PyFloat_Check(args[1])) {
+        PyErr_SetString(PyExc_TypeError,
+                        "integer argument expected, got float" );
+        goto exit;
+    }
+    code = _PyLong_AsInt(args[1]);
+    if (code == -1 && PyErr_Occurred()) {
+        goto exit;
+    }
+    if (nargs < 3) {
+        goto skip_optional;
+    }
+    lenobj = args[2];
+    if (nargs < 4) {
+        goto skip_optional;
+    }
+    startobj = args[3];
+    if (nargs < 5) {
+        goto skip_optional;
+    }
+    if (PyFloat_Check(args[4])) {
+        PyErr_SetString(PyExc_TypeError,
+                        "integer argument expected, got float" );
+        goto exit;
+    }
+    whence = _PyLong_AsInt(args[4]);
+    if (whence == -1 && PyErr_Occurred()) {
+        goto exit;
+    }
+skip_optional:
     return_value = fcntl_lockf_impl(module, fd, code, lenobj, startobj, whence);
 
 exit:
     return return_value;
 }
-/*[clinic end generated code: output=92963b631d00f0fe input=a9049054013a1b77]*/
+/*[clinic end generated code: output=e912d25e28362c52 input=a9049054013a1b77]*/

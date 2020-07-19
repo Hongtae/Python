@@ -19,7 +19,7 @@ test_frame = namedtuple('frame', ['f_code', 'f_globals', 'f_locals'])
 test_tb = namedtuple('tb', ['tb_frame', 'tb_lineno', 'tb_next'])
 
 
-class SyntaxTracebackCases(unittest.TestCase):
+class TracebackCases(unittest.TestCase):
     # For now, a very minimal set of tests.  I want to be sure that
     # formatting of SyntaxErrors works based on changes for 2.1.
 
@@ -106,15 +106,11 @@ class SyntaxTracebackCases(unittest.TestCase):
             str_name = '.'.join([X.__module__, X.__qualname__])
         self.assertEqual(err[0], "%s: %s\n" % (str_name, str_value))
 
-    def test_without_exception(self):
-        err = traceback.format_exception_only(None, None)
-        self.assertEqual(err, ['None\n'])
-
     def test_encoded_file(self):
         # Test that tracebacks are correctly printed for encoded source files:
         # - correct line number (Issue2384)
         # - respect file encoding (Issue3975)
-        import tempfile, sys, subprocess, os
+        import sys, subprocess
 
         # The spawned subprocess has its stdout redirected to a PIPE, and its
         # encoding may be different from the current interpreter, on Windows
@@ -129,12 +125,12 @@ class SyntaxTracebackCases(unittest.TestCase):
         def do_test(firstlines, message, charset, lineno):
             # Raise the message in a subprocess, and catch the output
             try:
-                output = open(TESTFN, "w", encoding=charset)
-                output.write("""{0}if 1:
-                    import traceback;
-                    raise RuntimeError('{1}')
-                    """.format(firstlines, message))
-                output.close()
+                with open(TESTFN, "w", encoding=charset) as output:
+                    output.write("""{0}if 1:
+                        import traceback;
+                        raise RuntimeError('{1}')
+                        """.format(firstlines, message))
+
                 process = subprocess.Popen([sys.executable, TESTFN],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 stdout, stderr = process.communicate()
@@ -175,9 +171,10 @@ class SyntaxTracebackCases(unittest.TestCase):
                     text, charset, 5)
             do_test(" \t\f\n# coding: {0}\n".format(charset),
                     text, charset, 5)
-        # Issue #18960: coding spec should has no effect
-        do_test("0\n# coding: GBK\n", "h\xe9 ho", 'utf-8', 5)
+        # Issue #18960: coding spec should have no effect
+        do_test("x=0\n# coding: GBK\n", "h\xe9 ho", 'utf-8', 5)
 
+    @support.requires_type_collecting
     def test_print_traceback_at_exit(self):
         # Issue #22599: Ensure that it is possible to use the traceback module
         # to display an exception at Python exit
@@ -288,6 +285,247 @@ class TracebackFormatTests(unittest.TestCase):
         stfmt = traceback.format_stack(sys._getframe(1))
 
         self.assertEqual(ststderr.getvalue(), "".join(stfmt))
+
+    def test_print_stack(self):
+        def prn():
+            traceback.print_stack()
+        with captured_output("stderr") as stderr:
+            prn()
+        lineno = prn.__code__.co_firstlineno
+        self.assertEqual(stderr.getvalue().splitlines()[-4:], [
+            '  File "%s", line %d, in test_print_stack' % (__file__, lineno+3),
+            '    prn()',
+            '  File "%s", line %d, in prn' % (__file__, lineno+1),
+            '    traceback.print_stack()',
+        ])
+
+    # issue 26823 - Shrink recursive tracebacks
+    def _check_recursive_traceback_display(self, render_exc):
+        # Always show full diffs when this test fails
+        # Note that rearranging things may require adjusting
+        # the relative line numbers in the expected tracebacks
+        self.maxDiff = None
+
+        # Check hitting the recursion limit
+        def f():
+            f()
+
+        with captured_output("stderr") as stderr_f:
+            try:
+                f()
+            except RecursionError as exc:
+                render_exc()
+            else:
+                self.fail("no recursion occurred")
+
+        lineno_f = f.__code__.co_firstlineno
+        result_f = (
+            'Traceback (most recent call last):\n'
+            f'  File "{__file__}", line {lineno_f+5}, in _check_recursive_traceback_display\n'
+            '    f()\n'
+            f'  File "{__file__}", line {lineno_f+1}, in f\n'
+            '    f()\n'
+            f'  File "{__file__}", line {lineno_f+1}, in f\n'
+            '    f()\n'
+            f'  File "{__file__}", line {lineno_f+1}, in f\n'
+            '    f()\n'
+            # XXX: The following line changes depending on whether the tests
+            # are run through the interactive interpreter or with -m
+            # It also varies depending on the platform (stack size)
+            # Fortunately, we don't care about exactness here, so we use regex
+            r'  \[Previous line repeated (\d+) more times\]' '\n'
+            'RecursionError: maximum recursion depth exceeded\n'
+        )
+
+        expected = result_f.splitlines()
+        actual = stderr_f.getvalue().splitlines()
+
+        # Check the output text matches expectations
+        # 2nd last line contains the repetition count
+        self.assertEqual(actual[:-2], expected[:-2])
+        self.assertRegex(actual[-2], expected[-2])
+        # last line can have additional text appended
+        self.assertIn(expected[-1], actual[-1])
+
+        # Check the recursion count is roughly as expected
+        rec_limit = sys.getrecursionlimit()
+        self.assertIn(int(re.search(r"\d+", actual[-2]).group()), range(rec_limit-60, rec_limit))
+
+        # Check a known (limited) number of recursive invocations
+        def g(count=10):
+            if count:
+                return g(count-1)
+            raise ValueError
+
+        with captured_output("stderr") as stderr_g:
+            try:
+                g()
+            except ValueError as exc:
+                render_exc()
+            else:
+                self.fail("no value error was raised")
+
+        lineno_g = g.__code__.co_firstlineno
+        result_g = (
+            f'  File "{__file__}", line {lineno_g+2}, in g\n'
+            '    return g(count-1)\n'
+            f'  File "{__file__}", line {lineno_g+2}, in g\n'
+            '    return g(count-1)\n'
+            f'  File "{__file__}", line {lineno_g+2}, in g\n'
+            '    return g(count-1)\n'
+            '  [Previous line repeated 7 more times]\n'
+            f'  File "{__file__}", line {lineno_g+3}, in g\n'
+            '    raise ValueError\n'
+            'ValueError\n'
+        )
+        tb_line = (
+            'Traceback (most recent call last):\n'
+            f'  File "{__file__}", line {lineno_g+7}, in _check_recursive_traceback_display\n'
+            '    g()\n'
+        )
+        expected = (tb_line + result_g).splitlines()
+        actual = stderr_g.getvalue().splitlines()
+        self.assertEqual(actual, expected)
+
+        # Check 2 different repetitive sections
+        def h(count=10):
+            if count:
+                return h(count-1)
+            g()
+
+        with captured_output("stderr") as stderr_h:
+            try:
+                h()
+            except ValueError as exc:
+                render_exc()
+            else:
+                self.fail("no value error was raised")
+
+        lineno_h = h.__code__.co_firstlineno
+        result_h = (
+            'Traceback (most recent call last):\n'
+            f'  File "{__file__}", line {lineno_h+7}, in _check_recursive_traceback_display\n'
+            '    h()\n'
+            f'  File "{__file__}", line {lineno_h+2}, in h\n'
+            '    return h(count-1)\n'
+            f'  File "{__file__}", line {lineno_h+2}, in h\n'
+            '    return h(count-1)\n'
+            f'  File "{__file__}", line {lineno_h+2}, in h\n'
+            '    return h(count-1)\n'
+            '  [Previous line repeated 7 more times]\n'
+            f'  File "{__file__}", line {lineno_h+3}, in h\n'
+            '    g()\n'
+        )
+        expected = (result_h + result_g).splitlines()
+        actual = stderr_h.getvalue().splitlines()
+        self.assertEqual(actual, expected)
+
+        # Check the boundary conditions. First, test just below the cutoff.
+        with captured_output("stderr") as stderr_g:
+            try:
+                g(traceback._RECURSIVE_CUTOFF)
+            except ValueError as exc:
+                render_exc()
+            else:
+                self.fail("no error raised")
+        result_g = (
+            f'  File "{__file__}", line {lineno_g+2}, in g\n'
+            '    return g(count-1)\n'
+            f'  File "{__file__}", line {lineno_g+2}, in g\n'
+            '    return g(count-1)\n'
+            f'  File "{__file__}", line {lineno_g+2}, in g\n'
+            '    return g(count-1)\n'
+            f'  File "{__file__}", line {lineno_g+3}, in g\n'
+            '    raise ValueError\n'
+            'ValueError\n'
+        )
+        tb_line = (
+            'Traceback (most recent call last):\n'
+            f'  File "{__file__}", line {lineno_g+71}, in _check_recursive_traceback_display\n'
+            '    g(traceback._RECURSIVE_CUTOFF)\n'
+        )
+        expected = (tb_line + result_g).splitlines()
+        actual = stderr_g.getvalue().splitlines()
+        self.assertEqual(actual, expected)
+
+        # Second, test just above the cutoff.
+        with captured_output("stderr") as stderr_g:
+            try:
+                g(traceback._RECURSIVE_CUTOFF + 1)
+            except ValueError as exc:
+                render_exc()
+            else:
+                self.fail("no error raised")
+        result_g = (
+            f'  File "{__file__}", line {lineno_g+2}, in g\n'
+            '    return g(count-1)\n'
+            f'  File "{__file__}", line {lineno_g+2}, in g\n'
+            '    return g(count-1)\n'
+            f'  File "{__file__}", line {lineno_g+2}, in g\n'
+            '    return g(count-1)\n'
+            '  [Previous line repeated 1 more time]\n'
+            f'  File "{__file__}", line {lineno_g+3}, in g\n'
+            '    raise ValueError\n'
+            'ValueError\n'
+        )
+        tb_line = (
+            'Traceback (most recent call last):\n'
+            f'  File "{__file__}", line {lineno_g+99}, in _check_recursive_traceback_display\n'
+            '    g(traceback._RECURSIVE_CUTOFF + 1)\n'
+        )
+        expected = (tb_line + result_g).splitlines()
+        actual = stderr_g.getvalue().splitlines()
+        self.assertEqual(actual, expected)
+
+    def test_recursive_traceback_python(self):
+        self._check_recursive_traceback_display(traceback.print_exc)
+
+    @cpython_only
+    def test_recursive_traceback_cpython_internal(self):
+        from _testcapi import exception_print
+        def render_exc():
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            exception_print(exc_value)
+        self._check_recursive_traceback_display(render_exc)
+
+    def test_format_stack(self):
+        def fmt():
+            return traceback.format_stack()
+        result = fmt()
+        lineno = fmt.__code__.co_firstlineno
+        self.assertEqual(result[-2:], [
+            '  File "%s", line %d, in test_format_stack\n'
+            '    result = fmt()\n' % (__file__, lineno+2),
+            '  File "%s", line %d, in fmt\n'
+            '    return traceback.format_stack()\n' % (__file__, lineno+1),
+        ])
+
+    @cpython_only
+    def test_unhashable(self):
+        from _testcapi import exception_print
+
+        class UnhashableException(Exception):
+            def __eq__(self, other):
+                return True
+
+        ex1 = UnhashableException('ex1')
+        ex2 = UnhashableException('ex2')
+        try:
+            raise ex2 from ex1
+        except UnhashableException:
+            try:
+                raise ex1
+            except UnhashableException:
+                exc_type, exc_val, exc_tb = sys.exc_info()
+
+        with captured_output("stderr") as stderr_f:
+            exception_print(exc_val)
+
+        tb = stderr_f.getvalue().strip().splitlines()
+        self.assertEqual(11, len(tb))
+        self.assertEqual(context_message.strip(), tb[5])
+        self.assertIn('UnhashableException: ex2', tb[3])
+        self.assertIn('UnhashableException: ex1', tb[10])
 
 
 cause_message = (
@@ -429,6 +667,17 @@ class BaseExceptionReportingTests:
             exec("x = 5 | 4 |")
         msg = self.get_report(e).splitlines()
         self.assertEqual(msg[-2], '              ^')
+
+    def test_message_none(self):
+        # A message that looks like "None" should not be treated specially
+        err = self.get_report(Exception(None))
+        self.assertIn('Exception: None\n', err)
+        err = self.get_report(Exception('None'))
+        self.assertIn('Exception: None\n', err)
+        err = self.get_report(Exception())
+        self.assertIn('Exception\n', err)
+        err = self.get_report(Exception(''))
+        self.assertIn('Exception\n', err)
 
 
 class PyExcReportingTests(BaseExceptionReportingTests, unittest.TestCase):
@@ -610,6 +859,17 @@ class MiscTracebackCases(unittest.TestCase):
         # Local variable dict should now be empty.
         self.assertEqual(len(inner_frame.f_locals), 0)
 
+    def test_extract_stack(self):
+        def extract():
+            return traceback.extract_stack()
+        result = extract()
+        lineno = extract.__code__.co_firstlineno
+        self.assertEqual(result[-2:], [
+            (__file__, lineno+2, 'test_extract_stack', 'result = extract()'),
+            (__file__, lineno+1, 'extract', 'return traceback.extract_stack()'),
+            ])
+        self.assertEqual(len(result[0]), 4)
+
 
 class TestFrame(unittest.TestCase):
 
@@ -617,10 +877,16 @@ class TestFrame(unittest.TestCase):
         linecache.clearcache()
         linecache.lazycache("f", globals())
         f = traceback.FrameSummary("f", 1, "dummy")
-        self.assertEqual(
-            ("f", 1, "dummy", '"""Test cases for traceback module"""'),
-            tuple(f))
-        self.assertEqual(None, f.locals)
+        self.assertEqual(f,
+            ("f", 1, "dummy", '"""Test cases for traceback module"""'))
+        self.assertEqual(tuple(f),
+            ("f", 1, "dummy", '"""Test cases for traceback module"""'))
+        self.assertEqual(f, traceback.FrameSummary("f", 1, "dummy"))
+        self.assertEqual(f, tuple(f))
+        # Since tuple.__eq__ doesn't support FrameSummary, the equality
+        # operator fallbacks to FrameSummary.__eq__.
+        self.assertEqual(tuple(f), f)
+        self.assertIsNone(f.locals)
 
     def test_lazy_lines(self):
         linecache.clearcache()
@@ -635,12 +901,20 @@ class TestFrame(unittest.TestCase):
         f = traceback.FrameSummary("f", 1, "dummy", line="line")
         self.assertEqual("line", f.line)
 
+    def test_len(self):
+        f = traceback.FrameSummary("f", 1, "dummy", line="line")
+        self.assertEqual(len(f), 4)
+
 
 class TestStack(unittest.TestCase):
 
     def test_walk_stack(self):
-        s = list(traceback.walk_stack(None))
-        self.assertGreater(len(s), 10)
+        def deeper():
+            return list(traceback.walk_stack(None))
+        s1 = list(traceback.walk_stack(None))
+        s2 = deeper()
+        self.assertEqual(len(s2) - len(s1), 1)
+        self.assertEqual(s2[1:], s1)
 
     def test_walk_tb(self):
         try:
@@ -721,11 +995,11 @@ class TestStack(unittest.TestCase):
         s = some_inner(3, 4)
         self.assertEqual(
             ['  File "%s", line %d, in some_inner\n'
-             '    traceback.walk_stack(None), capture_locals=True, limit=1)\n'
+             '    return traceback.StackSummary.extract(\n'
              '    a = 1\n'
              '    b = 2\n'
              '    k = 3\n'
-             '    v = 4\n' % (__file__, some_inner.__code__.co_firstlineno + 4)
+             '    v = 4\n' % (__file__, some_inner.__code__.co_firstlineno + 3)
             ], s.format())
 
 class TestTracebackException(unittest.TestCase):
@@ -808,6 +1082,25 @@ class TestTracebackException(unittest.TestCase):
         self.assertEqual(expected_stack, exc.stack)
         self.assertEqual(exc_info[0], exc.exc_type)
         self.assertEqual(str(exc_info[1]), str(exc))
+
+    def test_unhashable(self):
+        class UnhashableException(Exception):
+            def __eq__(self, other):
+                return True
+
+        ex1 = UnhashableException('ex1')
+        ex2 = UnhashableException('ex2')
+        try:
+            raise ex2 from ex1
+        except UnhashableException:
+            try:
+                raise ex1
+            except UnhashableException:
+                exc_info = sys.exc_info()
+        exc = traceback.TracebackException(*exc_info)
+        formatted = list(exc.format())
+        self.assertIn('UnhashableException: ex2\n', formatted[2])
+        self.assertIn('UnhashableException: ex1\n', formatted[6])
 
     def test_limit(self):
         def recurse(n):

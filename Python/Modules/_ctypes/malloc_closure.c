@@ -76,7 +76,7 @@ static void more_core(void)
 
 #ifdef MALLOC_CLOSURE_DEBUG
     printf("block at %p allocated (%d bytes), %d ITEMs\n",
-           item, count * sizeof(ITEM), count);
+           item, count * (int)sizeof(ITEM), count);
 #endif
     /* put them into the free list */
     for (i = 0; i < count; ++i) {
@@ -86,11 +86,6 @@ static void more_core(void)
     }
 }
 
-/* 2015-07-21, by tiff2766@gmail.com
- ffi_closure_free, ffi_closure_alloc functions are defined in armv7/ffi.c
- to resolve duplicated symbols error, I need to disable below functions
- for armv7 (iOS). */
-#ifndef __arm__
 /******************************************************************/
 
 /* put the item back into the free list */
@@ -111,7 +106,11 @@ void *ffi_closure_alloc(size_t ignored, void** codeloc)
         return NULL;
     item = free_list;
     free_list = item->next;
+#ifdef _M_ARM
+    // set Thumb bit so that blx is called correctly
+    *codeloc = (ITEM*)((uintptr_t)item | 1);
+#else
     *codeloc = (void *)item;
+#endif
     return (void *)item;
 }
-#endif

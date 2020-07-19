@@ -2,12 +2,17 @@
 
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
+#include "pycore_object.h"
 #include "structmember.h"
+#include <stdbool.h>
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
+#endif
+#ifdef HAVE_IO_H
+#include <io.h>
 #endif
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -38,7 +43,7 @@
 #if BUFSIZ < (8*1024)
 #define SMALLCHUNK (8*1024)
 #elif (BUFSIZ >= (2 << 25))
-#error "unreasonable BUFSIZ > 64MB defined"
+#error "unreasonable BUFSIZ > 64 MiB defined"
 #else
 #define SMALLCHUNK BUFSIZ
 #endif
@@ -48,13 +53,6 @@ module _io
 class _io.FileIO "fileio *" "&PyFileIO_Type"
 [clinic start generated code]*/
 /*[clinic end generated code: output=da39a3ee5e6b4b0d input=1c77708b41fda70c]*/
-
-/*[python input]
-class io_ssize_t_converter(CConverter):
-    type = 'Py_ssize_t'
-    converter = '_PyIO_ConvertSsize_t'
-[python start generated code]*/
-/*[python end generated code: output=da39a3ee5e6b4b0d input=d0a811d3cbfd1b33]*/
 
 typedef struct {
     PyObject_HEAD
@@ -77,6 +75,9 @@ _Py_IDENTIFIER(name);
 
 #define PyFileIO_Check(op) (PyObject_TypeCheck((op), &PyFileIO_Type))
 
+/* Forward declarations */
+static PyObject* portable_lseek(fileio *self, PyObject *posobj, int whence, bool suppress_pipe_error);
+
 int
 _PyFileIO_closed(PyObject *self)
 {
@@ -92,8 +93,7 @@ fileio_dealloc_warn(fileio *self, PyObject *source)
     if (self->fd >= 0 && self->closefd) {
         PyObject *exc, *val, *tb;
         PyErr_Fetch(&exc, &val, &tb);
-        if (PyErr_WarnFormat(PyExc_ResourceWarning, 1,
-                             "unclosed file %R", source)) {
+        if (PyErr_ResourceWarning(source, 1, "unclosed file %R", source)) {
             /* Spurious errors can appear at shutdown */
             if (PyErr_ExceptionMatches(PyExc_Warning))
                 PyErr_WriteUnraisable((PyObject *) self);
@@ -102,11 +102,6 @@ fileio_dealloc_warn(fileio *self, PyObject *source)
     }
     Py_RETURN_NONE;
 }
-
-static PyObject *
-portable_lseek(int fd, PyObject *posobj, int whence);
-
-static PyObject *portable_lseek(int fd, PyObject *posobj, int whence);
 
 /* Returns 0 on success, -1 with exception set on failure. */
 static int
@@ -118,22 +113,17 @@ internal_close(fileio *self)
         int fd = self->fd;
         self->fd = -1;
         /* fd is accessible and someone else may have closed it */
-        if (_PyVerify_fd(fd)) {
-            Py_BEGIN_ALLOW_THREADS
-            _Py_BEGIN_SUPPRESS_IPH
-            err = close(fd);
-            if (err < 0)
-                save_errno = errno;
-            _Py_END_SUPPRESS_IPH
-            Py_END_ALLOW_THREADS
-        } else {
+        Py_BEGIN_ALLOW_THREADS
+        _Py_BEGIN_SUPPRESS_IPH
+        err = close(fd);
+        if (err < 0)
             save_errno = errno;
-            err = -1;
-        }
+        _Py_END_SUPPRESS_IPH
+        Py_END_ALLOW_THREADS
     }
     if (err < 0) {
         errno = save_errno;
-        PyErr_SetFromErrno(PyExc_IOError);
+        PyErr_SetFromErrno(PyExc_OSError);
         return -1;
     }
     return 0;
@@ -156,8 +146,8 @@ _io_FileIO_close_impl(fileio *self)
     PyObject *exc, *val, *tb;
     int rc;
     _Py_IDENTIFIER(close);
-    res = _PyObject_CallMethodId((PyObject*)&PyRawIOBase_Type,
-                                 &PyId_close, "O", self);
+    res = _PyObject_CallMethodIdObjArgs((PyObject*)&PyRawIOBase_Type,
+                                        &PyId_close, self, NULL);
     if (!self->closefd) {
         self->fd = -1;
         return res;
@@ -210,7 +200,7 @@ extern int _Py_open_cloexec_works;
 _io.FileIO.__init__
     file as nameobj: object
     mode: str = "r"
-    closefd: int(c_default="1") = True
+    closefd: bool(accept={int}) = True
     opener: object = None
 
 Open a file.
@@ -231,14 +221,15 @@ results in functionality similar to passing None).
 static int
 _io_FileIO___init___impl(fileio *self, PyObject *nameobj, const char *mode,
                          int closefd, PyObject *opener)
-/*[clinic end generated code: output=23413f68e6484bbd input=193164e293d6c097]*/
+/*[clinic end generated code: output=23413f68e6484bbd input=1596c9157a042a39]*/
 {
-    const char *name = NULL;
-    PyObject *stringobj = NULL;
-    const char *s;
 #ifdef MS_WINDOWS
     Py_UNICODE *widename = NULL;
+#else
+    const char *name = NULL;
 #endif
+    PyObject *stringobj = NULL;
+    const char *s;
     int ret = 0;
     int rwa = 0, plus = 0;
     int flags = 0;
@@ -250,6 +241,7 @@ _io_FileIO___init___impl(fileio *self, PyObject *nameobj, const char *mode,
     int *atomic_flag_works = NULL;
 #endif
     struct _Py_stat_struct fdfstat;
+    int fstat_result;
     int async_err = 0;
 
     assert(PyFileIO_Check(self));
@@ -279,24 +271,20 @@ _io_FileIO___init___impl(fileio *self, PyObject *nameobj, const char *mode,
         PyErr_Clear();
     }
 
+    if (fd < 0) {
 #ifdef MS_WINDOWS
-    if (PyUnicode_Check(nameobj)) {
-        Py_ssize_t length;
-        widename = PyUnicode_AsUnicodeAndSize(nameobj, &length);
-        if (widename == NULL)
-            return -1;
-        if (wcslen(widename) != length) {
-            PyErr_SetString(PyExc_ValueError, "embedded null character");
+        if (!PyUnicode_FSDecoder(nameobj, &stringobj)) {
             return -1;
         }
-    } else
-#endif
-    if (fd < 0)
-    {
+        widename = PyUnicode_AsUnicode(stringobj);
+        if (widename == NULL)
+            return -1;
+#else
         if (!PyUnicode_FSConverter(nameobj, &stringobj)) {
             return -1;
         }
         name = PyBytes_AS_STRING(stringobj);
+#endif
     }
 
     s = mode;
@@ -371,6 +359,10 @@ _io_FileIO___init___impl(fileio *self, PyObject *nameobj, const char *mode,
     flags |= O_CLOEXEC;
 #endif
 
+    if (PySys_Audit("open", "Osi", nameobj, mode, flags) < 0) {
+        goto error;
+    }
+
     if (fd >= 0) {
         self->fd = fd;
         self->closefd = closefd;
@@ -388,11 +380,10 @@ _io_FileIO___init___impl(fileio *self, PyObject *nameobj, const char *mode,
             do {
                 Py_BEGIN_ALLOW_THREADS
 #ifdef MS_WINDOWS
-                if (widename != NULL)
-                    self->fd = _wopen(widename, flags, 0666);
-                else
+                self->fd = _wopen(widename, flags, 0666);
+#else
+                self->fd = open(name, flags, 0666);
 #endif
-                    self->fd = open(name, flags, 0666);
                 Py_END_ALLOW_THREADS
             } while (self->fd < 0 && errno == EINTR &&
                      !(async_err = PyErr_CheckSignals()));
@@ -420,7 +411,13 @@ _io_FileIO___init___impl(fileio *self, PyObject *nameobj, const char *mode,
 
             self->fd = _PyLong_AsInt(fdobj);
             Py_DECREF(fdobj);
-            if (self->fd == -1) {
+            if (self->fd < 0) {
+                if (!PyErr_Occurred()) {
+                    /* The opener returned a negative but didn't set an
+                       exception.  See issue #27066 */
+                    PyErr_Format(PyExc_ValueError,
+                                 "opener returned %d", self->fd);
+                }
                 goto error;
             }
         }
@@ -438,22 +435,39 @@ _io_FileIO___init___impl(fileio *self, PyObject *nameobj, const char *mode,
     }
 
     self->blksize = DEFAULT_BUFFER_SIZE;
-    if (_Py_fstat(self->fd, &fdfstat) < 0)
-        goto error;
-#if defined(S_ISDIR) && defined(EISDIR)
-    /* On Unix, open will succeed for directories.
-       In Python, there should be no file objects referring to
-       directories, so we need a check.  */
-    if (S_ISDIR(fdfstat.st_mode)) {
-        errno = EISDIR;
-        PyErr_SetFromErrnoWithFilenameObject(PyExc_IOError, nameobj);
-        goto error;
+    Py_BEGIN_ALLOW_THREADS
+    fstat_result = _Py_fstat_noraise(self->fd, &fdfstat);
+    Py_END_ALLOW_THREADS
+    if (fstat_result < 0) {
+        /* Tolerate fstat() errors other than EBADF.  See Issue #25717, where
+        an anonymous file on a Virtual Box shared folder filesystem would
+        raise ENOENT. */
+#ifdef MS_WINDOWS
+        if (GetLastError() == ERROR_INVALID_HANDLE) {
+            PyErr_SetFromWindowsErr(0);
+#else
+        if (errno == EBADF) {
+            PyErr_SetFromErrno(PyExc_OSError);
+#endif
+            goto error;
+        }
     }
+    else {
+#if defined(S_ISDIR) && defined(EISDIR)
+        /* On Unix, open will succeed for directories.
+           In Python, there should be no file objects referring to
+           directories, so we need a check.  */
+        if (S_ISDIR(fdfstat.st_mode)) {
+            errno = EISDIR;
+            PyErr_SetFromErrnoWithFilenameObject(PyExc_OSError, nameobj);
+            goto error;
+        }
 #endif /* defined(S_ISDIR) */
 #ifdef HAVE_STRUCT_STAT_ST_BLKSIZE
-    if (fdfstat.st_blksize > 1)
-        self->blksize = fdfstat.st_blksize;
+        if (fdfstat.st_blksize > 1)
+            self->blksize = fdfstat.st_blksize;
 #endif /* HAVE_STRUCT_STAT_ST_BLKSIZE */
+    }
 
 #if defined(MS_WINDOWS) || defined(__CYGWIN__)
     /* don't translate newlines (\r\n <=> \n) */
@@ -467,7 +481,7 @@ _io_FileIO___init___impl(fileio *self, PyObject *nameobj, const char *mode,
         /* For consistent behaviour, we explicitly seek to the
            end of file (otherwise, it might be done only on the
            first write()). */
-        PyObject *pos = portable_lseek(self->fd, NULL, 2);
+        PyObject *pos = portable_lseek(self, NULL, 2, true);
         if (pos == NULL)
             goto error;
         Py_DECREF(pos);
@@ -522,7 +536,7 @@ err_closed(void)
 }
 
 static PyObject *
-err_mode(char *action)
+err_mode(const char *action)
 {
     _PyIO_State *state = IO_STATE();
     if (state != NULL)
@@ -589,13 +603,14 @@ _io_FileIO_seekable_impl(fileio *self)
     if (self->fd < 0)
         return err_closed();
     if (self->seekable < 0) {
-        PyObject *pos = portable_lseek(self->fd, NULL, SEEK_CUR);
+        /* portable_lseek() sets the seekable attribute */
+        PyObject *pos = portable_lseek(self, NULL, SEEK_CUR, false);
+        assert(self->seekable >= 0);
         if (pos == NULL) {
             PyErr_Clear();
-            self->seekable = 0;
-        } else {
+        }
+        else {
             Py_DECREF(pos);
-            self->seekable = 1;
         }
     }
     return PyBool_FromLong((long) self->seekable);
@@ -674,12 +689,12 @@ _io_FileIO_readall_impl(fileio *self)
     Py_ssize_t bytes_read = 0;
     Py_ssize_t n;
     size_t bufsize;
+    int fstat_result;
 
     if (self->fd < 0)
         return err_closed();
-    if (!_PyVerify_fd(self->fd))
-        return PyErr_SetFromErrno(PyExc_IOError);
 
+    Py_BEGIN_ALLOW_THREADS
     _Py_BEGIN_SUPPRESS_IPH
 #ifdef MS_WINDOWS
     pos = _lseeki64(self->fd, 0L, SEEK_CUR);
@@ -687,8 +702,10 @@ _io_FileIO_readall_impl(fileio *self)
     pos = lseek(self->fd, 0L, SEEK_CUR);
 #endif
     _Py_END_SUPPRESS_IPH
+    fstat_result = _Py_fstat_noraise(self->fd, &status);
+    Py_END_ALLOW_THREADS
 
-    if (_Py_fstat_noraise(self->fd, &status) == 0)
+    if (fstat_result == 0)
         end = status.st_size;
     else
         end = (Py_off_t)-1;
@@ -754,7 +771,7 @@ _io_FileIO_readall_impl(fileio *self)
 
 /*[clinic input]
 _io.FileIO.read
-    size: io_ssize_t = -1
+    size: Py_ssize_t(accept={int, NoneType}) = -1
     /
 
 Read at most size bytes, returned as bytes.
@@ -766,7 +783,7 @@ Return an empty bytes object at EOF.
 
 static PyObject *
 _io_FileIO_read_impl(fileio *self, Py_ssize_t size)
-/*[clinic end generated code: output=42528d39dd0ca641 input=5c6caa5490c13a9b]*/
+/*[clinic end generated code: output=42528d39dd0ca641 input=bec9a2c704ddcbc9]*/
 {
     char *ptr;
     Py_ssize_t n;
@@ -780,11 +797,9 @@ _io_FileIO_read_impl(fileio *self, Py_ssize_t size)
     if (size < 0)
         return _io_FileIO_readall_impl(self);
 
-#ifdef MS_WINDOWS
-    /* On Windows, the count parameter of read() is an int */
-    if (size > INT_MAX)
-        size = INT_MAX;
-#endif
+    if (size > _PY_READ_MAX) {
+        size = _PY_READ_MAX;
+    }
 
     bytes = PyBytes_FromStringAndSize(NULL, size);
     if (bytes == NULL)
@@ -818,7 +833,7 @@ _io.FileIO.write
     b: Py_buffer
     /
 
-Write bytes b to file, return number written.
+Write buffer b to file, return number of bytes written.
 
 Only makes one system call, so not all of the data may be written.
 The number of bytes actually written is returned.  In non-blocking mode,
@@ -827,7 +842,7 @@ returns None if the write would block.
 
 static PyObject *
 _io_FileIO_write_impl(fileio *self, Py_buffer *b)
-/*[clinic end generated code: output=b4059db3d363a2f7 input=ffbd8834f447ac31]*/
+/*[clinic end generated code: output=b4059db3d363a2f7 input=6e7908b36f0ce74f]*/
 {
     Py_ssize_t n;
     int err;
@@ -856,9 +871,10 @@ _io_FileIO_write_impl(fileio *self, Py_buffer *b)
 
 /* Cribbed from posix_lseek() */
 static PyObject *
-portable_lseek(int fd, PyObject *posobj, int whence)
+portable_lseek(fileio *self, PyObject *posobj, int whence, bool suppress_pipe_error)
 {
     Py_off_t pos, res;
+    int fd = self->fd;
 
 #ifdef SEEK_SET
     /* Turn 0, 1, 2 into SEEK_{SET,CUR,END} */
@@ -875,8 +891,9 @@ portable_lseek(int fd, PyObject *posobj, int whence)
     }
 #endif /* SEEK_SET */
 
-    if (posobj == NULL)
+    if (posobj == NULL) {
         pos = 0;
+    }
     else {
         if(PyFloat_Check(posobj)) {
             PyErr_SetString(PyExc_TypeError, "an integer is required");
@@ -891,20 +908,27 @@ portable_lseek(int fd, PyObject *posobj, int whence)
             return NULL;
     }
 
-    if (_PyVerify_fd(fd)) {
-        Py_BEGIN_ALLOW_THREADS
-        _Py_BEGIN_SUPPRESS_IPH
+    Py_BEGIN_ALLOW_THREADS
+    _Py_BEGIN_SUPPRESS_IPH
 #ifdef MS_WINDOWS
-        res = _lseeki64(fd, pos, whence);
+    res = _lseeki64(fd, pos, whence);
 #else
-        res = lseek(fd, pos, whence);
+    res = lseek(fd, pos, whence);
 #endif
-        _Py_END_SUPPRESS_IPH
-        Py_END_ALLOW_THREADS
-    } else
-        res = -1;
-    if (res < 0)
-        return PyErr_SetFromErrno(PyExc_IOError);
+    _Py_END_SUPPRESS_IPH
+    Py_END_ALLOW_THREADS
+
+    if (self->seekable < 0) {
+        self->seekable = (res >= 0);
+    }
+
+    if (res < 0) {
+        if (suppress_pipe_error && errno == ESPIPE) {
+            res = 0;
+        } else {
+            return PyErr_SetFromErrno(PyExc_OSError);
+        }
+    }
 
 #if defined(HAVE_LARGEFILE_SUPPORT)
     return PyLong_FromLongLong(res);
@@ -937,7 +961,7 @@ _io_FileIO_seek_impl(fileio *self, PyObject *pos, int whence)
     if (self->fd < 0)
         return err_closed();
 
-    return portable_lseek(self->fd, pos, whence);
+    return portable_lseek(self, pos, whence, false);
 }
 
 /*[clinic input]
@@ -955,13 +979,13 @@ _io_FileIO_tell_impl(fileio *self)
     if (self->fd < 0)
         return err_closed();
 
-    return portable_lseek(self->fd, NULL, 1);
+    return portable_lseek(self, NULL, 1, false);
 }
 
 #ifdef HAVE_FTRUNCATE
 /*[clinic input]
 _io.FileIO.truncate
-    size as posobj: object = NULL
+    size as posobj: object = None
     /
 
 Truncate the file to at most size bytes and return the truncated size.
@@ -972,7 +996,7 @@ The current file position is changed to the value of size.
 
 static PyObject *
 _io_FileIO_truncate_impl(fileio *self, PyObject *posobj)
-/*[clinic end generated code: output=e49ca7a916c176fa input=9026af44686b7318]*/
+/*[clinic end generated code: output=e49ca7a916c176fa input=b0ac133939823875]*/
 {
     Py_off_t pos;
     int ret;
@@ -984,9 +1008,9 @@ _io_FileIO_truncate_impl(fileio *self, PyObject *posobj)
     if (!self->writable)
         return err_mode("writing");
 
-    if (posobj == Py_None || posobj == NULL) {
+    if (posobj == Py_None) {
         /* Get the current position. */
-        posobj = portable_lseek(fd, NULL, 1);
+        posobj = portable_lseek(self, NULL, 1, false);
         if (posobj == NULL)
             return NULL;
     }
@@ -1017,7 +1041,7 @@ _io_FileIO_truncate_impl(fileio *self, PyObject *posobj)
 
     if (ret != 0) {
         Py_DECREF(posobj);
-        PyErr_SetFromErrno(PyExc_IOError);
+        PyErr_SetFromErrno(PyExc_OSError);
         return NULL;
     }
 
@@ -1025,7 +1049,7 @@ _io_FileIO_truncate_impl(fileio *self, PyObject *posobj)
 }
 #endif /* HAVE_FTRUNCATE */
 
-static char *
+static const char *
 mode_string(fileio *self)
 {
     if (self->created) {
@@ -1058,20 +1082,28 @@ fileio_repr(fileio *self)
     if (self->fd < 0)
         return PyUnicode_FromFormat("<_io.FileIO [closed]>");
 
-    nameobj = _PyObject_GetAttrId((PyObject *) self, &PyId_name);
+    if (_PyObject_LookupAttrId((PyObject *) self, &PyId_name, &nameobj) < 0) {
+        return NULL;
+    }
     if (nameobj == NULL) {
-        if (PyErr_ExceptionMatches(PyExc_AttributeError))
-            PyErr_Clear();
-        else
-            return NULL;
         res = PyUnicode_FromFormat(
             "<_io.FileIO fd=%d mode='%s' closefd=%s>",
             self->fd, mode_string(self), self->closefd ? "True" : "False");
     }
     else {
-        res = PyUnicode_FromFormat(
-            "<_io.FileIO name=%R mode='%s' closefd=%s>",
-            nameobj, mode_string(self), self->closefd ? "True" : "False");
+        int status = Py_ReprEnter((PyObject *)self);
+        res = NULL;
+        if (status == 0) {
+            res = PyUnicode_FromFormat(
+                "<_io.FileIO name=%R mode='%s' closefd=%s>",
+                nameobj, mode_string(self), self->closefd ? "True" : "False");
+            Py_ReprLeave((PyObject *)self);
+        }
+        else if (status > 0) {
+            PyErr_Format(PyExc_RuntimeError,
+                         "reentrant call inside %s.__repr__",
+                         Py_TYPE(self)->tp_name);
+        }
         Py_DECREF(nameobj);
     }
     return res;
@@ -1093,21 +1125,10 @@ _io_FileIO_isatty_impl(fileio *self)
         return err_closed();
     Py_BEGIN_ALLOW_THREADS
     _Py_BEGIN_SUPPRESS_IPH
-    if (_PyVerify_fd(self->fd))
-        res = isatty(self->fd);
-    else
-        res = 0;
+    res = isatty(self->fd);
     _Py_END_SUPPRESS_IPH
     Py_END_ALLOW_THREADS
     return PyBool_FromLong(res);
-}
-
-static PyObject *
-fileio_getstate(fileio *self)
-{
-    PyErr_Format(PyExc_TypeError,
-                 "cannot serialize '%s' object", Py_TYPE(self)->tp_name);
-    return NULL;
 }
 
 #include "clinic/fileio.c.h"
@@ -1127,7 +1148,6 @@ static PyMethodDef fileio_methods[] = {
     _IO_FILEIO_FILENO_METHODDEF
     _IO_FILEIO_ISATTY_METHODDEF
     {"_dealloc_warn", (PyCFunction)fileio_dealloc_warn, METH_O, NULL},
-    {"__getstate__", (PyCFunction)fileio_getstate, METH_NOARGS, NULL},
     {NULL,           NULL}             /* sentinel */
 };
 
@@ -1171,10 +1191,10 @@ PyTypeObject PyFileIO_Type = {
     sizeof(fileio),
     0,
     (destructor)fileio_dealloc,                 /* tp_dealloc */
-    0,                                          /* tp_print */
+    0,                                          /* tp_vectorcall_offset */
     0,                                          /* tp_getattr */
     0,                                          /* tp_setattr */
-    0,                                          /* tp_reserved */
+    0,                                          /* tp_as_async */
     (reprfunc)fileio_repr,                      /* tp_repr */
     0,                                          /* tp_as_number */
     0,                                          /* tp_as_sequence */
@@ -1186,12 +1206,12 @@ PyTypeObject PyFileIO_Type = {
     0,                                          /* tp_setattro */
     0,                                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE
-        | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_HAVE_FINALIZE,       /* tp_flags */
+        | Py_TPFLAGS_HAVE_GC,                   /* tp_flags */
     _io_FileIO___init____doc__,                 /* tp_doc */
     (traverseproc)fileio_traverse,              /* tp_traverse */
     (inquiry)fileio_clear,                      /* tp_clear */
     0,                                          /* tp_richcompare */
-    offsetof(fileio, weakreflist),      /* tp_weaklistoffset */
+    offsetof(fileio, weakreflist),              /* tp_weaklistoffset */
     0,                                          /* tp_iter */
     0,                                          /* tp_iternext */
     fileio_methods,                             /* tp_methods */
@@ -1201,7 +1221,7 @@ PyTypeObject PyFileIO_Type = {
     0,                                          /* tp_dict */
     0,                                          /* tp_descr_get */
     0,                                          /* tp_descr_set */
-    offsetof(fileio, dict),         /* tp_dictoffset */
+    offsetof(fileio, dict),                     /* tp_dictoffset */
     _io_FileIO___init__,                        /* tp_init */
     PyType_GenericAlloc,                        /* tp_alloc */
     fileio_new,                                 /* tp_new */

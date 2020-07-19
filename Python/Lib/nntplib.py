@@ -68,6 +68,7 @@ import socket
 import collections
 import datetime
 import warnings
+import sys
 
 try:
     import ssl
@@ -165,7 +166,7 @@ ArticleInfo = collections.namedtuple('ArticleInfo',
 
 # Helper function(s)
 def decode_header(header_str):
-    """Takes an unicode string representing a munged header value
+    """Takes a unicode string representing a munged header value
     and decodes it as a (possibly non-ASCII) readable value."""
     parts = []
     for v, enc in _email_decode_header(header_str):
@@ -201,7 +202,7 @@ def _parse_overview_fmt(lines):
     return fmt
 
 def _parse_overview(lines, fmt, data_process_func=None):
-    """Parse the response to a OVER or XOVER command according to the
+    """Parse the response to an OVER or XOVER command according to the
     overview format `fmt`."""
     n_defaults = len(_DEFAULT_OVERVIEW_FMT)
     overview = []
@@ -413,6 +414,7 @@ class _NNTPBase:
     def _putline(self, line):
         """Internal: send one line to the server, appending CRLF.
         The `line` must be a bytes-like object."""
+        sys.audit("nntplib.putline", self, line)
         line = line + _CRLF
         if self.debugging > 1: print('*put*', repr(line))
         self.file.write(line)
@@ -420,7 +422,7 @@ class _NNTPBase:
 
     def _putcmd(self, line):
         """Internal: send one command to the server (through _putline()).
-        The `line` must be an unicode string."""
+        The `line` must be a unicode string."""
         if self.debugging: print('*cmd*', repr(line))
         line = line.encode(self.encoding, self.errors)
         self._putline(line)
@@ -445,7 +447,7 @@ class _NNTPBase:
     def _getresp(self):
         """Internal: get a response from the server.
         Raise various errors if the response indicates an error.
-        Returns an unicode string."""
+        Returns a unicode string."""
         resp = self._getline()
         if self.debugging: print('*resp*', repr(resp))
         resp = resp.decode(self.encoding, self.errors)
@@ -462,7 +464,7 @@ class _NNTPBase:
         """Internal: get a response plus following text from the server.
         Raise various errors if the response indicates an error.
 
-        Returns a (response, lines) tuple where `response` is an unicode
+        Returns a (response, lines) tuple where `response` is a unicode
         string and `lines` is a list of bytes objects.
         If `file` is a file-like object, it must be open in binary mode.
         """
@@ -866,7 +868,7 @@ class _NNTPBase:
         try:
             [resp_num, path] = resp.split()
         except ValueError:
-            raise NNTPReplyError(resp)
+            raise NNTPReplyError(resp) from None
         else:
             return resp, path
 
@@ -1040,6 +1042,7 @@ class NNTP(_NNTPBase):
         """
         self.host = host
         self.port = port
+        sys.audit("nntplib.connect", self, host, port)
         self.sock = socket.create_connection((host, port), timeout)
         file = None
         try:
@@ -1071,6 +1074,7 @@ if _have_ssl:
             """This works identically to NNTP.__init__, except for the change
             in default port and the `ssl_context` argument for SSL connections.
             """
+            sys.audit("nntplib.connect", self, host, port)
             self.sock = socket.create_connection((host, port), timeout)
             file = None
             try:
@@ -1103,7 +1107,7 @@ if __name__ == '__main__':
         nntplib built-in demo - display the latest articles in a newsgroup""")
     parser.add_argument('-g', '--group', default='gmane.comp.python.general',
                         help='group to fetch messages from (default: %(default)s)')
-    parser.add_argument('-s', '--server', default='news.gmane.org',
+    parser.add_argument('-s', '--server', default='news.gmane.io',
                         help='NNTP server hostname (default: %(default)s)')
     parser.add_argument('-p', '--port', default=-1, type=int,
                         help='NNTP port number (default: %s / %s)' % (NNTP_PORT, NNTP_SSL_PORT))

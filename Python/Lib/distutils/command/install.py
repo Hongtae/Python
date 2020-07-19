@@ -175,6 +175,7 @@ class install(Command):
         self.compile = None
         self.optimize = None
 
+        # Deprecated
         # These two are for putting non-packagized distributions into their
         # own directory and creating a .pth file if it makes sense.
         # 'extra_path' comes from the setup file; 'install_path_file' can
@@ -222,7 +223,7 @@ class install(Command):
 
     def finalize_options(self):
         """Finalizes options."""
-        # This method (and its pliant slaves, like 'finalize_unix()',
+        # This method (and its helpers, like 'finalize_unix()',
         # 'finalize_other()', and 'select_scheme()') is where the default
         # installation directories for modules, extension modules, and
         # anything else we care to install from a Python module
@@ -290,8 +291,8 @@ class install(Command):
                             'dist_version': self.distribution.get_version(),
                             'dist_fullname': self.distribution.get_fullname(),
                             'py_version': py_version,
-                            'py_version_short': py_version[0:3],
-                            'py_version_nodot': py_version[0] + py_version[2],
+                            'py_version_short': '%d.%d' % sys.version_info[:2],
+                            'py_version_nodot': '%d%d' % sys.version_info[:2],
                             'sys_prefix': prefix,
                             'prefix': prefix,
                             'sys_exec_prefix': exec_prefix,
@@ -344,6 +345,7 @@ class install(Command):
                            'scripts', 'data', 'headers',
                            'userbase', 'usersite')
 
+        # Deprecated
         # Well, we're not actually fully completely finalized yet: we still
         # have to deal with 'extra_path', which is the hack for allowing
         # non-packagized module distributions (hello, Numerical Python!) to
@@ -385,7 +387,7 @@ class install(Command):
             else:
                 opt_name = opt_name.translate(longopt_xlate)
                 val = getattr(self, opt_name)
-            log.debug("  %s: %s" % (opt_name, val))
+            log.debug("  %s: %s", opt_name, val)
 
     def finalize_unix(self):
         """Finalizes options for posix platforms."""
@@ -490,6 +492,10 @@ class install(Command):
             self.extra_path = self.distribution.extra_path
 
         if self.extra_path is not None:
+            log.warn(
+                "Distribution option extra_path is deprecated. "
+                "See issue27919 for details."
+            )
             if isinstance(self.extra_path, str):
                 self.extra_path = self.extra_path.split(',')
 

@@ -19,7 +19,7 @@ __author__ = "Guilherme Polo <ggpolo@gmail.com>"
 __all__ = ["Button", "Checkbutton", "Combobox", "Entry", "Frame", "Label",
            "Labelframe", "LabelFrame", "Menubutton", "Notebook", "Panedwindow",
            "PanedWindow", "Progressbar", "Radiobutton", "Scale", "Scrollbar",
-           "Separator", "Sizegrip", "Style", "Treeview",
+           "Separator", "Sizegrip", "Spinbox", "Style", "Treeview",
            # Extensions
            "LabeledScale", "OptionMenu",
            # functions
@@ -81,7 +81,7 @@ def _mapdict_values(items):
     #   ['active selected', 'grey', 'focus', [1, 2, 3, 4]]
     opt_val = []
     for *state, val in items:
-        # hacks for bakward compatibility
+        # hacks for backward compatibility
         state[0] # raise IndexError if empty
         if len(state) == 1:
             # if it is empty (something that evaluates to False), then
@@ -151,7 +151,7 @@ def _format_elemcreate(etype, script=False, *args, **kw):
 
 def _format_layoutlist(layout, indent=0, indent_size=2):
     """Formats a layout list so we can pass the result to ttk::style
-    layout and ttk::style settings. Note that the layout doesn't has to
+    layout and ttk::style settings. Note that the layout doesn't have to
     be a list necessarily.
 
     E.g.:
@@ -289,7 +289,7 @@ def _val_or_dict(tk, options, *args):
     """Format options then call Tk command with args and options and return
     the appropriate result.
 
-    If no option is specified, a dict is returned. If a option is
+    If no option is specified, a dict is returned. If an option is
     specified with the None value, the value for that option is returned.
     Otherwise, the function just sets the passed options and the caller
     shouldn't be expecting a return value anyway."""
@@ -381,7 +381,9 @@ class Style(object):
         a sequence identifying the value for that option."""
         if query_opt is not None:
             kw[query_opt] = None
-        return _val_or_dict(self.tk, kw, self._name, "configure", style)
+        result = _val_or_dict(self.tk, kw, self._name, "configure", style)
+        if result or query_opt:
+            return result
 
 
     def map(self, style, query_opt=None, **kw):
@@ -466,12 +468,14 @@ class Style(object):
 
     def element_names(self):
         """Returns the list of elements defined in the current theme."""
-        return self.tk.splitlist(self.tk.call(self._name, "element", "names"))
+        return tuple(n.lstrip('-') for n in self.tk.splitlist(
+            self.tk.call(self._name, "element", "names")))
 
 
     def element_options(self, elementname):
         """Return the list of elementname's options."""
-        return self.tk.splitlist(self.tk.call(self._name, "element", "options", elementname))
+        return tuple(o.lstrip('-') for o in self.tk.splitlist(
+            self.tk.call(self._name, "element", "options", elementname)))
 
 
     def theme_create(self, themename, parent=None, settings=None):
@@ -1012,7 +1016,7 @@ class Progressbar(Widget):
         """Begin autoincrement mode: schedules a recurring timer event
         that calls method step every interval milliseconds.
 
-        interval defaults to 50 milliseconds (20 steps/second) if ommited."""
+        interval defaults to 50 milliseconds (20 steps/second) if omitted."""
         self.tk.call(self._w, "start", interval)
 
 
@@ -1080,11 +1084,12 @@ class Scale(Widget, tkinter.Scale):
 
         Setting a value for any of the "from", "from_" or "to" options
         generates a <<RangeChanged>> event."""
-        if cnf:
+        retval = Widget.configure(self, cnf, **kw)
+        if not isinstance(cnf, (type(None), str)):
             kw.update(cnf)
-        Widget.configure(self, **kw)
         if any(['from' in kw, 'from_' in kw, 'to' in kw]):
             self.event_generate('<<RangeChanged>>')
+        return retval
 
 
     def get(self, x=None, y=None):
@@ -1143,6 +1148,33 @@ class Sizegrip(Widget):
             class, cursor, state, style, takefocus
         """
         Widget.__init__(self, master, "ttk::sizegrip", kw)
+
+
+class Spinbox(Entry):
+    """Ttk Spinbox is an Entry with increment and decrement arrows
+
+    It is commonly used for number entry or to select from a list of
+    string values.
+    """
+
+    def __init__(self, master=None, **kw):
+        """Construct a Ttk Spinbox widget with the parent master.
+
+        STANDARD OPTIONS
+
+            class, cursor, style, takefocus, validate,
+            validatecommand, xscrollcommand, invalidcommand
+
+        WIDGET-SPECIFIC OPTIONS
+
+            to, from_, increment, values, wrap, format, command
+        """
+        Entry.__init__(self, master, "ttk::spinbox", **kw)
+
+
+    def set(self, value):
+        """Sets the value of the Spinbox to value."""
+        self.tk.call(self._w, "set", value)
 
 
 class Treeview(Widget, tkinter.XView, tkinter.YView):
@@ -1330,7 +1362,7 @@ class Treeview(Widget, tkinter.XView, tkinter.YView):
         already exist in the tree. Otherwise, a new unique identifier
         is generated."""
         opts = _format_optdict(kw)
-        if iid:
+        if iid is not None:
             res = self.tk.call(self._w, "insert", parent, index,
                 "-id", iid, *opts)
         else:
@@ -1390,29 +1422,36 @@ class Treeview(Widget, tkinter.XView, tkinter.YView):
         self.tk.call(self._w, "see", item)
 
 
-    def selection(self, selop=None, items=None):
-        """If selop is not specified, returns selected items."""
-        return self.tk.call(self._w, "selection", selop, items)
+    def selection(self):
+        """Returns the tuple of selected items."""
+        return self.tk.splitlist(self.tk.call(self._w, "selection"))
 
 
-    def selection_set(self, items):
-        """items becomes the new selection."""
-        self.selection("set", items)
+    def _selection(self, selop, items):
+        if len(items) == 1 and isinstance(items[0], (tuple, list)):
+            items = items[0]
+
+        self.tk.call(self._w, "selection", selop, items)
 
 
-    def selection_add(self, items):
-        """Add items to the selection."""
-        self.selection("add", items)
+    def selection_set(self, *items):
+        """The specified items becomes the new selection."""
+        self._selection("set", items)
 
 
-    def selection_remove(self, items):
-        """Remove items from the selection."""
-        self.selection("remove", items)
+    def selection_add(self, *items):
+        """Add all of the specified items to the selection."""
+        self._selection("add", items)
 
 
-    def selection_toggle(self, items):
-        """Toggle the selection state of each item in items."""
-        self.selection("toggle", items)
+    def selection_remove(self, *items):
+        """Remove all of the specified items from the selection."""
+        self._selection("remove", items)
+
+
+    def selection_toggle(self, *items):
+        """Toggle the selection state of each specified item."""
+        self._selection("toggle", items)
 
 
     def set(self, item, column=None, value=None):
@@ -1474,7 +1513,7 @@ class LabeledScale(Frame):
     can be accessed through instance.label"""
 
     def __init__(self, master=None, variable=None, from_=0, to=10, **kw):
-        """Construct an horizontal LabeledScale with parent master, a
+        """Construct a horizontal LabeledScale with parent master, a
         variable to be associated with the Ttk Scale widget and its range.
         If variable is not specified, a tkinter.IntVar is created.
 
@@ -1513,11 +1552,12 @@ class LabeledScale(Frame):
         try:
             self._variable.trace_vdelete('w', self.__tracecb)
         except AttributeError:
-            # widget has been destroyed already
             pass
         else:
             del self._variable
-            Frame.destroy(self)
+        super().destroy()
+        self.label = None
+        self.scale = None
 
 
     def _adjust(self, *args):
@@ -1547,18 +1587,15 @@ class LabeledScale(Frame):
         self.label['text'] = newval
         self.after_idle(adjust_label)
 
-
-    def _get_value(self):
+    @property
+    def value(self):
         """Return current scale value."""
         return self._variable.get()
 
-
-    def _set_value(self, val):
+    @value.setter
+    def value(self, val):
         """Set new scale value."""
         self._variable.set(val)
-
-
-    value = property(_get_value, _set_value)
 
 
 class OptionMenu(Menubutton):
@@ -1608,7 +1645,8 @@ class OptionMenu(Menubutton):
         menu.delete(0, 'end')
         for val in values:
             menu.add_radiobutton(label=val,
-                command=tkinter._setit(self._variable, val, self._callback))
+                command=tkinter._setit(self._variable, val, self._callback),
+                variable=self._variable)
 
         if default:
             self._variable.set(default)
@@ -1616,5 +1654,8 @@ class OptionMenu(Menubutton):
 
     def destroy(self):
         """Destroy this widget and its associated variable."""
-        del self._variable
-        Menubutton.destroy(self)
+        try:
+            del self._variable
+        except AttributeError:
+            pass
+        super().destroy()

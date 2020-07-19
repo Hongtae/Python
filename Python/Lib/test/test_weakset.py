@@ -1,13 +1,6 @@
 import unittest
-from weakref import proxy, ref, WeakSet
-import operator
-import copy
+from weakref import WeakSet
 import string
-import os
-from random import randrange, shuffle
-import sys
-import warnings
-import collections
 from collections import UserString as ustr
 import gc
 import contextlib
@@ -440,6 +433,9 @@ class TestWeakSet(unittest.TestCase):
             self.assertLessEqual(n1, N)
             self.assertGreaterEqual(n2, 0)
             self.assertLessEqual(n2, n1)
+
+    def test_repr(self):
+        assert repr(self.s) == repr(self.s.data)
 
 
 if __name__ == "__main__":

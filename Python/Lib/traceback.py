@@ -25,10 +25,12 @@ def print_list(extracted_list, file=None):
         print(item, file=file, end="")
 
 def format_list(extracted_list):
-    """Format a list of traceback entry tuples for printing.
+    """Format a list of tuples or FrameSummary objects for printing.
 
-    Given a list of tuples as returned by extract_tb() or
-    extract_stack(), return a list of strings ready for printing.
+    Given a list of tuples or FrameSummary objects as returned by
+    extract_tb() or extract_stack(), return a list of strings ready
+    for printing.
+
     Each string in the resulting list corresponds to the item with the
     same index in the argument list.  Each string ends in a newline;
     the strings may contain internal newlines as well, for those items
@@ -55,15 +57,17 @@ def format_tb(tb, limit=None):
     return extract_tb(tb, limit=limit).format()
 
 def extract_tb(tb, limit=None):
-    """Return list of up to limit pre-processed entries from traceback.
+    """
+    Return a StackSummary object representing a list of
+    pre-processed entries from traceback.
 
     This is useful for alternate formatting of stack traces.  If
     'limit' is omitted or None, all entries are extracted.  A
-    pre-processed stack trace entry is a quadruple (filename, line
-    number, function name, text) representing the information that is
-    usually printed for a stack trace.  The text is a string with
-    leading and trailing whitespace stripped; if the source is not
-    available it is None.
+    pre-processed stack trace entry is a FrameSummary object
+    containing attributes filename, lineno, name, and line
+    representing the information that is usually printed for a stack
+    trace.  The line is a string with leading and trailing
+    whitespace stripped; if the source is not available it is None.
     """
     return StackSummary.extract(walk_tb(tb), limit=limit)
 
@@ -136,11 +140,11 @@ def format_exception_only(etype, value):
     return list(TracebackException(etype, value, None).format_exception_only())
 
 
-# -- not offical API but folk probably use these two functions.
+# -- not official API but folk probably use these two functions.
 
 def _format_final_exc_line(etype, value):
     valuestr = _some_str(value)
-    if value == 'None' or value is None or not valuestr:
+    if value is None or not valuestr:
         line = "%s\n" % etype
     else:
         line = "%s: %s\n" % (etype, valuestr)
@@ -181,11 +185,15 @@ def print_stack(f=None, limit=None, file=None):
     stack frame at which to start. The optional 'limit' and 'file'
     arguments have the same meaning as for print_exception().
     """
+    if f is None:
+        f = sys._getframe().f_back
     print_list(extract_stack(f, limit=limit), file=file)
 
 
 def format_stack(f=None, limit=None):
     """Shorthand for 'format_list(extract_stack(f, limit))'."""
+    if f is None:
+        f = sys._getframe().f_back
     return format_list(extract_stack(f, limit=limit))
 
 
@@ -198,6 +206,8 @@ def extract_stack(f=None, limit=None):
     line number, function name, text), and the entries are in order
     from oldest to newest stack frame.
     """
+    if f is None:
+        f = sys._getframe().f_back
     stack = StackSummary.extract(walk_stack(f), limit=limit)
     stack.reverse()
     return stack
@@ -247,14 +257,17 @@ class FrameSummary:
         self._line = line
         if lookup_line:
             self.line
-        self.locals = \
-            dict((k, repr(v)) for k, v in locals.items()) if locals else None
+        self.locals = {k: repr(v) for k, v in locals.items()} if locals else None
 
     def __eq__(self, other):
-        return (self.filename == other.filename and
-                self.lineno == other.lineno and
-                self.name == other.name and
-                self.locals == other.locals)
+        if isinstance(other, FrameSummary):
+            return (self.filename == other.filename and
+                    self.lineno == other.lineno and
+                    self.name == other.name and
+                    self.locals == other.locals)
+        if isinstance(other, tuple):
+            return (self.filename, self.lineno, self.name, self.line) == other
+        return NotImplemented
 
     def __getitem__(self, pos):
         return (self.filename, self.lineno, self.name, self.line)[pos]
@@ -265,6 +278,9 @@ class FrameSummary:
     def __repr__(self):
         return "<FrameSummary file {filename}, line {lineno} in {name}>".format(
             filename=self.filename, lineno=self.lineno, name=self.name)
+
+    def __len__(self):
+        return 4
 
     @property
     def line(self):
@@ -296,6 +312,8 @@ def walk_tb(tb):
         yield tb.tb_frame, tb.tb_lineno
         tb = tb.tb_next
 
+
+_RECURSIVE_CUTOFF = 3 # Also hardcoded in traceback.c.
 
 class StackSummary(list):
     """A stack of frames."""
@@ -350,10 +368,9 @@ class StackSummary(list):
 
     @classmethod
     def from_list(klass, a_list):
-        """Create a StackSummary from a simple list of tuples.
-
-        This method supports the older Python API. Each tuple should be a
-        4-tuple with (filename, lineno, name, line) elements.
+        """
+        Create a StackSummary object from a supplied list of
+        FrameSummary objects or old-style list of tuples.
         """
         # While doing a fast-path check for isinstance(a_list, StackSummary) is
         # appealing, idlelib.run.cleanup_traceback and other similar code may
@@ -375,9 +392,33 @@ class StackSummary(list):
         resulting list corresponds to a single frame from the stack.
         Each string ends in a newline; the strings may contain internal
         newlines as well, for those items with source text lines.
+
+        For long sequences of the same frame and line, the first few
+        repetitions are shown, followed by a summary line stating the exact
+        number of further repetitions.
         """
         result = []
+        last_file = None
+        last_line = None
+        last_name = None
+        count = 0
         for frame in self:
+            if (last_file is None or last_file != frame.filename or
+                last_line is None or last_line != frame.lineno or
+                last_name is None or last_name != frame.name):
+                if count > _RECURSIVE_CUTOFF:
+                    count -= _RECURSIVE_CUTOFF
+                    result.append(
+                        f'  [Previous line repeated {count} more '
+                        f'time{"s" if count > 1 else ""}]\n'
+                    )
+                last_file = frame.filename
+                last_line = frame.lineno
+                last_name = frame.name
+                count = 0
+            count += 1
+            if count > _RECURSIVE_CUTOFF:
+                continue
             row = []
             row.append('  File "{}", line {}, in {}\n'.format(
                 frame.filename, frame.lineno, frame.name))
@@ -387,6 +428,12 @@ class StackSummary(list):
                 for name, value in sorted(frame.locals.items()):
                     row.append('    {name} = {value}\n'.format(name=name, value=value))
             result.append(''.join(row))
+        if count > _RECURSIVE_CUTOFF:
+            count -= _RECURSIVE_CUTOFF
+            result.append(
+                f'  [Previous line repeated {count} more '
+                f'time{"s" if count > 1 else ""}]\n'
+            )
         return result
 
 
@@ -408,13 +455,13 @@ class TracebackException:
     - :attr:`stack` A `StackSummary` representing the traceback.
     - :attr:`exc_type` The class of the original traceback.
     - :attr:`filename` For syntax errors - the filename where the error
-      occured.
+      occurred.
     - :attr:`lineno` For syntax errors - the linenumber where the error
-      occured.
+      occurred.
     - :attr:`text` For syntax errors - the text where the error
-      occured.
+      occurred.
     - :attr:`offset` For syntax errors - the offset into the text where the
-      error occured.
+      error occurred.
     - :attr:`msg` For syntax errors - the compiler error message.
     """
 
@@ -426,11 +473,11 @@ class TracebackException:
         # Handle loops in __cause__ or __context__.
         if _seen is None:
             _seen = set()
-        _seen.add(exc_value)
+        _seen.add(id(exc_value))
         # Gracefully handle (the way Python 2.4 and earlier did) the case of
         # being called with no type or value (None, None, None).
         if (exc_value and exc_value.__cause__ is not None
-            and exc_value.__cause__ not in _seen):
+            and id(exc_value.__cause__) not in _seen):
             cause = TracebackException(
                 type(exc_value.__cause__),
                 exc_value.__cause__,
@@ -442,7 +489,7 @@ class TracebackException:
         else:
             cause = None
         if (exc_value and exc_value.__context__ is not None
-            and exc_value.__context__ not in _seen):
+            and id(exc_value.__context__) not in _seen):
             context = TracebackException(
                 type(exc_value.__context__),
                 exc_value.__context__,
@@ -477,10 +524,9 @@ class TracebackException:
             self._load_lines()
 
     @classmethod
-    def from_exception(self, exc, *args, **kwargs):
+    def from_exception(cls, exc, *args, **kwargs):
         """Create a TracebackException from an exception."""
-        return TracebackException(
-            type(exc), exc, exc.__traceback__, *args, **kwargs)
+        return cls(type(exc), exc, exc.__traceback__, *args, **kwargs)
 
     def _load_lines(self):
         """Private API. force all lines in the stack to be loaded."""
@@ -503,7 +549,7 @@ class TracebackException:
         The return value is a generator of strings, each ending in a newline.
 
         Normally, the generator emits a single string; however, for
-        SyntaxError exceptions, it emites several lines that (when
+        SyntaxError exceptions, it emits several lines that (when
         printed) display detailed information about where the syntax
         error occurred.
 

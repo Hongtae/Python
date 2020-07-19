@@ -24,12 +24,10 @@ void _Py_DeactivateActCtx(ULONG_PTR cookie);
 #define PYD_DEBUG_SUFFIX ""
 #endif
 
-#define STRINGIZE2(x) #x
-#define STRINGIZE(x) STRINGIZE2(x)
 #ifdef PYD_PLATFORM_TAG
-#define PYD_TAGGED_SUFFIX PYD_DEBUG_SUFFIX ".cp" STRINGIZE(PY_MAJOR_VERSION) STRINGIZE(PY_MINOR_VERSION) "-" PYD_PLATFORM_TAG ".pyd"
+#define PYD_TAGGED_SUFFIX PYD_DEBUG_SUFFIX ".cp" Py_STRINGIFY(PY_MAJOR_VERSION) Py_STRINGIFY(PY_MINOR_VERSION) "-" PYD_PLATFORM_TAG ".pyd"
 #else
-#define PYD_TAGGED_SUFFIX PYD_DEBUG_SUFFIX ".cp" STRINGIZE(PY_MAJOR_VERSION) STRINGIZE(PY_MINOR_VERSION) ".pyd"
+#define PYD_TAGGED_SUFFIX PYD_DEBUG_SUFFIX ".cp" Py_STRINGIFY(PY_MAJOR_VERSION) Py_STRINGIFY(PY_MINOR_VERSION) ".pyd"
 #endif
 
 #define PYD_UNTAGGED_SUFFIX PYD_DEBUG_SUFFIX ".pyd"
@@ -39,24 +37,6 @@ const char *_PyImport_DynLoadFiletab[] = {
     PYD_UNTAGGED_SUFFIX,
     NULL
 };
-
-/* Case insensitive string compare, to avoid any dependencies on particular
-   C RTL implementations */
-
-static int strcasecmp (char *string1, char *string2)
-{
-    int first, second;
-
-    do {
-        first  = tolower(*string1);
-        second = tolower(*string2);
-        string1++;
-        string2++;
-    } while (first && first == second);
-
-    return (first - second);
-}
-
 
 /* Function to return the name of the "python" DLL that the supplied module
    directly imports.  Looks through the list of imported modules and
@@ -192,13 +172,11 @@ dl_funcptr _PyImport_FindSharedFuncptrWindows(const char *prefix,
 {
     dl_funcptr p;
     char funcname[258], *import_python;
-    wchar_t *wpathname;
+    const wchar_t *wpathname;
 
-#ifndef _DEBUG
     _Py_CheckPython3();
-#endif
 
-    wpathname = PyUnicode_AsUnicode(pathname);
+    wpathname = _PyUnicode_AsUnicode(pathname);
     if (wpathname == NULL)
         return NULL;
 
@@ -217,11 +195,15 @@ dl_funcptr _PyImport_FindSharedFuncptrWindows(const char *prefix,
 #if HAVE_SXS
         cookie = _Py_ActivateActCtx();
 #endif
-        /* We use LoadLibraryEx so Windows looks for dependent DLLs
-            in directory of pathname first. */
-        /* XXX This call doesn't exist in Windows CE */
+        /* bpo-36085: We use LoadLibraryEx with restricted search paths
+           to avoid DLL preloading attacks and enable use of the
+           AddDllDirectory function. We add SEARCH_DLL_LOAD_DIR to
+           ensure DLLs adjacent to the PYD are preferred. */
+        Py_BEGIN_ALLOW_THREADS
         hDLL = LoadLibraryExW(wpathname, NULL,
-                              LOAD_WITH_ALTERED_SEARCH_PATH);
+                              LOAD_LIBRARY_SEARCH_DEFAULT_DIRS |
+                              LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR);
+        Py_END_ALLOW_THREADS
 #if HAVE_SXS
         _Py_DeactivateActCtx(cookie);
 #endif
@@ -256,8 +238,8 @@ dl_funcptr _PyImport_FindSharedFuncptrWindows(const char *prefix,
                This should not happen if called correctly. */
             if (theLength == 0) {
                 message = PyUnicode_FromFormat(
-                    "DLL load failed with error code %d",
-                    errorCode);
+                    "DLL load failed with error code %u while importing %s",
+                    errorCode, shortname);
             } else {
                 /* For some reason a \r\n
                    is appended to the text */
@@ -267,8 +249,8 @@ dl_funcptr _PyImport_FindSharedFuncptrWindows(const char *prefix,
                     theLength -= 2;
                     theInfo[theLength] = '\0';
                 }
-                message = PyUnicode_FromString(
-                    "DLL load failed: ");
+                message = PyUnicode_FromFormat(
+                    "DLL load failed while importing %s: ", shortname);
 
                 PyUnicode_AppendAndDel(&message,
                     PyUnicode_FromWideChar(
@@ -295,16 +277,20 @@ dl_funcptr _PyImport_FindSharedFuncptrWindows(const char *prefix,
             import_python = GetPythonImport(hDLL);
 
             if (import_python &&
-                strcasecmp(buffer,import_python)) {
+                _stricmp(buffer,import_python)) {
                 PyErr_Format(PyExc_ImportError,
                              "Module use of %.150s conflicts "
                              "with this version of Python.",
                              import_python);
+                Py_BEGIN_ALLOW_THREADS
                 FreeLibrary(hDLL);
+                Py_END_ALLOW_THREADS
                 return NULL;
             }
         }
+        Py_BEGIN_ALLOW_THREADS
         p = GetProcAddress(hDLL, funcname);
+        Py_END_ALLOW_THREADS
     }
 
     return p;

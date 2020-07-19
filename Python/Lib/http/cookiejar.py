@@ -28,15 +28,13 @@ http://wwwsearch.sf.net/):
 __all__ = ['Cookie', 'CookieJar', 'CookiePolicy', 'DefaultCookiePolicy',
            'FileCookieJar', 'LWPCookieJar', 'LoadError', 'MozillaCookieJar']
 
+import os
 import copy
 import datetime
 import re
 import time
 import urllib.parse, urllib.request
-try:
-    import threading as _threading
-except ImportError:
-    import dummy_threading as _threading
+import threading as _threading
 import http.client  # only for the default HTTP port
 from calendar import timegm
 
@@ -120,7 +118,7 @@ def time2netscape(t=None):
         dt = datetime.datetime.utcnow()
     else:
         dt = datetime.datetime.utcfromtimestamp(t)
-    return "%s %02d-%s-%04d %02d:%02d:%02d GMT" % (
+    return "%s, %02d-%s-%04d %02d:%02d:%02d GMT" % (
         DAYS[dt.weekday()], dt.day, MONTHS[dt.month-1],
         dt.year, dt.hour, dt.minute, dt.second)
 
@@ -143,6 +141,10 @@ def offset_from_tz_string(tz):
     return offset
 
 def _str2time(day, mon, yr, hr, min, sec, tz):
+    yr = int(yr)
+    if yr > datetime.MAXYEAR:
+        return None
+
     # translate month name to number
     # month numbers start with 1 (January)
     try:
@@ -163,7 +165,6 @@ def _str2time(day, mon, yr, hr, min, sec, tz):
     if min is None: min = 0
     if sec is None: sec = 0
 
-    yr = int(yr)
     day = int(day)
     hr = int(hr)
     min = int(min)
@@ -197,7 +198,7 @@ def _str2time(day, mon, yr, hr, min, sec, tz):
 
 STRICT_DATE_RE = re.compile(
     r"^[SMTWF][a-z][a-z], (\d\d) ([JFMASOND][a-z][a-z]) "
-    "(\d\d\d\d) (\d\d):(\d\d):(\d\d) GMT$", re.ASCII)
+    r"(\d\d\d\d) (\d\d):(\d\d):(\d\d) GMT$", re.ASCII)
 WEEKDAY_RE = re.compile(
     r"^(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat)[a-z]*,?\s*", re.I | re.ASCII)
 LOOSE_HTTP_DATE_RE = re.compile(
@@ -213,10 +214,14 @@ LOOSE_HTTP_DATE_RE = re.compile(
        (?::(\d\d))?    # optional seconds
     )?                 # optional clock
        \s*
-    ([-+]?\d{2,4}|(?![APap][Mm]\b)[A-Za-z]+)? # timezone
+    (?:
+       ([-+]?\d{2,4}|(?![APap][Mm]\b)[A-Za-z]+) # timezone
        \s*
-    (?:\(\w+\))?       # ASCII representation of timezone in parens.
-       \s*$""", re.X | re.ASCII)
+    )?
+    (?:
+       \(\w+\)         # ASCII representation of timezone in parens.
+       \s*
+    )?$""", re.X | re.ASCII)
 def http2time(text):
     """Returns time in seconds since epoch of time represented by a string.
 
@@ -274,7 +279,7 @@ def http2time(text):
     return _str2time(day, mon, yr, hr, min, sec, tz)
 
 ISO_DATE_RE = re.compile(
-    """^
+    r"""^
     (\d{4})              # year
        [-\/]?
     (\d\d?)              # numerical month
@@ -286,9 +291,11 @@ ISO_DATE_RE = re.compile(
       (?::?(\d\d(?:\.\d*)?))?  # optional seconds (and fractional)
    )?                    # optional clock
       \s*
-   ([-+]?\d\d?:?(:?\d\d)?
-    |Z|z)?               # timezone  (Z is "zero meridian", i.e. GMT)
-      \s*$""", re.X | re. ASCII)
+   (?:
+      ([-+]?\d\d?:?(:?\d\d)?
+       |Z|z)             # timezone  (Z is "zero meridian", i.e. GMT)
+      \s*
+   )?$""", re.X | re. ASCII)
 def iso2time(text):
     """
     As for http2time, but parses the ISO 8601 formats:
@@ -408,7 +415,7 @@ def split_header_words(header_values):
                 pairs = []
             else:
                 # skip junk
-                non_junk, nr_junk_chars = re.subn("^[=\s;]*", "", text)
+                non_junk, nr_junk_chars = re.subn(r"^[=\s;]*", "", text)
                 assert nr_junk_chars > 0, (
                     "split_header_words bug: '%s', '%s', %s" %
                     (orig_text, text, pairs))
@@ -423,10 +430,10 @@ def join_header_words(lists):
     Takes a list of lists of (key, value) pairs and produces a single header
     value.  Attribute values are quoted if needed.
 
-    >>> join_header_words([[("text/plain", None), ("charset", "iso-8859/1")]])
-    'text/plain; charset="iso-8859/1"'
-    >>> join_header_words([[("text/plain", None)], [("charset", "iso-8859/1")]])
-    'text/plain, charset="iso-8859/1"'
+    >>> join_header_words([[("text/plain", None), ("charset", "iso-8859-1")]])
+    'text/plain; charset="iso-8859-1"'
+    >>> join_header_words([[("text/plain", None)], [("charset", "iso-8859-1")]])
+    'text/plain, charset="iso-8859-1"'
 
     """
     headers = []
@@ -830,7 +837,7 @@ class CookiePolicy:
     May also modify cookies, though this is probably a bad idea.
 
     The subclass DefaultCookiePolicy defines the standard rules for Netscape
-    and RFC 2965 cookies -- override that if you want a customised policy.
+    and RFC 2965 cookies -- override that if you want a customized policy.
 
     """
     def set_ok(self, cookie, request):
@@ -878,6 +885,7 @@ class DefaultCookiePolicy(CookiePolicy):
                  strict_ns_domain=DomainLiberal,
                  strict_ns_set_initial_dollar=False,
                  strict_ns_set_path=False,
+                 secure_protocols=("https", "wss")
                  ):
         """Constructor arguments should be passed as keyword arguments only."""
         self.netscape = netscape
@@ -890,6 +898,7 @@ class DefaultCookiePolicy(CookiePolicy):
         self.strict_ns_domain = strict_ns_domain
         self.strict_ns_set_initial_dollar = strict_ns_set_initial_dollar
         self.strict_ns_set_path = strict_ns_set_path
+        self.secure_protocols = secure_protocols
 
         if blocked_domains is not None:
             self._blocked_domains = tuple(blocked_domains)
@@ -990,7 +999,7 @@ class DefaultCookiePolicy(CookiePolicy):
             req_path = request_path(request)
             if ((cookie.version > 0 or
                  (cookie.version == 0 and self.strict_ns_set_path)) and
-                not req_path.startswith(cookie.path)):
+                not self.path_return_ok(cookie.path, request)):
                 _debug("   path attribute %s is not a prefix of request "
                        "path %s", cookie.path, req_path)
                 return False
@@ -1116,7 +1125,7 @@ class DefaultCookiePolicy(CookiePolicy):
         return True
 
     def return_ok_secure(self, cookie, request):
-        if cookie.secure and request.type != "https":
+        if cookie.secure and request.type not in self.secure_protocols:
             _debug("   secure cookie with non-secure request")
             return False
         return True
@@ -1145,6 +1154,11 @@ class DefaultCookiePolicy(CookiePolicy):
         req_host, erhn = eff_request_host(request)
         domain = cookie.domain
 
+        if domain and not domain.startswith("."):
+            dotdomain = "." + domain
+        else:
+            dotdomain = domain
+
         # strict check of non-domain cookies: Mozilla does this, MSIE5 doesn't
         if (cookie.version == 0 and
             (self.strict_ns_domain & self.DomainStrictNonDomain) and
@@ -1157,7 +1171,7 @@ class DefaultCookiePolicy(CookiePolicy):
             _debug("   effective request-host name %s does not domain-match "
                    "RFC 2965 cookie domain %s", erhn, domain)
             return False
-        if cookie.version == 0 and not ("."+erhn).endswith(domain):
+        if cookie.version == 0 and not ("."+erhn).endswith(dotdomain):
             _debug("   request-host %s does not match Netscape cookie domain "
                    "%s", req_host, domain)
             return False
@@ -1171,7 +1185,11 @@ class DefaultCookiePolicy(CookiePolicy):
             req_host = "."+req_host
         if not erhn.startswith("."):
             erhn = "."+erhn
-        if not (req_host.endswith(domain) or erhn.endswith(domain)):
+        if domain and not domain.startswith("."):
+            dotdomain = "." + domain
+        else:
+            dotdomain = domain
+        if not (req_host.endswith(dotdomain) or erhn.endswith(dotdomain)):
             #_debug("   request domain %s does not match cookie domain %s",
             #       req_host, domain)
             return False
@@ -1188,11 +1206,15 @@ class DefaultCookiePolicy(CookiePolicy):
     def path_return_ok(self, path, request):
         _debug("- checking cookie path=%s", path)
         req_path = request_path(request)
-        if not req_path.startswith(path):
-            _debug("  %s does not path-match %s", req_path, path)
-            return False
-        return True
+        pathlen = len(path)
+        if req_path == path:
+            return True
+        elif (req_path.startswith(path) and
+              (path.endswith("/") or req_path[pathlen:pathlen+1] == "/")):
+            return True
 
+        _debug("  %s does not path-match %s", req_path, path)
+        return False
 
 def vals_sorted_by_key(adict):
     keys = sorted(adict.keys())
@@ -1437,7 +1459,7 @@ class CookieJar:
                         break
                     # convert RFC 2965 Max-Age to seconds since epoch
                     # XXX Strictly you're supposed to follow RFC 2616
-                    #   age-calculation rules.  Remember that zero Max-Age is a
+                    #   age-calculation rules.  Remember that zero Max-Age
                     #   is a request to discard (old and new) cookie, though.
                     k = "expires"
                     v = self._now + v
@@ -1577,6 +1599,7 @@ class CookieJar:
         headers = response.info()
         rfc2965_hdrs = headers.get_all("Set-Cookie2", [])
         ns_hdrs = headers.get_all("Set-Cookie", [])
+        self._policy._now = self._now = int(time.time())
 
         rfc2965 = self._policy.rfc2965
         netscape = self._policy.netscape
@@ -1656,8 +1679,6 @@ class CookieJar:
         _debug("extract_cookies: %s", response.info())
         self._cookies_lock.acquire()
         try:
-            self._policy._now = self._now = int(time.time())
-
             for cookie in self.make_cookies(response, request):
                 if self._policy.set_ok(cookie, request):
                     _debug(" setting cookie: %s", cookie)
@@ -1760,10 +1781,7 @@ class FileCookieJar(CookieJar):
         """
         CookieJar.__init__(self, policy)
         if filename is not None:
-            try:
-                filename+""
-            except:
-                raise ValueError("filename must be string-like")
+            filename = os.fspath(filename)
         self.filename = filename
         self.delayload = bool(delayload)
 
@@ -1838,7 +1856,7 @@ def lwp_cookie_str(cookie):
 class LWPCookieJar(FileCookieJar):
     """
     The LWPCookieJar saves a sequence of "Set-Cookie3" lines.
-    "Set-Cookie3" is the format used by the libwww-perl libary, not known
+    "Set-Cookie3" is the format used by the libwww-perl library, not known
     to be compatible with any browser, but which is easy to read and
     doesn't lose information about RFC 2965 cookies.
 

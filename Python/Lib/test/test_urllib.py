@@ -1,4 +1,4 @@
-"""Regresssion tests for urllib"""
+"""Regression tests for what was in Python 2's "urllib" module"""
 
 import urllib.parse
 import urllib.request
@@ -39,10 +39,7 @@ def urlopen(url, data=None, proxies=None):
     if proxies is not None:
         opener = urllib.request.FancyURLopener(proxies=proxies)
     elif not _urlopener:
-        with support.check_warnings(
-                ('FancyURLopener style of invoking requests is deprecated.',
-                DeprecationWarning)):
-            opener = urllib.request.FancyURLopener()
+        opener = FancyURLopener()
         _urlopener = opener
     else:
         opener = _urlopener
@@ -52,7 +49,14 @@ def urlopen(url, data=None, proxies=None):
         return opener.open(url, data)
 
 
-def fakehttp(fakedata):
+def FancyURLopener():
+    with support.check_warnings(
+            ('FancyURLopener style of invoking requests is deprecated.',
+            DeprecationWarning)):
+        return urllib.request.FancyURLopener()
+
+
+def fakehttp(fakedata, mock_close=False):
     class FakeSocket(io.BytesIO):
         io_refs = 1
 
@@ -82,18 +86,28 @@ def fakehttp(fakedata):
 
         # buffer to store data for verification in urlopen tests.
         buf = None
-        fakesock = FakeSocket(fakedata)
 
         def connect(self):
-            self.sock = self.fakesock
+            self.sock = FakeSocket(self.fakedata)
+            type(self).fakesock = self.sock
+
+        if mock_close:
+            # bpo-36918: HTTPConnection destructor calls close() which calls
+            # flush(). Problem: flush() calls self.fp.flush() which raises
+            # "ValueError: I/O operation on closed file" which is logged as an
+            # "Exception ignored in". Override close() to silence this error.
+            def close(self):
+                pass
+    FakeHTTPConnection.fakedata = fakedata
 
     return FakeHTTPConnection
 
 
 class FakeHTTPMixin(object):
-    def fakehttp(self, fakedata):
+    def fakehttp(self, fakedata, mock_close=False):
+        fake_http_class = fakehttp(fakedata, mock_close=mock_close)
         self._connection_class = http.client.HTTPConnection
-        http.client.HTTPConnection = fakehttp(fakedata)
+        http.client.HTTPConnection = fake_http_class
 
     def unfakehttp(self):
         http.client.HTTPConnection = self._connection_class
@@ -201,6 +215,7 @@ class urlopen_FileTests(unittest.TestCase):
     def test_relativelocalfile(self):
         self.assertRaises(ValueError,urllib.request.urlopen,'./' + self.pathname)
 
+
 class ProxyTests(unittest.TestCase):
 
     def setUp(self):
@@ -222,8 +237,96 @@ class ProxyTests(unittest.TestCase):
         # getproxies_environment use lowered case truncated (no '_proxy') keys
         self.assertEqual('localhost', proxies['no'])
         # List of no_proxies with space.
-        self.env.set('NO_PROXY', 'localhost, anotherdomain.com, newdomain.com')
+        self.env.set('NO_PROXY', 'localhost, anotherdomain.com, newdomain.com:1234')
         self.assertTrue(urllib.request.proxy_bypass_environment('anotherdomain.com'))
+        self.assertTrue(urllib.request.proxy_bypass_environment('anotherdomain.com:8888'))
+        self.assertTrue(urllib.request.proxy_bypass_environment('newdomain.com:1234'))
+
+    def test_proxy_cgi_ignore(self):
+        try:
+            self.env.set('HTTP_PROXY', 'http://somewhere:3128')
+            proxies = urllib.request.getproxies_environment()
+            self.assertEqual('http://somewhere:3128', proxies['http'])
+            self.env.set('REQUEST_METHOD', 'GET')
+            proxies = urllib.request.getproxies_environment()
+            self.assertNotIn('http', proxies)
+        finally:
+            self.env.unset('REQUEST_METHOD')
+            self.env.unset('HTTP_PROXY')
+
+    def test_proxy_bypass_environment_host_match(self):
+        bypass = urllib.request.proxy_bypass_environment
+        self.env.set('NO_PROXY',
+                     'localhost, anotherdomain.com, newdomain.com:1234, .d.o.t')
+        self.assertTrue(bypass('localhost'))
+        self.assertTrue(bypass('LocalHost'))                 # MixedCase
+        self.assertTrue(bypass('LOCALHOST'))                 # UPPERCASE
+        self.assertTrue(bypass('.localhost'))
+        self.assertTrue(bypass('newdomain.com:1234'))
+        self.assertTrue(bypass('.newdomain.com:1234'))
+        self.assertTrue(bypass('foo.d.o.t'))                 # issue 29142
+        self.assertTrue(bypass('d.o.t'))
+        self.assertTrue(bypass('anotherdomain.com:8888'))
+        self.assertTrue(bypass('.anotherdomain.com:8888'))
+        self.assertTrue(bypass('www.newdomain.com:1234'))
+        self.assertFalse(bypass('prelocalhost'))
+        self.assertFalse(bypass('newdomain.com'))            # no port
+        self.assertFalse(bypass('newdomain.com:1235'))       # wrong port
+
+    def test_proxy_bypass_environment_always_match(self):
+        bypass = urllib.request.proxy_bypass_environment
+        self.env.set('NO_PROXY', '*')
+        self.assertTrue(bypass('newdomain.com'))
+        self.assertTrue(bypass('newdomain.com:1234'))
+        self.env.set('NO_PROXY', '*, anotherdomain.com')
+        self.assertTrue(bypass('anotherdomain.com'))
+        self.assertFalse(bypass('newdomain.com'))
+        self.assertFalse(bypass('newdomain.com:1234'))
+
+    def test_proxy_bypass_environment_newline(self):
+        bypass = urllib.request.proxy_bypass_environment
+        self.env.set('NO_PROXY',
+                     'localhost, anotherdomain.com, newdomain.com:1234')
+        self.assertFalse(bypass('localhost\n'))
+        self.assertFalse(bypass('anotherdomain.com:8888\n'))
+        self.assertFalse(bypass('newdomain.com:1234\n'))
+
+
+class ProxyTests_withOrderedEnv(unittest.TestCase):
+
+    def setUp(self):
+        # We need to test conditions, where variable order _is_ significant
+        self._saved_env = os.environ
+        # Monkey patch os.environ, start with empty fake environment
+        os.environ = collections.OrderedDict()
+
+    def tearDown(self):
+        os.environ = self._saved_env
+
+    def test_getproxies_environment_prefer_lowercase(self):
+        # Test lowercase preference with removal
+        os.environ['no_proxy'] = ''
+        os.environ['No_Proxy'] = 'localhost'
+        self.assertFalse(urllib.request.proxy_bypass_environment('localhost'))
+        self.assertFalse(urllib.request.proxy_bypass_environment('arbitrary'))
+        os.environ['http_proxy'] = ''
+        os.environ['HTTP_PROXY'] = 'http://somewhere:3128'
+        proxies = urllib.request.getproxies_environment()
+        self.assertEqual({}, proxies)
+        # Test lowercase preference of proxy bypass and correct matching including ports
+        os.environ['no_proxy'] = 'localhost, noproxy.com, my.proxy:1234'
+        os.environ['No_Proxy'] = 'xyz.com'
+        self.assertTrue(urllib.request.proxy_bypass_environment('localhost'))
+        self.assertTrue(urllib.request.proxy_bypass_environment('noproxy.com:5678'))
+        self.assertTrue(urllib.request.proxy_bypass_environment('my.proxy:1234'))
+        self.assertFalse(urllib.request.proxy_bypass_environment('my.proxy'))
+        self.assertFalse(urllib.request.proxy_bypass_environment('arbitrary'))
+        # Test lowercase preference with replacement
+        os.environ['http_proxy'] = 'http://somewhere:3128'
+        os.environ['Http_Proxy'] = 'http://somewhereelse:3128'
+        proxies = urllib.request.getproxies_environment()
+        self.assertEqual('http://somewhere:3128', proxies['http'])
+
 
 class urlopen_HttpTests(unittest.TestCase, FakeHTTPMixin, FakeFTPMixin):
     """Test urlopen() opening a fake http connection."""
@@ -257,6 +360,91 @@ class urlopen_HttpTests(unittest.TestCase, FakeHTTPMixin, FakeFTPMixin):
         finally:
             self.unfakehttp()
 
+    @unittest.skipUnless(ssl, "ssl module required")
+    def test_url_path_with_control_char_rejected(self):
+        for char_no in list(range(0, 0x21)) + [0x7f]:
+            char = chr(char_no)
+            schemeless_url = f"//localhost:7777/test{char}/"
+            self.fakehttp(b"HTTP/1.1 200 OK\r\n\r\nHello.")
+            try:
+                # We explicitly test urllib.request.urlopen() instead of the top
+                # level 'def urlopen()' function defined in this... (quite ugly)
+                # test suite.  They use different url opening codepaths.  Plain
+                # urlopen uses FancyURLOpener which goes via a codepath that
+                # calls urllib.parse.quote() on the URL which makes all of the
+                # above attempts at injection within the url _path_ safe.
+                escaped_char_repr = repr(char).replace('\\', r'\\')
+                InvalidURL = http.client.InvalidURL
+                with self.assertRaisesRegex(
+                    InvalidURL, f"contain control.*{escaped_char_repr}"):
+                    urllib.request.urlopen(f"http:{schemeless_url}")
+                with self.assertRaisesRegex(
+                    InvalidURL, f"contain control.*{escaped_char_repr}"):
+                    urllib.request.urlopen(f"https:{schemeless_url}")
+                # This code path quotes the URL so there is no injection.
+                resp = urlopen(f"http:{schemeless_url}")
+                self.assertNotIn(char, resp.geturl())
+            finally:
+                self.unfakehttp()
+
+    @unittest.skipUnless(ssl, "ssl module required")
+    def test_url_path_with_newline_header_injection_rejected(self):
+        self.fakehttp(b"HTTP/1.1 200 OK\r\n\r\nHello.")
+        host = "localhost:7777?a=1 HTTP/1.1\r\nX-injected: header\r\nTEST: 123"
+        schemeless_url = "//" + host + ":8080/test/?test=a"
+        try:
+            # We explicitly test urllib.request.urlopen() instead of the top
+            # level 'def urlopen()' function defined in this... (quite ugly)
+            # test suite.  They use different url opening codepaths.  Plain
+            # urlopen uses FancyURLOpener which goes via a codepath that
+            # calls urllib.parse.quote() on the URL which makes all of the
+            # above attempts at injection within the url _path_ safe.
+            InvalidURL = http.client.InvalidURL
+            with self.assertRaisesRegex(
+                InvalidURL, r"contain control.*\\r.*(found at least . .)"):
+                urllib.request.urlopen(f"http:{schemeless_url}")
+            with self.assertRaisesRegex(InvalidURL, r"contain control.*\\n"):
+                urllib.request.urlopen(f"https:{schemeless_url}")
+            # This code path quotes the URL so there is no injection.
+            resp = urlopen(f"http:{schemeless_url}")
+            self.assertNotIn(' ', resp.geturl())
+            self.assertNotIn('\r', resp.geturl())
+            self.assertNotIn('\n', resp.geturl())
+        finally:
+            self.unfakehttp()
+
+    @unittest.skipUnless(ssl, "ssl module required")
+    def test_url_host_with_control_char_rejected(self):
+        for char_no in list(range(0, 0x21)) + [0x7f]:
+            char = chr(char_no)
+            schemeless_url = f"//localhost{char}/test/"
+            self.fakehttp(b"HTTP/1.1 200 OK\r\n\r\nHello.")
+            try:
+                escaped_char_repr = repr(char).replace('\\', r'\\')
+                InvalidURL = http.client.InvalidURL
+                with self.assertRaisesRegex(
+                    InvalidURL, f"contain control.*{escaped_char_repr}"):
+                    urlopen(f"http:{schemeless_url}")
+                with self.assertRaisesRegex(InvalidURL, f"contain control.*{escaped_char_repr}"):
+                    urlopen(f"https:{schemeless_url}")
+            finally:
+                self.unfakehttp()
+
+    @unittest.skipUnless(ssl, "ssl module required")
+    def test_url_host_with_newline_header_injection_rejected(self):
+        self.fakehttp(b"HTTP/1.1 200 OK\r\n\r\nHello.")
+        host = "localhost\r\nX-injected: header\r\n"
+        schemeless_url = "//" + host + ":8080/test/?test=a"
+        try:
+            InvalidURL = http.client.InvalidURL
+            with self.assertRaisesRegex(
+                InvalidURL, r"contain control.*\\r"):
+                urlopen(f"http:{schemeless_url}")
+            with self.assertRaisesRegex(InvalidURL, r"contain control.*\\n"):
+                urlopen(f"https:{schemeless_url}")
+        finally:
+            self.unfakehttp()
+
     def test_read_0_9(self):
         # "0.9" response accepted (but not "simple responses" without
         # a status line)
@@ -275,7 +463,7 @@ Date: Wed, 02 Jan 2008 03:03:54 GMT
 Server: Apache/1.3.33 (Debian GNU/Linux) mod_ssl/2.8.22 OpenSSL/0.9.7e
 Connection: close
 Content-Type: text/html; charset=iso-8859-1
-''')
+''', mock_close=True)
         try:
             self.assertRaises(OSError, urlopen, "http://python.org/")
         finally:
@@ -289,12 +477,27 @@ Server: Apache/1.3.33 (Debian GNU/Linux) mod_ssl/2.8.22 OpenSSL/0.9.7e
 Location: file://guidocomputer.athome.com:/python/license
 Connection: close
 Content-Type: text/html; charset=iso-8859-1
-''')
+''', mock_close=True)
         try:
-            self.assertRaises(urllib.error.HTTPError, urlopen,
-                              "http://python.org/")
+            msg = "Redirection to url 'file:"
+            with self.assertRaisesRegex(urllib.error.HTTPError, msg):
+                urlopen("http://python.org/")
         finally:
             self.unfakehttp()
+
+    def test_redirect_limit_independent(self):
+        # Ticket #12923: make sure independent requests each use their
+        # own retry limit.
+        for i in range(FancyURLopener().maxtries):
+            self.fakehttp(b'''HTTP/1.1 302 Found
+Location: file://guidocomputer.athome.com:/python/license
+Connection: close
+''', mock_close=True)
+            try:
+                self.assertRaises(urllib.error.HTTPError, urlopen,
+                    "http://something")
+            finally:
+                self.unfakehttp()
 
     def test_empty_socket(self):
         # urlopen() raises OSError if the underlying socket does not send any
@@ -348,7 +551,6 @@ Content-Type: text/html; charset=iso-8859-1
         finally:
             self.unfakeftp()
 
-
     def test_userpass_inurl(self):
         self.fakehttp(b"HTTP/1.0 200 OK\r\n\r\nHello!")
         try:
@@ -386,10 +588,12 @@ Content-Type: text/html; charset=iso-8859-1
     @unittest.skipUnless(ssl, "ssl module required")
     def test_cafile_and_context(self):
         context = ssl.create_default_context()
-        with self.assertRaises(ValueError):
-            urllib.request.urlopen(
-                "https://localhost", cafile="/nonexistent/path", context=context
-            )
+        with support.check_warnings(('', DeprecationWarning)):
+            with self.assertRaises(ValueError):
+                urllib.request.urlopen(
+                    "https://localhost", cafile="/nonexistent/path", context=context
+                )
+
 
 class urlopen_DataTests(unittest.TestCase):
     """Test urlopen() opening a data URL."""
@@ -464,6 +668,7 @@ class urlopen_DataTests(unittest.TestCase):
         # missing padding character
         self.assertRaises(ValueError,urllib.request.urlopen,'data:;base64,Cg=')
 
+
 class urlretrieve_FileTests(unittest.TestCase):
     """Test urllib.urlretrieve() on local files"""
 
@@ -527,7 +732,7 @@ class urlretrieve_FileTests(unittest.TestCase):
         result = urllib.request.urlretrieve("file:%s" % support.TESTFN)
         self.assertEqual(result[0], support.TESTFN)
         self.assertIsInstance(result[1], email.message.Message,
-                              "did not get a email.message.Message instance "
+                              "did not get an email.message.Message instance "
                               "as second returned value")
 
     def test_copy(self):
@@ -623,7 +828,7 @@ FF
 
         with self.assertRaises(urllib.error.ContentTooShortError):
             try:
-                urllib.request.urlretrieve('http://example.com/',
+                urllib.request.urlretrieve(support.TEST_HTTP_URL,
                                            reporthook=_reporthook)
             finally:
                 self.unfakehttp()
@@ -640,15 +845,15 @@ FF
 ''')
         with self.assertRaises(urllib.error.ContentTooShortError):
             try:
-                urllib.request.urlretrieve('http://example.com/')
+                urllib.request.urlretrieve(support.TEST_HTTP_URL)
             finally:
                 self.unfakehttp()
 
 
 class QuotingTests(unittest.TestCase):
-    """Tests for urllib.quote() and urllib.quote_plus()
+    r"""Tests for urllib.quote() and urllib.quote_plus()
 
-    According to RFC 2396 (Uniform Resource Identifiers), to escape a
+    According to RFC 3986 (Uniform Resource Identifiers), to escape a
     character you write it as '%' + <2 character US-ASCII hex value>.
     The Python code of ``'%' + hex(ord(<character>))[2:]`` escapes a
     character properly. Case does not matter on the hex letters.
@@ -676,7 +881,7 @@ class QuotingTests(unittest.TestCase):
         do_not_quote = '' .join(["ABCDEFGHIJKLMNOPQRSTUVWXYZ",
                                  "abcdefghijklmnopqrstuvwxyz",
                                  "0123456789",
-                                 "_.-"])
+                                 "_.-~"])
         result = urllib.parse.quote(do_not_quote)
         self.assertEqual(do_not_quote, result,
                          "using quote(): %r != %r" % (do_not_quote, result))
@@ -721,7 +926,7 @@ class QuotingTests(unittest.TestCase):
         # Make sure all characters that should be quoted are by default sans
         # space (separate test for that).
         should_quote = [chr(num) for num in range(32)] # For 0x00 - 0x1F
-        should_quote.append('<>#%"{}|\^[]`')
+        should_quote.append(r'<>#%"{}|\^[]`')
         should_quote.append(chr(127)) # For 0x7F
         should_quote = ''.join(should_quote)
         for char in should_quote:
@@ -1303,7 +1508,7 @@ class Utility_Tests(unittest.TestCase):
         self.assertIsInstance(urllib.request.thishost(), tuple)
 
 
-class URLopener_Tests(unittest.TestCase):
+class URLopener_Tests(FakeHTTPMixin, unittest.TestCase):
     """Testcase to test the open method of URLopener class."""
 
     def test_quoted_open(self):
@@ -1320,6 +1525,38 @@ class URLopener_Tests(unittest.TestCase):
             self.assertEqual(DummyURLopener().open(
                 "spam://c:|windows%/:=&?~#+!$,;'@()*[]|/path/"),
                 "//c:|windows%/:=&?~#+!$,;'@()*[]|/path/")
+
+    @support.ignore_warnings(category=DeprecationWarning)
+    def test_urlopener_retrieve_file(self):
+        with support.temp_dir() as tmpdir:
+            fd, tmpfile = tempfile.mkstemp(dir=tmpdir)
+            os.close(fd)
+            fileurl = "file:" + urllib.request.pathname2url(tmpfile)
+            filename, _ = urllib.request.URLopener().retrieve(fileurl)
+            # Some buildbots have TEMP folder that uses a lowercase drive letter.
+            self.assertEqual(os.path.normcase(filename), os.path.normcase(tmpfile))
+
+    @support.ignore_warnings(category=DeprecationWarning)
+    def test_urlopener_retrieve_remote(self):
+        url = "http://www.python.org/file.txt"
+        self.fakehttp(b"HTTP/1.1 200 OK\r\n\r\nHello!")
+        self.addCleanup(self.unfakehttp)
+        filename, _ = urllib.request.URLopener().retrieve(url)
+        self.assertEqual(os.path.splitext(filename)[1], ".txt")
+
+    @support.ignore_warnings(category=DeprecationWarning)
+    def test_local_file_open(self):
+        # bpo-35907, CVE-2019-9948: urllib must reject local_file:// scheme
+        class DummyURLopener(urllib.request.URLopener):
+            def open_local_file(self, url):
+                return url
+        for url in ('local_file://example', 'local-file://example'):
+            self.assertRaises(OSError, urllib.request.urlopen, url)
+            self.assertRaises(OSError, urllib.request.URLopener().open, url)
+            self.assertRaises(OSError, urllib.request.URLopener().retrieve, url)
+            self.assertRaises(OSError, DummyURLopener().open, url)
+            self.assertRaises(OSError, DummyURLopener().retrieve, url)
+
 
 # Just commented them out.
 # Can't really tell why keep failing in windows and sparc.

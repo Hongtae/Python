@@ -179,7 +179,7 @@ def config_dict(filename):
             continue
         try:
             key, value = line.split("=")
-        except:
+        except ValueError:
             print("Bad line in config-file %s:\n%s" % (filename,line))
             continue
         key = key.strip()
@@ -192,7 +192,7 @@ def config_dict(filename):
                     value = float(value)
                 else:
                     value = int(value)
-            except:
+            except ValueError:
                 pass # value need not be converted
         cfgdict[key] = value
     return cfgdict
@@ -220,7 +220,7 @@ def readconfig(cfgdict):
     try:
         head, tail = split(__file__)
         cfg_file2 = join(head, default_cfg)
-    except:
+    except Exception:
         cfg_file2 = ""
     if isfile(cfg_file2):
         cfgdict2 = config_dict(cfg_file2)
@@ -229,7 +229,7 @@ def readconfig(cfgdict):
 
 try:
     readconfig(_CFG)
-except:
+except Exception:
     print ("No configfile read, reason unknown")
 
 
@@ -653,7 +653,7 @@ class TurtleScreenBase(object):
                     x, y = (self.cv.canvasx(event.x)/self.xscale,
                            -self.cv.canvasy(event.y)/self.yscale)
                     fun(x, y)
-                except:
+                except Exception:
                     pass
             self.cv.tag_bind(item, "<Button%s-Motion>" % num, eventfun, add)
 
@@ -833,7 +833,7 @@ class TurtleScreenBase(object):
         Arguments: title is the title of the dialog window,
         prompt is a text mostly describing what numerical information to input.
         default: default value
-        minval: minimum value for imput
+        minval: minimum value for input
         maxval: maximum value for input
 
         The number input must be in the range minval .. maxval if these are
@@ -1035,7 +1035,7 @@ class TurtleScreen(TurtleScreenBase):
         """Set turtle-mode ('standard', 'logo' or 'world') and perform reset.
 
         Optional argument:
-        mode -- on of the strings 'standard', 'logo' or 'world'
+        mode -- one of the strings 'standard', 'logo' or 'world'
 
         Mode 'standard' is compatible with turtle.py.
         Mode 'logo' is compatible with most Logo-Turtle-Graphics.
@@ -1158,7 +1158,7 @@ class TurtleScreen(TurtleScreenBase):
                 raise TurtleGraphicsError("bad color string: %s" % str(color))
         try:
             r, g, b = color
-        except:
+        except (TypeError, ValueError):
             raise TurtleGraphicsError("bad color arguments: %s" % str(color))
         if self._colormode == 1.0:
             r, g, b = [round(255.0*x) for x in (r, g, b)]
@@ -1175,7 +1175,7 @@ class TurtleScreen(TurtleScreenBase):
             cl = [16*int(cstr[h], 16) for h in cstr[1:]]
         else:
             raise TurtleGraphicsError("bad colorstring: %s" % cstr)
-        return tuple([c * self._colormode/255 for c in cl])
+        return tuple(c * self._colormode/255 for c in cl)
 
     def colormode(self, cmode=None):
         """Return the colormode or set it to 1.0 or 255.
@@ -1352,7 +1352,7 @@ class TurtleScreen(TurtleScreenBase):
         Arguments:
         fun -- a function with two arguments, the coordinates of the
                clicked point on the canvas.
-        num -- the number of the mouse-button, defaults to 1
+        btn -- the number of the mouse-button, defaults to 1
 
         Example (for a TurtleScreen instance named screen)
 
@@ -1568,7 +1568,7 @@ class TNavigator(object):
         fullcircle -  a number
 
         Set angle measurement units, i. e. set number
-        of 'degrees' for a full circle. Dafault value is
+        of 'degrees' for a full circle. Default value is
         360 degrees.
 
         Example (for a Turtle instance named turtle):
@@ -2194,7 +2194,7 @@ class TPen(object):
 
         If turtleshape is a polygon, outline and interior of that polygon
         is drawn with the newly set colors.
-        For mor info see: pencolor, fillcolor
+        For more info see: pencolor, fillcolor
 
         Example (for a Turtle instance named turtle):
         >>> turtle.color('red', 'green')
@@ -2702,7 +2702,7 @@ class RawTurtle(TPen, TNavigator):
             return args
         try:
             r, g, b = args
-        except:
+        except (TypeError, ValueError):
             raise TurtleGraphicsError("bad color arguments: %s" % str(args))
         if self.screen._colormode == 1.0:
             r, g, b = [round(255.0*x) for x in (r, g, b)]
@@ -2989,7 +2989,7 @@ class RawTurtle(TPen, TNavigator):
             t11, t12, t21, t22 = l, 0, 0, l
         elif self._resizemode == "noresize":
             return polygon
-        return tuple([(t11*x + t12*y, t21*x + t22*y) for (x, y) in polygon])
+        return tuple((t11*x + t12*y, t21*x + t22*y) for (x, y) in polygon)
 
     def _drawturtle(self):
         """Manages the correct rendering of the turtle with respect to
@@ -3526,7 +3526,7 @@ class RawTurtle(TPen, TNavigator):
         Arguments:
         fun --  a function with two arguments, to which will be assigned
                 the coordinates of the clicked point on the canvas.
-        num --  number of the mouse-button defaults to 1 (left mouse button).
+        btn --  number of the mouse-button defaults to 1 (left mouse button).
         add --  True or False. If True, new binding will be added, otherwise
                 it will replace a former binding.
 
@@ -3547,7 +3547,7 @@ class RawTurtle(TPen, TNavigator):
         Arguments:
         fun -- a function with two arguments, to which will be assigned
                 the coordinates of the clicked point on the canvas.
-        num --  number of the mouse-button defaults to 1 (left mouse button).
+        btn --  number of the mouse-button defaults to 1 (left mouse button).
 
         Example (for a MyTurtle instance named joe):
         >>> class MyTurtle(Turtle):
@@ -3572,7 +3572,7 @@ class RawTurtle(TPen, TNavigator):
         Arguments:
         fun -- a function with two arguments, to which will be assigned
                the coordinates of the clicked point on the canvas.
-        num -- number of the mouse-button defaults to 1 (left mouse button).
+        btn -- number of the mouse-button defaults to 1 (left mouse button).
 
         Every sequence of mouse-move-events on a turtle is preceded by a
         mouse-click event on that turtle.
@@ -3839,8 +3839,8 @@ def write_docstringdict(filename="turtle_docstringdict"):
         docsdict[key] = eval(key).__doc__
 
     with open("%s.py" % filename,"w") as f:
-        keys = sorted([x for x in docsdict.keys()
-                            if x.split('.')[1] not in _alias_list])
+        keys = sorted(x for x in docsdict
+                      if x.split('.')[1] not in _alias_list)
         f.write('docsdict = {\n\n')
         for key in keys[:-1]:
             f.write('%s :\n' % repr(key))
@@ -3865,7 +3865,7 @@ def read_docstrings(lang):
         try:
 #            eval(key).im_func.__doc__ = docsdict[key]
             eval(key).__doc__ = docsdict[key]
-        except:
+        except Exception:
             print("Bad docstring-entry: %s" % key)
 
 _LANGUAGE = _CFG["language"]
@@ -3875,7 +3875,7 @@ try:
         read_docstrings(_LANGUAGE)
 except ImportError:
     print("Cannot find docsdict for", _LANGUAGE)
-except:
+except Exception:
     print ("Unknown Error when trying to import %s-docstring-dictionary" %
                                                                   _LANGUAGE)
 

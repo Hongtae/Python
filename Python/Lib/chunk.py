@@ -21,7 +21,7 @@ Usually an IFF-type file consists of one or more chunks.  The proposed
 usage of the Chunk class defined here is to instantiate an instance at
 the start of each chunk and read from the instance until it reaches
 the end, after which a new instance can be instantiated.  At the end
-of the file, creating a new instance will fail with a EOFError
+of the file, creating a new instance will fail with an EOFError
 exception.
 
 Usage:
@@ -64,7 +64,7 @@ class Chunk:
         try:
             self.chunksize = struct.unpack_from(strflag+'L', file.read(4))[0]
         except struct.error:
-            raise EOFError
+            raise EOFError from None
         if inclheader:
             self.chunksize = self.chunksize - 8 # subtract header
         self.size_read = 0

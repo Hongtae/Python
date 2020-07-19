@@ -1,6 +1,9 @@
 /* Iterator objects */
 
 #include "Python.h"
+#include "pycore_object.h"
+#include "pycore_pymem.h"
+#include "pycore_pystate.h"
 
 typedef struct {
     PyObject_HEAD
@@ -69,14 +72,14 @@ iter_iternext(PyObject *iterator)
         PyErr_ExceptionMatches(PyExc_StopIteration))
     {
         PyErr_Clear();
-        Py_DECREF(seq);
         it->it_seq = NULL;
+        Py_DECREF(seq);
     }
     return NULL;
 }
 
 static PyObject *
-iter_len(seqiterobject *it)
+iter_len(seqiterobject *it, PyObject *Py_UNUSED(ignored))
 {
     Py_ssize_t seqsize, len;
 
@@ -99,13 +102,14 @@ iter_len(seqiterobject *it)
 PyDoc_STRVAR(length_hint_doc, "Private method returning an estimate of len(list(it)).");
 
 static PyObject *
-iter_reduce(seqiterobject *it)
+iter_reduce(seqiterobject *it, PyObject *Py_UNUSED(ignored))
 {
+    _Py_IDENTIFIER(iter);
     if (it->it_seq != NULL)
-        return Py_BuildValue("N(O)n", _PyObject_GetBuiltin("iter"),
+        return Py_BuildValue("N(O)n", _PyEval_GetBuiltinId(&PyId_iter),
                              it->it_seq, it->it_index);
     else
-        return Py_BuildValue("N(())", _PyObject_GetBuiltin("iter"));
+        return Py_BuildValue("N(())", _PyEval_GetBuiltinId(&PyId_iter));
 }
 
 PyDoc_STRVAR(reduce_doc, "Return state information for pickling.");
@@ -140,10 +144,10 @@ PyTypeObject PySeqIter_Type = {
     0,                                          /* tp_itemsize */
     /* methods */
     (destructor)iter_dealloc,                   /* tp_dealloc */
-    0,                                          /* tp_print */
+    0,                                          /* tp_vectorcall_offset */
     0,                                          /* tp_getattr */
     0,                                          /* tp_setattr */
-    0,                                          /* tp_reserved */
+    0,                                          /* tp_as_async */
     0,                                          /* tp_repr */
     0,                                          /* tp_as_number */
     0,                                          /* tp_as_sequence */
@@ -208,41 +212,44 @@ calliter_traverse(calliterobject *it, visitproc visit, void *arg)
 static PyObject *
 calliter_iternext(calliterobject *it)
 {
-    if (it->it_callable != NULL) {
-        PyObject *args = PyTuple_New(0);
-        PyObject *result;
-        if (args == NULL)
-            return NULL;
-        result = PyObject_Call(it->it_callable, args, NULL);
-        Py_DECREF(args);
-        if (result != NULL) {
-            int ok;
-            ok = PyObject_RichCompareBool(it->it_sentinel, result, Py_EQ);
-            if (ok == 0)
-                return result; /* Common case, fast path */
-            Py_DECREF(result);
-            if (ok > 0) {
-                Py_CLEAR(it->it_callable);
-                Py_CLEAR(it->it_sentinel);
-            }
+    PyObject *result;
+
+    if (it->it_callable == NULL) {
+        return NULL;
+    }
+
+    result = _PyObject_CallNoArg(it->it_callable);
+    if (result != NULL) {
+        int ok;
+
+        ok = PyObject_RichCompareBool(it->it_sentinel, result, Py_EQ);
+        if (ok == 0) {
+            return result; /* Common case, fast path */
         }
-        else if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-            PyErr_Clear();
+
+        Py_DECREF(result);
+        if (ok > 0) {
             Py_CLEAR(it->it_callable);
             Py_CLEAR(it->it_sentinel);
         }
+    }
+    else if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+        PyErr_Clear();
+        Py_CLEAR(it->it_callable);
+        Py_CLEAR(it->it_sentinel);
     }
     return NULL;
 }
 
 static PyObject *
-calliter_reduce(calliterobject *it)
+calliter_reduce(calliterobject *it, PyObject *Py_UNUSED(ignored))
 {
+    _Py_IDENTIFIER(iter);
     if (it->it_callable != NULL && it->it_sentinel != NULL)
-        return Py_BuildValue("N(OO)", _PyObject_GetBuiltin("iter"),
+        return Py_BuildValue("N(OO)", _PyEval_GetBuiltinId(&PyId_iter),
                              it->it_callable, it->it_sentinel);
     else
-        return Py_BuildValue("N(())", _PyObject_GetBuiltin("iter"));
+        return Py_BuildValue("N(())", _PyEval_GetBuiltinId(&PyId_iter));
 }
 
 static PyMethodDef calliter_methods[] = {
@@ -257,10 +264,10 @@ PyTypeObject PyCallIter_Type = {
     0,                                          /* tp_itemsize */
     /* methods */
     (destructor)calliter_dealloc,               /* tp_dealloc */
-    0,                                          /* tp_print */
+    0,                                          /* tp_vectorcall_offset */
     0,                                          /* tp_getattr */
     0,                                          /* tp_setattr */
-    0,                                          /* tp_reserved */
+    0,                                          /* tp_as_async */
     0,                                          /* tp_repr */
     0,                                          /* tp_as_number */
     0,                                          /* tp_as_sequence */

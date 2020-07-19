@@ -205,7 +205,11 @@ PyCField_set(CFieldObject *self, PyObject *inst, PyObject *value)
 {
     CDataObject *dst;
     char *ptr;
-    assert(CDataObject_Check(inst));
+    if (!CDataObject_Check(inst)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "not a ctype instance");
+        return -1;
+    }
     dst = (CDataObject *)inst;
     ptr = dst->b_ptr + self->offset;
     if (value == NULL) {
@@ -225,7 +229,11 @@ PyCField_get(CFieldObject *self, PyObject *inst, PyTypeObject *type)
         Py_INCREF(self);
         return (PyObject *)self;
     }
-    assert(CDataObject_Check(inst));
+    if (!CDataObject_Check(inst)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "not a ctype instance");
+        return NULL;
+    }
     src = (CDataObject *)inst;
     return PyCData_get(self->proto, self->getfunc, inst,
                      self->index, self->size, src->b_ptr + self->offset);
@@ -297,10 +305,10 @@ PyTypeObject PyCField_Type = {
     sizeof(CFieldObject),                       /* tp_basicsize */
     0,                                          /* tp_itemsize */
     PyCField_dealloc,                                   /* tp_dealloc */
-    0,                                          /* tp_print */
+    0,                                          /* tp_vectorcall_offset */
     0,                                          /* tp_getattr */
     0,                                          /* tp_setattr */
-    0,                                          /* tp_reserved */
+    0,                                          /* tp_as_async */
     (reprfunc)PyCField_repr,                            /* tp_repr */
     0,                                          /* tp_as_number */
     0,                                          /* tp_as_sequence */
@@ -379,14 +387,12 @@ get_ulong(PyObject *v, unsigned long *p)
     return 0;
 }
 
-#ifdef HAVE_LONG_LONG
-
 /* Same, but handling native long long. */
 
 static int
-get_longlong(PyObject *v, PY_LONG_LONG *p)
+get_longlong(PyObject *v, long long *p)
 {
-    PY_LONG_LONG x;
+    long long x;
     if (PyFloat_Check(v)) {
         PyErr_SetString(PyExc_TypeError,
                         "int expected instead of float");
@@ -402,22 +408,20 @@ get_longlong(PyObject *v, PY_LONG_LONG *p)
 /* Same, but handling native unsigned long long. */
 
 static int
-get_ulonglong(PyObject *v, unsigned PY_LONG_LONG *p)
+get_ulonglong(PyObject *v, unsigned long long *p)
 {
-    unsigned PY_LONG_LONG x;
+    unsigned long long x;
     if (PyFloat_Check(v)) {
         PyErr_SetString(PyExc_TypeError,
                         "int expected instead of float");
         return -1;
     }
     x = PyLong_AsUnsignedLongLongMask(v);
-    if (x == (unsigned PY_LONG_LONG)-1 && PyErr_Occurred())
+    if (x == (unsigned long long)-1 && PyErr_Occurred())
         return -1;
     *p = x;
     return 0;
 }
-
-#endif
 
 /*****************************************************************
  * Integer fields, with bitfield support
@@ -502,7 +506,7 @@ get_ulonglong(PyObject *v, unsigned PY_LONG_LONG *p)
 #ifdef _CTYPES_DEBUG_KEEP
 #define _RET(x) Py_INCREF(x); return x
 #else
-#define _RET(X) Py_INCREF(Py_None); return Py_None
+#define _RET(X) Py_RETURN_NONE
 #endif
 
 /*****************************************************************
@@ -715,14 +719,6 @@ vBOOL_get(void *ptr, Py_ssize_t size)
 }
 #endif
 
-#ifdef HAVE_C99_BOOL
-#define BOOL_TYPE _Bool
-#else
-#define BOOL_TYPE char
-#undef SIZEOF__BOOL
-#define SIZEOF__BOOL 1
-#endif
-
 static PyObject *
 bool_set(void *ptr, PyObject *value, Py_ssize_t size)
 {
@@ -730,10 +726,10 @@ bool_set(void *ptr, PyObject *value, Py_ssize_t size)
     case -1:
         return NULL;
     case 0:
-        *(BOOL_TYPE *)ptr = 0;
+        *(_Bool *)ptr = 0;
         _RET(value);
     default:
-        *(BOOL_TYPE *)ptr = 1;
+        *(_Bool *)ptr = 1;
         _RET(value);
     }
 }
@@ -741,7 +737,7 @@ bool_set(void *ptr, PyObject *value, Py_ssize_t size)
 static PyObject *
 bool_get(void *ptr, Py_ssize_t size)
 {
-    return PyBool_FromLong((long)*(BOOL_TYPE *)ptr);
+    return PyBool_FromLong((long)*(_Bool *)ptr);
 }
 
 static PyObject *
@@ -888,16 +884,15 @@ L_get_sw(void *ptr, Py_ssize_t size)
     return PyLong_FromUnsignedLong(val);
 }
 
-#ifdef HAVE_LONG_LONG
 static PyObject *
 q_set(void *ptr, PyObject *value, Py_ssize_t size)
 {
-    PY_LONG_LONG val;
-    PY_LONG_LONG x;
+    long long val;
+    long long x;
     if (get_longlong(value, &val) < 0)
         return NULL;
     memcpy(&x, ptr, sizeof(x));
-    x = SET(PY_LONG_LONG, x, val, size);
+    x = SET(long long, x, val, size);
     memcpy(ptr, &x, sizeof(x));
     _RET(value);
 }
@@ -905,13 +900,13 @@ q_set(void *ptr, PyObject *value, Py_ssize_t size)
 static PyObject *
 q_set_sw(void *ptr, PyObject *value, Py_ssize_t size)
 {
-    PY_LONG_LONG val;
-    PY_LONG_LONG field;
+    long long val;
+    long long field;
     if (get_longlong(value, &val) < 0)
         return NULL;
     memcpy(&field, ptr, sizeof(field));
     field = SWAP_8(field);
-    field = SET(PY_LONG_LONG, field, val, size);
+    field = SET(long long, field, val, size);
     field = SWAP_8(field);
     memcpy(ptr, &field, sizeof(field));
     _RET(value);
@@ -920,7 +915,7 @@ q_set_sw(void *ptr, PyObject *value, Py_ssize_t size)
 static PyObject *
 q_get(void *ptr, Py_ssize_t size)
 {
-    PY_LONG_LONG val;
+    long long val;
     memcpy(&val, ptr, sizeof(val));
     GET_BITFIELD(val, size);
     return PyLong_FromLongLong(val);
@@ -929,7 +924,7 @@ q_get(void *ptr, Py_ssize_t size)
 static PyObject *
 q_get_sw(void *ptr, Py_ssize_t size)
 {
-    PY_LONG_LONG val;
+    long long val;
     memcpy(&val, ptr, sizeof(val));
     val = SWAP_8(val);
     GET_BITFIELD(val, size);
@@ -939,12 +934,12 @@ q_get_sw(void *ptr, Py_ssize_t size)
 static PyObject *
 Q_set(void *ptr, PyObject *value, Py_ssize_t size)
 {
-    unsigned PY_LONG_LONG val;
-    unsigned PY_LONG_LONG x;
+    unsigned long long val;
+    unsigned long long x;
     if (get_ulonglong(value, &val) < 0)
         return NULL;
     memcpy(&x, ptr, sizeof(x));
-    x = SET(PY_LONG_LONG, x, val, size);
+    x = SET(long long, x, val, size);
     memcpy(ptr, &x, sizeof(x));
     _RET(value);
 }
@@ -952,13 +947,13 @@ Q_set(void *ptr, PyObject *value, Py_ssize_t size)
 static PyObject *
 Q_set_sw(void *ptr, PyObject *value, Py_ssize_t size)
 {
-    unsigned PY_LONG_LONG val;
-    unsigned PY_LONG_LONG field;
+    unsigned long long val;
+    unsigned long long field;
     if (get_ulonglong(value, &val) < 0)
         return NULL;
     memcpy(&field, ptr, sizeof(field));
     field = SWAP_8(field);
-    field = SET(unsigned PY_LONG_LONG, field, val, size);
+    field = SET(unsigned long long, field, val, size);
     field = SWAP_8(field);
     memcpy(ptr, &field, sizeof(field));
     _RET(value);
@@ -967,7 +962,7 @@ Q_set_sw(void *ptr, PyObject *value, Py_ssize_t size)
 static PyObject *
 Q_get(void *ptr, Py_ssize_t size)
 {
-    unsigned PY_LONG_LONG val;
+    unsigned long long val;
     memcpy(&val, ptr, sizeof(val));
     GET_BITFIELD(val, size);
     return PyLong_FromUnsignedLongLong(val);
@@ -976,13 +971,12 @@ Q_get(void *ptr, Py_ssize_t size)
 static PyObject *
 Q_get_sw(void *ptr, Py_ssize_t size)
 {
-    unsigned PY_LONG_LONG val;
+    unsigned long long val;
     memcpy(&val, ptr, sizeof(val));
     val = SWAP_8(val);
     GET_BITFIELD(val, size);
     return PyLong_FromUnsignedLongLong(val);
 }
-#endif
 
 /*****************************************************************
  * non-integer accessor methods, not supporting bit fields
@@ -1153,7 +1147,7 @@ c_set(void *ptr, PyObject *value, Py_ssize_t size)
     }
     if (PyLong_Check(value))
     {
-        long longval = PyLong_AS_LONG(value);
+        long longval = PyLong_AsLong(value);
         if (longval < 0 || longval >= 256)
             goto error;
         *(char *)ptr = (char)longval;
@@ -1235,9 +1229,6 @@ U_get(void *ptr, Py_ssize_t size)
 static PyObject *
 U_set(void *ptr, PyObject *value, Py_ssize_t length)
 {
-    Py_UNICODE *wstr;
-    Py_ssize_t size;
-
     /* It's easier to calculate in characters than in bytes */
     length /= sizeof(wchar_t);
 
@@ -1246,17 +1237,20 @@ U_set(void *ptr, PyObject *value, Py_ssize_t length)
                         "unicode string expected instead of %s instance",
                         value->ob_type->tp_name);
         return NULL;
-    } else
-        Py_INCREF(value);
+    }
 
-    wstr = PyUnicode_AsUnicodeAndSize(value, &size);
-    if (wstr == NULL)
+    Py_ssize_t size = PyUnicode_AsWideChar(value, NULL, 0);
+    if (size < 0) {
         return NULL;
+    }
+    // PyUnicode_AsWideChar() returns number of wchars including trailing null byte,
+    // when it is called with NULL.
+    size--;
+    assert(size >= 0);
     if (size > length) {
         PyErr_Format(PyExc_ValueError,
                      "string too long (%zd, maximum length %zd)",
                      size, length);
-        Py_DECREF(value);
         return NULL;
     } else if (size < length-1)
         /* copy terminating NUL character if there is space */
@@ -1266,6 +1260,7 @@ U_set(void *ptr, PyObject *value, Py_ssize_t length)
         return NULL;
     }
 
+    Py_INCREF(value);
     return value;
 }
 
@@ -1292,9 +1287,7 @@ s_set(void *ptr, PyObject *value, Py_ssize_t length)
     char *data;
     Py_ssize_t size;
 
-    if(PyBytes_Check(value)) {
-        Py_INCREF(value);
-    } else {
+    if(!PyBytes_Check(value)) {
         PyErr_Format(PyExc_TypeError,
                      "expected bytes, %s found",
                      value->ob_type->tp_name);
@@ -1302,11 +1295,9 @@ s_set(void *ptr, PyObject *value, Py_ssize_t length)
     }
 
     data = PyBytes_AS_STRING(value);
-    if (!data)
-        return NULL;
     size = strlen(data); /* XXX Why not Py_SIZE(value)? */
     if (size < length) {
-        /* This will copy the leading NUL character
+        /* This will copy the terminating NUL character
          * if there is space for it.
          */
         ++size;
@@ -1314,13 +1305,11 @@ s_set(void *ptr, PyObject *value, Py_ssize_t length)
         PyErr_Format(PyExc_ValueError,
                      "bytes too long (%zd, maximum length %zd)",
                      size, length);
-        Py_DECREF(value);
         return NULL;
     }
     /* Also copy the terminating NUL character if there is space */
     memcpy((char *)ptr, data, size);
 
-    Py_DECREF(value);
     _RET(value);
 }
 
@@ -1358,8 +1347,7 @@ z_get(void *ptr, Py_ssize_t size)
         return PyBytes_FromStringAndSize(*(char **)ptr,
                                          strlen(*(char **)ptr));
     } else {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 }
 
@@ -1375,14 +1363,13 @@ Z_set(void *ptr, PyObject *value, Py_ssize_t size)
         Py_INCREF(value);
         return value;
     }
-    if (PyLong_Check(value) || PyLong_Check(value)) {
+    if (PyLong_Check(value)) {
 #if SIZEOF_VOID_P == SIZEOF_LONG_LONG
         *(wchar_t **)ptr = (wchar_t *)PyLong_AsUnsignedLongLongMask(value);
 #else
         *(wchar_t **)ptr = (wchar_t *)PyLong_AsUnsignedLongMask(value);
 #endif
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     if (!PyUnicode_Check(value)) {
         PyErr_Format(PyExc_TypeError,
@@ -1413,8 +1400,7 @@ Z_get(void *ptr, Py_ssize_t size)
     if (p) {
         return PyUnicode_FromWideChar(p, wcslen(p));
     } else {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 }
 #endif
@@ -1428,9 +1414,7 @@ BSTR_set(void *ptr, PyObject *value, Py_ssize_t size)
     /* convert value into a PyUnicodeObject or NULL */
     if (Py_None == value) {
         value = NULL;
-    } else if (PyUnicode_Check(value)) {
-        Py_INCREF(value); /* for the descref below */
-    } else {
+    } else if (!PyUnicode_Check(value)) {
         PyErr_Format(PyExc_TypeError,
                         "unicode string expected instead of %s instance",
                         value->ob_type->tp_name);
@@ -1439,17 +1423,18 @@ BSTR_set(void *ptr, PyObject *value, Py_ssize_t size)
 
     /* create a BSTR from value */
     if (value) {
-        wchar_t* wvalue;
         Py_ssize_t wsize;
-        wvalue = PyUnicode_AsUnicodeAndSize(value, &wsize);
-        if (wvalue == NULL)
+        wchar_t *wvalue = PyUnicode_AsWideCharString(value, &wsize);
+        if (wvalue == NULL) {
             return NULL;
+        }
         if ((unsigned) wsize != wsize) {
             PyErr_SetString(PyExc_ValueError, "String too long for BSTR");
+            PyMem_Free(wvalue);
             return NULL;
         }
         bstr = SysAllocStringLen(wvalue, (unsigned)wsize);
-        Py_DECREF(value);
+        PyMem_Free(wvalue);
     } else
         bstr = NULL;
 
@@ -1476,8 +1461,7 @@ BSTR_get(void *ptr, Py_ssize_t size)
         /* Hm, it seems NULL pointer and zero length string are the
            same in BSTR, see Don Box, p 81
         */
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 }
 #endif
@@ -1491,7 +1475,7 @@ P_set(void *ptr, PyObject *value, Py_ssize_t size)
         _RET(value);
     }
 
-    if (!PyLong_Check(value) && !PyLong_Check(value)) {
+    if (!PyLong_Check(value)) {
         PyErr_SetString(PyExc_TypeError,
                         "cannot be converted to pointer");
         return NULL;
@@ -1500,10 +1484,8 @@ P_set(void *ptr, PyObject *value, Py_ssize_t size)
 #if SIZEOF_VOID_P <= SIZEOF_LONG
     v = (void *)PyLong_AsUnsignedLongMask(value);
 #else
-#ifndef HAVE_LONG_LONG
-#   error "PyLong_AsVoidPtr: sizeof(void*) > sizeof(long), but no long long"
-#elif SIZEOF_LONG_LONG < SIZEOF_VOID_P
-#   error "PyLong_AsVoidPtr: sizeof(PY_LONG_LONG) < sizeof(void*)"
+#if SIZEOF_LONG_LONG < SIZEOF_VOID_P
+#   error "PyLong_AsVoidPtr: sizeof(long long) < sizeof(void*)"
 #endif
     v = (void *)PyLong_AsUnsignedLongLongMask(value);
 #endif
@@ -1519,8 +1501,7 @@ static PyObject *
 P_get(void *ptr, Py_ssize_t size)
 {
     if (*(void **)ptr == NULL) {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     return PyLong_FromVoidPtr(*(void **)ptr);
 }
@@ -1548,13 +1529,11 @@ static struct fielddesc formattable[] = {
 #else
 # error
 #endif
-#ifdef HAVE_LONG_LONG
 #if SIZEOF_LONG_LONG == 8
     { 'q', q_set, q_get, &ffi_type_sint64, q_set_sw, q_get_sw},
     { 'Q', Q_set, Q_get, &ffi_type_uint64, Q_set_sw, Q_get_sw},
 #else
 # error
-#endif
 #endif
     { 'P', P_set, P_get, &ffi_type_pointer},
     { 'z', z_set, z_get, &ffi_type_pointer},
@@ -1645,10 +1624,8 @@ typedef struct { char c; wchar_t *x; } s_wchar_p;
 #endif
 */
 
-#ifdef HAVE_LONG_LONG
-typedef struct { char c; PY_LONG_LONG x; } s_long_long;
-#define LONG_LONG_ALIGN (sizeof(s_long_long) - sizeof(PY_LONG_LONG))
-#endif
+typedef struct { char c; long long x; } s_long_long;
+#define LONG_LONG_ALIGN (sizeof(s_long_long) - sizeof(long long))
 
 /* from ffi.h:
 typedef struct _ffi_type

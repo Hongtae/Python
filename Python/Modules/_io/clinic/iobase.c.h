@@ -66,7 +66,7 @@ PyDoc_STRVAR(_io__IOBase_seekable__doc__,
 "\n"
 "Return whether object supports random access.\n"
 "\n"
-"If False, seek(), tell() and truncate() will raise UnsupportedOperation.\n"
+"If False, seek(), tell() and truncate() will raise OSError.\n"
 "This method may need to do a test seek().");
 
 #define _IO__IOBASE_SEEKABLE_METHODDEF    \
@@ -87,7 +87,7 @@ PyDoc_STRVAR(_io__IOBase_readable__doc__,
 "\n"
 "Return whether object was opened for reading.\n"
 "\n"
-"If False, read() will raise UnsupportedOperation.");
+"If False, read() will raise OSError.");
 
 #define _IO__IOBASE_READABLE_METHODDEF    \
     {"readable", (PyCFunction)_io__IOBase_readable, METH_NOARGS, _io__IOBase_readable__doc__},
@@ -107,7 +107,7 @@ PyDoc_STRVAR(_io__IOBase_writable__doc__,
 "\n"
 "Return whether object was opened for writing.\n"
 "\n"
-"If False, write() will raise UnsupportedOperation.");
+"If False, write() will raise OSError.");
 
 #define _IO__IOBASE_WRITABLE_METHODDEF    \
     {"writable", (PyCFunction)_io__IOBase_writable, METH_NOARGS, _io__IOBase_writable__doc__},
@@ -127,7 +127,7 @@ PyDoc_STRVAR(_io__IOBase_fileno__doc__,
 "\n"
 "Returns underlying file descriptor if one exists.\n"
 "\n"
-"An IOError is raised if the IO object does not use a file descriptor.");
+"OSError is raised if the IO object does not use a file descriptor.");
 
 #define _IO__IOBASE_FILENO_METHODDEF    \
     {"fileno", (PyCFunction)_io__IOBase_fileno, METH_NOARGS, _io__IOBase_fileno__doc__},
@@ -174,20 +174,27 @@ PyDoc_STRVAR(_io__IOBase_readline__doc__,
 "terminator(s) recognized.");
 
 #define _IO__IOBASE_READLINE_METHODDEF    \
-    {"readline", (PyCFunction)_io__IOBase_readline, METH_VARARGS, _io__IOBase_readline__doc__},
+    {"readline", (PyCFunction)(void(*)(void))_io__IOBase_readline, METH_FASTCALL, _io__IOBase_readline__doc__},
 
 static PyObject *
 _io__IOBase_readline_impl(PyObject *self, Py_ssize_t limit);
 
 static PyObject *
-_io__IOBase_readline(PyObject *self, PyObject *args)
+_io__IOBase_readline(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     PyObject *return_value = NULL;
     Py_ssize_t limit = -1;
 
-    if (!PyArg_ParseTuple(args, "|O&:readline",
-        _PyIO_ConvertSsize_t, &limit))
+    if (!_PyArg_CheckPositional("readline", nargs, 0, 1)) {
         goto exit;
+    }
+    if (nargs < 1) {
+        goto skip_optional;
+    }
+    if (!_Py_convert_optional_to_ssize_t(args[0], &limit)) {
+        goto exit;
+    }
+skip_optional:
     return_value = _io__IOBase_readline_impl(self, limit);
 
 exit:
@@ -205,20 +212,27 @@ PyDoc_STRVAR(_io__IOBase_readlines__doc__,
 "lines so far exceeds hint.");
 
 #define _IO__IOBASE_READLINES_METHODDEF    \
-    {"readlines", (PyCFunction)_io__IOBase_readlines, METH_VARARGS, _io__IOBase_readlines__doc__},
+    {"readlines", (PyCFunction)(void(*)(void))_io__IOBase_readlines, METH_FASTCALL, _io__IOBase_readlines__doc__},
 
 static PyObject *
 _io__IOBase_readlines_impl(PyObject *self, Py_ssize_t hint);
 
 static PyObject *
-_io__IOBase_readlines(PyObject *self, PyObject *args)
+_io__IOBase_readlines(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     PyObject *return_value = NULL;
     Py_ssize_t hint = -1;
 
-    if (!PyArg_ParseTuple(args, "|O&:readlines",
-        _PyIO_ConvertSsize_t, &hint))
+    if (!_PyArg_CheckPositional("readlines", nargs, 0, 1)) {
         goto exit;
+    }
+    if (nargs < 1) {
+        goto skip_optional;
+    }
+    if (!_Py_convert_optional_to_ssize_t(args[0], &hint)) {
+        goto exit;
+    }
+skip_optional:
     return_value = _io__IOBase_readlines_impl(self, hint);
 
 exit:
@@ -228,7 +242,11 @@ exit:
 PyDoc_STRVAR(_io__IOBase_writelines__doc__,
 "writelines($self, lines, /)\n"
 "--\n"
-"\n");
+"\n"
+"Write a list of lines to stream.\n"
+"\n"
+"Line separators are not added, so it is usual for each of the\n"
+"lines provided to have a line separator at the end.");
 
 #define _IO__IOBASE_WRITELINES_METHODDEF    \
     {"writelines", (PyCFunction)_io__IOBase_writelines, METH_O, _io__IOBase_writelines__doc__},
@@ -239,20 +257,41 @@ PyDoc_STRVAR(_io__RawIOBase_read__doc__,
 "\n");
 
 #define _IO__RAWIOBASE_READ_METHODDEF    \
-    {"read", (PyCFunction)_io__RawIOBase_read, METH_VARARGS, _io__RawIOBase_read__doc__},
+    {"read", (PyCFunction)(void(*)(void))_io__RawIOBase_read, METH_FASTCALL, _io__RawIOBase_read__doc__},
 
 static PyObject *
 _io__RawIOBase_read_impl(PyObject *self, Py_ssize_t n);
 
 static PyObject *
-_io__RawIOBase_read(PyObject *self, PyObject *args)
+_io__RawIOBase_read(PyObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     PyObject *return_value = NULL;
     Py_ssize_t n = -1;
 
-    if (!PyArg_ParseTuple(args, "|n:read",
-        &n))
+    if (!_PyArg_CheckPositional("read", nargs, 0, 1)) {
         goto exit;
+    }
+    if (nargs < 1) {
+        goto skip_optional;
+    }
+    if (PyFloat_Check(args[0])) {
+        PyErr_SetString(PyExc_TypeError,
+                        "integer argument expected, got float" );
+        goto exit;
+    }
+    {
+        Py_ssize_t ival = -1;
+        PyObject *iobj = PyNumber_Index(args[0]);
+        if (iobj != NULL) {
+            ival = PyLong_AsSsize_t(iobj);
+            Py_DECREF(iobj);
+        }
+        if (ival == -1 && PyErr_Occurred()) {
+            goto exit;
+        }
+        n = ival;
+    }
+skip_optional:
     return_value = _io__RawIOBase_read_impl(self, n);
 
 exit:
@@ -276,4 +315,4 @@ _io__RawIOBase_readall(PyObject *self, PyObject *Py_UNUSED(ignored))
 {
     return _io__RawIOBase_readall_impl(self);
 }
-/*[clinic end generated code: output=fe034152b6884e65 input=a9049054013a1b77]*/
+/*[clinic end generated code: output=61b6ea7153ef9940 input=a9049054013a1b77]*/

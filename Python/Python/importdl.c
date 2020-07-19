@@ -23,8 +23,8 @@ extern dl_funcptr _PyImport_FindSharedFuncptr(const char *prefix,
                                               const char *pathname, FILE *fp);
 #endif
 
-static const char *ascii_only_prefix = "PyInit";
-static const char *nonascii_prefix = "PyInitU";
+static const char * const ascii_only_prefix = "PyInit";
+static const char * const nonascii_prefix = "PyInitU";
 
 /* Get the variable part of a module's export symbol name.
  * Returns a bytes instance. For non-ASCII-named modules, the name is
@@ -94,7 +94,7 @@ _PyImport_LoadDynamicModuleWithSpec(PyObject *spec, FILE *fp)
 #endif
     PyObject *name_unicode = NULL, *name = NULL, *path = NULL, *m = NULL;
     const char *name_buf, *hook_prefix;
-    char *oldcontext;
+    const char *oldcontext;
     dl_funcptr exportfunc;
     PyModuleDef *def;
     PyObject *(*p0)(void);
@@ -102,6 +102,11 @@ _PyImport_LoadDynamicModuleWithSpec(PyObject *spec, FILE *fp)
     name_unicode = PyObject_GetAttrString(spec, "name");
     if (name_unicode == NULL) {
         return NULL;
+    }
+    if (!PyUnicode_Check(name_unicode)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "spec.name must be a string");
+        goto error;
     }
 
     name = get_encoded_name(name_unicode, &hook_prefix);
@@ -113,6 +118,11 @@ _PyImport_LoadDynamicModuleWithSpec(PyObject *spec, FILE *fp)
     path = PyObject_GetAttrString(spec, "origin");
     if (path == NULL)
         goto error;
+
+    if (PySys_Audit("import", "OOOOO", name_unicode, path,
+                    Py_None, Py_None, Py_None) < 0) {
+        return NULL;
+    }
 
 #ifdef MS_WINDOWS
     exportfunc = _PyImport_FindSharedFuncptrWindows(hook_prefix, name_buf,
@@ -147,6 +157,10 @@ _PyImport_LoadDynamicModuleWithSpec(PyObject *spec, FILE *fp)
     /* Package context is needed for single-phase init */
     oldcontext = _Py_PackageContext;
     _Py_PackageContext = PyUnicode_AsUTF8(name_unicode);
+    if (_Py_PackageContext == NULL) {
+        _Py_PackageContext = oldcontext;
+        goto error;
+    }
     m = p0();
     _Py_PackageContext = oldcontext;
 
@@ -211,7 +225,8 @@ _PyImport_LoadDynamicModuleWithSpec(PyObject *spec, FILE *fp)
     else
         Py_INCREF(path);
 
-    if (_PyImport_FixupExtensionObject(m, name_unicode, path) < 0)
+    PyObject *modules = PyImport_GetModuleDict();
+    if (_PyImport_FixupExtensionObject(m, name_unicode, path, modules) < 0)
         goto error;
 
     Py_DECREF(name_unicode);

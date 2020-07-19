@@ -17,7 +17,7 @@
 # Setup files after a -n option are used for their variables, modules
 # and libraries but not for their .o files.
 #
-# See Setup.dist for a description of the format of the Setup file.
+# See Setup for a description of the format of the Setup file.
 #
 # The following edits are made:
 #
@@ -29,6 +29,9 @@
 #
 # Copying Makefile.pre to Makefile:
 # - insert an identifying comment at the start
+# - replace _MODBUILT_NAMES_ by the list of *static* and *shared* modules
+#   from Setup
+# - replace _MODDISABLED_NAMES_ by the list of *disabled* modules from Setup
 # - replace _MODOBJS_ by the list of objects from Setup (except for
 #   Setup files after a -n option)
 # - replace _MODLIBS_ by the list of libraries from Setup
@@ -82,7 +85,7 @@ esac
 NL='\
 '
 
-# Setup to link with extra libraries when makeing shared extensions.
+# Setup to link with extra libraries when making shared extensions.
 # Currently, only Cygwin needs this baggage.
 case `uname -s` in
 CYGWIN*) if test $libdir = .
@@ -91,7 +94,7 @@ CYGWIN*) if test $libdir = .
 	 else
 	 	ExtraLibDir='$(LIBPL)'
 	 fi
-	 ExtraLibs="-L$ExtraLibDir -lpython\$(VERSION)";;
+	 ExtraLibs="-L$ExtraLibDir -lpython\$(LDVERSION)";;
 esac
 
 # Main loop
@@ -107,9 +110,11 @@ sed -e 's/[ 	]*#.*//' -e '/^[ 	]*$/d' |
 	rulesf="@rules.$$"
 	trap 'rm -f $rulesf' 0 1 2 3
 	echo "
-# Rules appended by makedepend
+# Rules appended by makesetup
 " >$rulesf
 	DEFS=
+	BUILT=
+	DISABLED=
 	MODS=
 	SHAREDMODS=
 	OBJS=
@@ -141,6 +146,7 @@ sed -e 's/[ 	]*#.*//' -e '/^[ 	]*$/d' |
 		'*static*')	doconfig=yes; continue;;
 		'*noconfig*')	doconfig=no; continue;;
 		'*shared*')	doconfig=no; continue;;
+		'*disabled*')	doconfig=disabled; continue;;
 		esac
 		srcs=
 		cpps=
@@ -190,6 +196,14 @@ sed -e 's/[ 	]*#.*//' -e '/^[ 	]*$/d' |
 		yes)
 			LIBS="$LIBS $libs"
 			MODS="$MODS $mods"
+			BUILT="$BUILT $mods"
+			;;
+		no)
+			BUILT="$BUILT $mods"
+			;;
+		disabled)
+			DISABLED="$DISABLED $mods"
+			continue
 			;;
 		esac
 		case $noobjects in
@@ -219,7 +233,7 @@ sed -e 's/[ 	]*#.*//' -e '/^[ 	]*$/d' |
 			case $doconfig in
 			no)	cc="$cc \$(CCSHARED) \$(PY_CFLAGS) \$(PY_CPPFLAGS)";;
 			*)
-				cc="$cc \$(PY_CORE_CFLAGS)";;
+				cc="$cc \$(PY_BUILTIN_MODULE_CFLAGS)";;
 			esac
 			rule="$obj: $src; $cc $cpps -c $src -o $obj"
 			echo "$rule" >>$rulesf
@@ -257,7 +271,7 @@ sed -e 's/[ 	]*#.*//' -e '/^[ 	]*$/d' |
 	for mod in $MODS
 	do
 		EXTDECLS="${EXTDECLS}extern PyObject* PyInit_$mod(void);$NL"
-		INITBITS="${INITBITS}	{\"$mod\", PyInit_$mod},$NL"
+		INITBITS="${INITBITS}    {\"$mod\", PyInit_$mod},$NL"
 	done
 
 
@@ -280,6 +294,8 @@ sed -e 's/[ 	]*#.*//' -e '/^[ 	]*$/d' |
 		echo "1i\\" >$sedf
 		str="# Generated automatically from $makepre by makesetup."
 		echo "$str" >>$sedf
+		echo "s%_MODBUILT_NAMES_%$BUILT%" >>$sedf
+		echo "s%_MODDISABLED_NAMES_%$DISABLED%" >>$sedf
 		echo "s%_MODOBJS_%$OBJS%" >>$sedf
 		echo "s%_MODLIBS_%$LIBS%" >>$sedf
 		echo "/Definitions added by makesetup/a$NL$NL$DEFS" >>$sedf

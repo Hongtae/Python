@@ -1,6 +1,6 @@
 """
 Python unit testing framework, based on Erich Gamma's JUnit and Kent Beck's
-Smalltalk testing framework.
+Smalltalk testing framework (used with permission).
 
 This module contains the core framework classes that form the basis of
 specific test cases and suites (TestCase, TestSuite etc.), and also a
@@ -12,7 +12,7 @@ Simple usage:
     import unittest
 
     class IntegerArithmeticTestCase(unittest.TestCase):
-        def testAdd(self):  ## test method names begin 'test*'
+        def testAdd(self):  # test method names begin with 'test'
             self.assertEqual((1 + 2), 3)
             self.assertEqual(0 + 1, 1)
         def testMultiply(self):
@@ -44,11 +44,12 @@ AND THERE IS NO OBLIGATION WHATSOEVER TO PROVIDE MAINTENANCE,
 SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-__all__ = ['TestResult', 'TestCase', 'TestSuite',
+__all__ = ['TestResult', 'TestCase', 'IsolatedAsyncioTestCase', 'TestSuite',
            'TextTestRunner', 'TestLoader', 'FunctionTestCase', 'main',
            'defaultTestLoader', 'SkipTest', 'skip', 'skipIf', 'skipUnless',
            'expectedFailure', 'TextTestResult', 'installHandler',
-           'registerResult', 'removeResult', 'removeHandler']
+           'registerResult', 'removeResult', 'removeHandler',
+           'addModuleCleanup']
 
 # Expose obsolete functions for backwards compatibility
 __all__.extend(['getTestCaseNames', 'makeSuite', 'findTestCases'])
@@ -56,8 +57,9 @@ __all__.extend(['getTestCaseNames', 'makeSuite', 'findTestCases'])
 __unittest = True
 
 from .result import TestResult
-from .case import (TestCase, FunctionTestCase, SkipTest, skip, skipIf,
-                   skipUnless, expectedFailure)
+from .async_case import IsolatedAsyncioTestCase
+from .case import (addModuleCleanup, TestCase, FunctionTestCase, SkipTest, skip,
+                   skipIf, skipUnless, expectedFailure)
 from .suite import BaseTestSuite, TestSuite
 from .loader import (TestLoader, defaultTestLoader, makeSuite, getTestCaseNames,
                      findTestCases)

@@ -11,6 +11,8 @@ import gc
 import weakref
 import array
 import io
+import copy
+import pickle
 
 
 class AbstractMemoryTests:
@@ -360,6 +362,17 @@ class AbstractMemoryTests:
             self.assertEqual(list(reversed(m)), aslist)
             self.assertEqual(list(reversed(m)), list(m[::-1]))
 
+    def test_toreadonly(self):
+        for tp in self._types:
+            b = tp(self._source)
+            m = self._view(b)
+            mm = m.toreadonly()
+            self.assertTrue(mm.readonly)
+            self.assertTrue(memoryview(mm).readonly)
+            self.assertEqual(mm.tolist(), m.tolist())
+            mm.release()
+            m.tolist()
+
     def test_issue22668(self):
         a = array.array('H', [256, 256, 256, 256])
         x = memoryview(a)
@@ -511,6 +524,24 @@ class OtherTest(unittest.TestCase):
                 m[:2] = memoryview(p6).cast(format)[:2]
                 m[2:] = memoryview(p6).cast(format)[2:]
                 self.assertEqual(d.value, 0.6)
+
+    def test_memoryview_hex(self):
+        # Issue #9951: memoryview.hex() segfaults with non-contiguous buffers.
+        x = b'0' * 200000
+        m1 = memoryview(x)
+        m2 = m1[::-1]
+        self.assertEqual(m2.hex(), '30' * 200000)
+
+    def test_copy(self):
+        m = memoryview(b'abc')
+        with self.assertRaises(TypeError):
+            copy.copy(m)
+
+    def test_pickle(self):
+        m = memoryview(b'abc')
+        for proto in range(pickle.HIGHEST_PROTOCOL + 1):
+            with self.assertRaises(TypeError):
+                pickle.dumps(m, proto)
 
 
 if __name__ == "__main__":

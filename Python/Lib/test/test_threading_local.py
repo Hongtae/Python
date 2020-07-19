@@ -1,3 +1,4 @@
+import sys
 import unittest
 from doctest import DocTestSuite
 from test import support
@@ -5,8 +6,8 @@ import weakref
 import gc
 
 # Modules under test
-_thread = support.import_module('_thread')
-threading = support.import_module('threading')
+import _thread
+import threading
 import _threading_local
 
 
@@ -189,7 +190,7 @@ class BaseLocalTest:
         wr = weakref.ref(x)
         del x
         gc.collect()
-        self.assertIs(wr(), None)
+        self.assertIsNone(wr())
 
 
 class ThreadLocalTest(unittest.TestCase, BaseLocalTest):

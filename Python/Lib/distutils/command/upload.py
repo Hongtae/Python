@@ -57,7 +57,8 @@ class upload(PyPIRCCommand):
 
     def run(self):
         if not self.distribution.dist_files:
-            msg = "No dist file created in earlier command"
+            msg = ("Must create and upload files in one command "
+                   "(e.g. setup.py sdist upload)")
             raise DistutilsOptionError(msg)
         for command, pyversion, filename in self.distribution.dist_files:
             self.upload_file(command, pyversion, filename)
@@ -91,7 +92,7 @@ class upload(PyPIRCCommand):
         data = {
             # action
             ':action': 'file_upload',
-            'protcol_version': '1',
+            'protocol_version': '1',
 
             # identify release
             'name': meta.get_name(),
@@ -120,18 +121,13 @@ class upload(PyPIRCCommand):
             'requires': meta.get_requires(),
             'obsoletes': meta.get_obsoletes(),
             }
-        comment = ''
-        if command == 'bdist_rpm':
-            dist, version, id = platform.dist()
-            if dist:
-                comment = 'built for %s %s' % (dist, version)
-        elif command == 'bdist_dumb':
-            comment = 'built for %s' % platform.platform(terse=1)
-        data['comment'] = comment
+
+        data['comment'] = ''
 
         if self.sign:
-            data['gpg_signature'] = (os.path.basename(filename) + ".asc",
-                                     open(filename+".asc", "rb").read())
+            with open(filename + ".asc", "rb") as f:
+                data['gpg_signature'] = (os.path.basename(filename) + ".asc",
+                                         f.read())
 
         # set up the authentication
         user_pass = (self.username + ":" + self.password).encode('ascii')
@@ -159,8 +155,6 @@ class upload(PyPIRCCommand):
                 body.write(title.encode('utf-8'))
                 body.write(b"\r\n\r\n")
                 body.write(value)
-                if value and value[-1:] == b'\r':
-                    body.write(b'\n')  # write an extra newline (lurve Macs)
         body.write(end_boundary)
         body = body.getvalue()
 
@@ -181,21 +175,21 @@ class upload(PyPIRCCommand):
             result = urlopen(request)
             status = result.getcode()
             reason = result.msg
-        except OSError as e:
-            self.announce(str(e), log.ERROR)
-            raise
         except HTTPError as e:
             status = e.code
             reason = e.msg
+        except OSError as e:
+            self.announce(str(e), log.ERROR)
+            raise
 
         if status == 200:
             self.announce('Server response (%s): %s' % (status, reason),
                           log.INFO)
+            if self.show_response:
+                text = self._read_pypi_response(result)
+                msg = '\n'.join(('-' * 75, text, '-' * 75))
+                self.announce(msg, log.INFO)
         else:
             msg = 'Upload failed (%s): %s' % (status, reason)
             self.announce(msg, log.ERROR)
             raise DistutilsError(msg)
-        if self.show_response:
-            text = self._read_pypi_response(result)
-            msg = '\n'.join(('-' * 75, text, '-' * 75))
-            self.announce(msg, log.INFO)

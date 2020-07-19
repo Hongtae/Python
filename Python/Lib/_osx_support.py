@@ -17,7 +17,7 @@ __all__ = [
 _UNIVERSAL_CONFIG_VARS = ('CFLAGS', 'LDFLAGS', 'CPPFLAGS', 'BASECFLAGS',
                             'BLDSHARED', 'LDSHARED', 'CC', 'CXX',
                             'PY_CFLAGS', 'PY_LDFLAGS', 'PY_CPPFLAGS',
-                            'PY_CORE_CFLAGS')
+                            'PY_CORE_CFLAGS', 'PY_CORE_LDFLAGS')
 
 # configuration variables that may contain compiler calls
 _COMPILER_CONFIG_VARS = ('BLDSHARED', 'LDSHARED', 'CC', 'CXX')
@@ -151,13 +151,13 @@ def _find_appropriate_compiler(_config_vars):
     #    can only be found inside Xcode.app if the "Command Line Tools"
     #    are not installed.
     #
-    #    Futhermore, the compiler that can be used varies between
+    #    Furthermore, the compiler that can be used varies between
     #    Xcode releases. Up to Xcode 4 it was possible to use 'gcc-4.2'
     #    as the compiler, after that 'clang' should be used because
     #    gcc-4.2 is either not present, or a copy of 'llvm-gcc' that
     #    miscompiles Python.
 
-    # skip checks if the compiler was overriden with a CC env variable
+    # skip checks if the compiler was overridden with a CC env variable
     if 'CC' in os.environ:
         return _config_vars
 
@@ -193,7 +193,7 @@ def _find_appropriate_compiler(_config_vars):
     if cc != oldcc:
         # Found a replacement compiler.
         # Modify config vars using new compiler, if not already explicitly
-        # overriden by an env variable, preserving additional arguments.
+        # overridden by an env variable, preserving additional arguments.
         for cv in _COMPILER_CONFIG_VARS:
             if cv in _config_vars and cv not in os.environ:
                 cv_split = _config_vars[cv].split()
@@ -207,11 +207,11 @@ def _remove_universal_flags(_config_vars):
     """Remove all universal build arguments from config vars"""
 
     for cv in _UNIVERSAL_CONFIG_VARS:
-        # Do not alter a config var explicitly overriden by env var
+        # Do not alter a config var explicitly overridden by env var
         if cv in _config_vars and cv not in os.environ:
             flags = _config_vars[cv]
-            flags = re.sub('-arch\s+\w+\s', ' ', flags, re.ASCII)
-            flags = re.sub('-isysroot [^ \t]*', ' ', flags)
+            flags = re.sub(r'-arch\s+\w+\s', ' ', flags, flags=re.ASCII)
+            flags = re.sub(r'-isysroot\s*\S+', ' ', flags)
             _save_modified_value(_config_vars, cv, flags)
 
     return _config_vars
@@ -228,11 +228,11 @@ def _remove_unsupported_archs(_config_vars):
     # build extensions on OSX 10.7 and later with the prebuilt
     # 32-bit installer on the python.org website.
 
-    # skip checks if the compiler was overriden with a CC env variable
+    # skip checks if the compiler was overridden with a CC env variable
     if 'CC' in os.environ:
         return _config_vars
 
-    if re.search('-arch\s+ppc', _config_vars['CFLAGS']) is not None:
+    if re.search(r'-arch\s+ppc', _config_vars['CFLAGS']) is not None:
         # NOTE: Cannot use subprocess here because of bootstrap
         # issues when building Python itself
         status = os.system(
@@ -244,14 +244,14 @@ def _remove_unsupported_archs(_config_vars):
             # across Xcode and compiler versions, there is no reliable way
             # to be sure why it failed.  Assume here it was due to lack of
             # PPC support and remove the related '-arch' flags from each
-            # config variables not explicitly overriden by an environment
+            # config variables not explicitly overridden by an environment
             # variable.  If the error was for some other reason, we hope the
             # failure will show up again when trying to compile an extension
             # module.
             for cv in _UNIVERSAL_CONFIG_VARS:
                 if cv in _config_vars and cv not in os.environ:
                     flags = _config_vars[cv]
-                    flags = re.sub('-arch\s+ppc\w*\s', ' ', flags)
+                    flags = re.sub(r'-arch\s+ppc\w*\s', ' ', flags)
                     _save_modified_value(_config_vars, cv, flags)
 
     return _config_vars
@@ -267,7 +267,7 @@ def _override_all_archs(_config_vars):
         for cv in _UNIVERSAL_CONFIG_VARS:
             if cv in _config_vars and '-arch' in _config_vars[cv]:
                 flags = _config_vars[cv]
-                flags = re.sub('-arch\s+\w+\s', ' ', flags)
+                flags = re.sub(r'-arch\s+\w+\s', ' ', flags)
                 flags = flags + ' ' + arch
                 _save_modified_value(_config_vars, cv, flags)
 
@@ -287,15 +287,15 @@ def _check_for_unavailable_sdk(_config_vars):
     # to /usr and /System/Library by either a standalone CLT
     # package or the CLT component within Xcode.
     cflags = _config_vars.get('CFLAGS', '')
-    m = re.search(r'-isysroot\s+(\S+)', cflags)
+    m = re.search(r'-isysroot\s*(\S+)', cflags)
     if m is not None:
         sdk = m.group(1)
         if not os.path.exists(sdk):
             for cv in _UNIVERSAL_CONFIG_VARS:
-                # Do not alter a config var explicitly overriden by env var
+                # Do not alter a config var explicitly overridden by env var
                 if cv in _config_vars and cv not in os.environ:
                     flags = _config_vars[cv]
-                    flags = re.sub(r'-isysroot\s+\S+(?:\s|$)', ' ', flags)
+                    flags = re.sub(r'-isysroot\s*\S+(?:\s|$)', ' ', flags)
                     _save_modified_value(_config_vars, cv, flags)
 
     return _config_vars
@@ -320,7 +320,7 @@ def compiler_fixup(compiler_so, cc_args):
         stripArch = stripSysroot = True
     else:
         stripArch = '-arch' in cc_args
-        stripSysroot = '-isysroot' in cc_args
+        stripSysroot = any(arg for arg in cc_args if arg.startswith('-isysroot'))
 
     if stripArch or 'ARCHFLAGS' in os.environ:
         while True:
@@ -338,23 +338,34 @@ def compiler_fixup(compiler_so, cc_args):
 
     if stripSysroot:
         while True:
-            try:
-                index = compiler_so.index('-isysroot')
+            indices = [i for i,x in enumerate(compiler_so) if x.startswith('-isysroot')]
+            if not indices:
+                break
+            index = indices[0]
+            if compiler_so[index] == '-isysroot':
                 # Strip this argument and the next one:
                 del compiler_so[index:index+2]
-            except ValueError:
-                break
+            else:
+                # It's '-isysroot/some/path' in one arg
+                del compiler_so[index:index+1]
 
     # Check if the SDK that is used during compilation actually exists,
     # the universal build requires the usage of a universal SDK and not all
     # users have that installed by default.
     sysroot = None
-    if '-isysroot' in cc_args:
-        idx = cc_args.index('-isysroot')
-        sysroot = cc_args[idx+1]
-    elif '-isysroot' in compiler_so:
-        idx = compiler_so.index('-isysroot')
-        sysroot = compiler_so[idx+1]
+    argvar = cc_args
+    indices = [i for i,x in enumerate(cc_args) if x.startswith('-isysroot')]
+    if not indices:
+        argvar = compiler_so
+        indices = [i for i,x in enumerate(compiler_so) if x.startswith('-isysroot')]
+
+    for idx in indices:
+        if argvar[idx] == '-isysroot':
+            sysroot = argvar[idx+1]
+            break
+        else:
+            sysroot = argvar[idx][len('-isysroot'):]
+            break
 
     if sysroot and not os.path.isdir(sysroot):
         from distutils import log
@@ -465,7 +476,7 @@ def get_platform_osx(_config_vars, osname, release, machine):
 
             machine = 'fat'
 
-            archs = re.findall('-arch\s+(\S+)', cflags)
+            archs = re.findall(r'-arch\s+(\S+)', cflags)
             archs = tuple(sorted(set(archs)))
 
             if len(archs) == 1:

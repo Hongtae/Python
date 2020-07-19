@@ -75,6 +75,7 @@ class LocaltimeTests(unittest.TestCase):
         t2 = utils.localtime(t1)
         self.assertEqual(t1, t2)
 
+    @test.support.run_with_tz('Europe/Minsk')
     def test_localtime_daylight_true_dst_true(self):
         test.support.patch(self, time, 'daylight', True)
         t0 = datetime.datetime(2012, 3, 12, 1, 1)
@@ -82,6 +83,7 @@ class LocaltimeTests(unittest.TestCase):
         t2 = utils.localtime(t1)
         self.assertEqual(t1, t2)
 
+    @test.support.run_with_tz('Europe/Minsk')
     def test_localtime_daylight_false_dst_true(self):
         test.support.patch(self, time, 'daylight', False)
         t0 = datetime.datetime(2012, 3, 12, 1, 1)
@@ -136,6 +138,9 @@ class LocaltimeTests(unittest.TestCase):
         t1 = utils.localtime(t0)
         self.assertEqual(t1.tzname(), 'EET')
 
+# Issue #24836: The timezone files are out of date (pre 2011k)
+# on Mac OS X Snow Leopard.
+@test.support.requires_mac_ver(10, 7)
 class FormatDateTests(unittest.TestCase):
 
     @test.support.run_with_tz('Europe/Minsk')

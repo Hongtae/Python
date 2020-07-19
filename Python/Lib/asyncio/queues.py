@@ -1,28 +1,20 @@
-"""Queues"""
-
-__all__ = ['Queue', 'PriorityQueue', 'LifoQueue', 'QueueFull', 'QueueEmpty']
+__all__ = ('Queue', 'PriorityQueue', 'LifoQueue', 'QueueFull', 'QueueEmpty')
 
 import collections
 import heapq
+import warnings
 
-from . import compat
 from . import events
-from . import futures
 from . import locks
-from .coroutines import coroutine
 
 
 class QueueEmpty(Exception):
-    """Exception raised when Queue.get_nowait() is called on a Queue object
-    which is empty.
-    """
+    """Raised when Queue.get_nowait() is called on an empty Queue."""
     pass
 
 
 class QueueFull(Exception):
-    """Exception raised when the Queue.put_nowait() method is called on a Queue
-    object which is full.
-    """
+    """Raised when the Queue.put_nowait() method is called on a full Queue."""
     pass
 
 
@@ -30,7 +22,7 @@ class Queue:
     """A queue, useful for coordinating producer and consumer coroutines.
 
     If maxsize is less than or equal to zero, the queue size is infinite. If it
-    is an integer greater than 0, then "yield from put()" will block when the
+    is an integer greater than 0, then "await put()" will block when the
     queue reaches maxsize, until an item is removed by get().
 
     Unlike the standard library Queue, you can reliably know this Queue's size
@@ -43,14 +35,17 @@ class Queue:
             self._loop = events.get_event_loop()
         else:
             self._loop = loop
+            warnings.warn("The loop argument is deprecated since Python 3.8, "
+                          "and scheduled for removal in Python 3.10.",
+                          DeprecationWarning, stacklevel=2)
         self._maxsize = maxsize
 
         # Futures.
         self._getters = collections.deque()
-        # Futures
+        # Futures.
         self._putters = collections.deque()
         self._unfinished_tasks = 0
-        self._finished = locks.Event(loop=self._loop)
+        self._finished = locks.Event(loop=loop)
         self._finished.set()
         self._init(maxsize)
 
@@ -67,39 +62,31 @@ class Queue:
 
     # End of the overridable methods.
 
-    def __put_internal(self, item):
-        self._put(item)
-        self._unfinished_tasks += 1
-        self._finished.clear()
+    def _wakeup_next(self, waiters):
+        # Wake up the next waiter (if any) that isn't cancelled.
+        while waiters:
+            waiter = waiters.popleft()
+            if not waiter.done():
+                waiter.set_result(None)
+                break
 
     def __repr__(self):
-        return '<{} at {:#x} {}>'.format(
-            type(self).__name__, id(self), self._format())
+        return f'<{type(self).__name__} at {id(self):#x} {self._format()}>'
 
     def __str__(self):
-        return '<{} {}>'.format(type(self).__name__, self._format())
+        return f'<{type(self).__name__} {self._format()}>'
 
     def _format(self):
-        result = 'maxsize={!r}'.format(self._maxsize)
+        result = f'maxsize={self._maxsize!r}'
         if getattr(self, '_queue', None):
-            result += ' _queue={!r}'.format(list(self._queue))
+            result += f' _queue={list(self._queue)!r}'
         if self._getters:
-            result += ' _getters[{}]'.format(len(self._getters))
+            result += f' _getters[{len(self._getters)}]'
         if self._putters:
-            result += ' _putters[{}]'.format(len(self._putters))
+            result += f' _putters[{len(self._putters)}]'
         if self._unfinished_tasks:
-            result += ' tasks={}'.format(self._unfinished_tasks)
+            result += f' tasks={self._unfinished_tasks}'
         return result
-
-    def _consume_done_getters(self):
-        # Delete waiters at the head of the get() queue who've timed out.
-        while self._getters and self._getters[0].done():
-            self._getters.popleft()
-
-    def _consume_done_putters(self):
-        # Delete waiters at the head of the put() queue who've timed out.
-        while self._putters and self._putters[0].done():
-            self._putters.popleft()
 
     def qsize(self):
         """Number of items in the queue."""
@@ -125,136 +112,81 @@ class Queue:
         else:
             return self.qsize() >= self._maxsize
 
-    @coroutine
-    def put(self, item):
+    async def put(self, item):
         """Put an item into the queue.
 
         Put an item into the queue. If the queue is full, wait until a free
         slot is available before adding item.
-
-        This method is a coroutine.
         """
-        self._consume_done_getters()
-        if self._getters:
-            assert not self._queue, (
-                'queue non-empty, why are getters waiting?')
-
-            getter = self._getters.popleft()
-            self.__put_internal(item)
-
-            # getter cannot be cancelled, we just removed done getters
-            getter.set_result(self._get())
-
-        elif self._maxsize > 0 and self._maxsize <= self.qsize():
-            waiter = futures.Future(loop=self._loop)
-
-            self._putters.append(waiter)
-            yield from waiter
-            self._put(item)
-
-        else:
-            self.__put_internal(item)
+        while self.full():
+            putter = self._loop.create_future()
+            self._putters.append(putter)
+            try:
+                await putter
+            except:
+                putter.cancel()  # Just in case putter is not done yet.
+                try:
+                    # Clean self._putters from canceled putters.
+                    self._putters.remove(putter)
+                except ValueError:
+                    # The putter could be removed from self._putters by a
+                    # previous get_nowait call.
+                    pass
+                if not self.full() and not putter.cancelled():
+                    # We were woken up by get_nowait(), but can't take
+                    # the call.  Wake up the next in line.
+                    self._wakeup_next(self._putters)
+                raise
+        return self.put_nowait(item)
 
     def put_nowait(self, item):
         """Put an item into the queue without blocking.
 
         If no free slot is immediately available, raise QueueFull.
         """
-        self._consume_done_getters()
-        if self._getters:
-            assert not self._queue, (
-                'queue non-empty, why are getters waiting?')
-
-            getter = self._getters.popleft()
-            self.__put_internal(item)
-
-            # getter cannot be cancelled, we just removed done getters
-            getter.set_result(self._get())
-
-        elif self._maxsize > 0 and self._maxsize <= self.qsize():
+        if self.full():
             raise QueueFull
-        else:
-            self.__put_internal(item)
+        self._put(item)
+        self._unfinished_tasks += 1
+        self._finished.clear()
+        self._wakeup_next(self._getters)
 
-    @coroutine
-    def get(self):
+    async def get(self):
         """Remove and return an item from the queue.
 
         If queue is empty, wait until an item is available.
-
-        This method is a coroutine.
         """
-        self._consume_done_putters()
-        if self._putters:
-            assert self.full(), 'queue not full, why are putters waiting?'
-            putter = self._putters.popleft()
-
-            # When a getter runs and frees up a slot so this putter can
-            # run, we need to defer the put for a tick to ensure that
-            # getters and putters alternate perfectly. See
-            # ChannelTest.test_wait.
-            self._loop.call_soon(putter._set_result_unless_cancelled, None)
-
-            return self._get()
-
-        elif self.qsize():
-            return self._get()
-        else:
-            waiter = futures.Future(loop=self._loop)
-            self._getters.append(waiter)
+        while self.empty():
+            getter = self._loop.create_future()
+            self._getters.append(getter)
             try:
-                return (yield from waiter)
-            except futures.CancelledError:
-                # if we get CancelledError, it means someone cancelled this
-                # get() coroutine.  But there is a chance that the waiter
-                # already is ready and contains an item that has just been
-                # removed from the queue.  In this case, we need to put the item
-                # back into the front of the queue.  This get() must either
-                # succeed without fault or, if it gets cancelled, it must be as
-                # if it never happened.
-                if waiter.done():
-                    self._put_it_back(waiter.result())
+                await getter
+            except:
+                getter.cancel()  # Just in case getter is not done yet.
+                try:
+                    # Clean self._getters from canceled getters.
+                    self._getters.remove(getter)
+                except ValueError:
+                    # The getter could be removed from self._getters by a
+                    # previous put_nowait call.
+                    pass
+                if not self.empty() and not getter.cancelled():
+                    # We were woken up by put_nowait(), but can't take
+                    # the call.  Wake up the next in line.
+                    self._wakeup_next(self._getters)
                 raise
-
-    def _put_it_back(self, item):
-        """
-        This is called when we have a waiter to get() an item and this waiter
-        gets cancelled.  In this case, we put the item back: wake up another
-        waiter or put it in the _queue.
-        """
-        self._consume_done_getters()
-        if self._getters:
-            assert not self._queue, (
-                'queue non-empty, why are getters waiting?')
-
-            getter = self._getters.popleft()
-            self.__put_internal(item)
-
-            # getter cannot be cancelled, we just removed done getters
-            getter.set_result(item)
-        else:
-            self._queue.appendleft(item)
+        return self.get_nowait()
 
     def get_nowait(self):
         """Remove and return an item from the queue.
 
         Return an item if one is immediately available, else raise QueueEmpty.
         """
-        self._consume_done_putters()
-        if self._putters:
-            assert self.full(), 'queue not full, why are putters waiting?'
-            putter = self._putters.popleft()
-            # Wake putter on next tick.
-
-            # getter cannot be cancelled, we just removed done putters
-            putter.set_result(None)
-
-            return self._get()
-
-        elif self.qsize():
-            return self._get()
-        else:
+        if self.empty():
             raise QueueEmpty
+        item = self._get()
+        self._wakeup_next(self._putters)
+        return item
 
     def task_done(self):
         """Indicate that a formerly enqueued task is complete.
@@ -276,8 +208,7 @@ class Queue:
         if self._unfinished_tasks == 0:
             self._finished.set()
 
-    @coroutine
-    def join(self):
+    async def join(self):
         """Block until all items in the queue have been gotten and processed.
 
         The count of unfinished tasks goes up whenever an item is added to the
@@ -286,7 +217,7 @@ class Queue:
         When the count of unfinished tasks drops to zero, join() unblocks.
         """
         if self._unfinished_tasks > 0:
-            yield from self._finished.wait()
+            await self._finished.wait()
 
 
 class PriorityQueue(Queue):
@@ -316,9 +247,3 @@ class LifoQueue(Queue):
 
     def _get(self):
         return self._queue.pop()
-
-
-if not compat.PY35:
-    JoinableQueue = Queue
-    """Deprecated alias for Queue."""
-    __all__.append('JoinableQueue')

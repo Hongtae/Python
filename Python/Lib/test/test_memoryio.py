@@ -11,6 +11,13 @@ import _pyio as pyio
 import pickle
 import sys
 
+class IntLike:
+    def __init__(self, num):
+        self._num = num
+    def __index__(self):
+        return self._num
+    __int__ = __index__
+
 class MemorySeekTestMixin:
 
     def testInit(self):
@@ -116,7 +123,10 @@ class MemoryTestMixin:
         memio = self.ioclass(buf)
 
         self.assertRaises(ValueError, memio.truncate, -1)
+        self.assertRaises(ValueError, memio.truncate, IntLike(-1))
         memio.seek(6)
+        self.assertEqual(memio.truncate(IntLike(8)), 8)
+        self.assertEqual(memio.getvalue(), buf[:8])
         self.assertEqual(memio.truncate(), 6)
         self.assertEqual(memio.getvalue(), buf[:6])
         self.assertEqual(memio.truncate(4), 4)
@@ -131,6 +141,7 @@ class MemoryTestMixin:
         self.assertRaises(TypeError, memio.truncate, '0')
         memio.close()
         self.assertRaises(ValueError, memio.truncate, 0)
+        self.assertRaises(ValueError, memio.truncate, IntLike(0))
 
     def test_init(self):
         buf = self.buftype("1234567890")
@@ -154,11 +165,18 @@ class MemoryTestMixin:
         self.assertEqual(memio.read(900), buf[5:])
         self.assertEqual(memio.read(), self.EOF)
         memio.seek(0)
+        self.assertEqual(memio.read(IntLike(0)), self.EOF)
+        self.assertEqual(memio.read(IntLike(1)), buf[:1])
+        self.assertEqual(memio.read(IntLike(4)), buf[1:5])
+        self.assertEqual(memio.read(IntLike(900)), buf[5:])
+        memio.seek(0)
         self.assertEqual(memio.read(), buf)
         self.assertEqual(memio.read(), self.EOF)
         self.assertEqual(memio.tell(), 10)
         memio.seek(0)
         self.assertEqual(memio.read(-1), buf)
+        memio.seek(0)
+        self.assertEqual(memio.read(IntLike(-1)), buf)
         memio.seek(0)
         self.assertEqual(type(memio.read()), type(buf))
         memio.seek(100)
@@ -169,6 +187,8 @@ class MemoryTestMixin:
         memio.seek(len(buf) + 1)
         self.assertEqual(memio.read(1), self.EOF)
         memio.seek(len(buf) + 1)
+        self.assertEqual(memio.read(IntLike(1)), self.EOF)
+        memio.seek(len(buf) + 1)
         self.assertEqual(memio.read(), self.EOF)
         memio.close()
         self.assertRaises(ValueError, memio.read)
@@ -178,6 +198,7 @@ class MemoryTestMixin:
         memio = self.ioclass(buf * 2)
 
         self.assertEqual(memio.readline(0), self.EOF)
+        self.assertEqual(memio.readline(IntLike(0)), self.EOF)
         self.assertEqual(memio.readline(), buf)
         self.assertEqual(memio.readline(), buf)
         self.assertEqual(memio.readline(), self.EOF)
@@ -186,9 +207,16 @@ class MemoryTestMixin:
         self.assertEqual(memio.readline(5), buf[5:10])
         self.assertEqual(memio.readline(5), buf[10:15])
         memio.seek(0)
+        self.assertEqual(memio.readline(IntLike(5)), buf[:5])
+        self.assertEqual(memio.readline(IntLike(5)), buf[5:10])
+        self.assertEqual(memio.readline(IntLike(5)), buf[10:15])
+        memio.seek(0)
         self.assertEqual(memio.readline(-1), buf)
         memio.seek(0)
+        self.assertEqual(memio.readline(IntLike(-1)), buf)
+        memio.seek(0)
         self.assertEqual(memio.readline(0), self.EOF)
+        self.assertEqual(memio.readline(IntLike(0)), self.EOF)
         # Issue #24989: Buffer overread
         memio.seek(len(buf) * 2 + 1)
         self.assertEqual(memio.readline(), self.EOF)
@@ -376,7 +404,7 @@ class MemoryTestMixin:
 
         # Pickle expects the class to be on the module level. Here we use a
         # little hack to allow the PickleTestMemIO class to derive from
-        # self.ioclass without having to define all combinations explictly on
+        # self.ioclass without having to define all combinations explicitly on
         # the module-level.
         import __main__
         PickleTestMemIO.__module__ = '__main__'
@@ -399,7 +427,16 @@ class MemoryTestMixin:
         del __main__.PickleTestMemIO
 
 
-class BytesIOMixin:
+class PyBytesIOTest(MemoryTestMixin, MemorySeekTestMixin, unittest.TestCase):
+    # Test _pyio.BytesIO; class also inherited for testing C implementation
+
+    UnsupportedOperation = pyio.UnsupportedOperation
+
+    @staticmethod
+    def buftype(s):
+        return s.encode("ascii")
+    ioclass = pyio.BytesIO
+    EOF = b""
 
     def test_getbuffer(self):
         memio = self.ioclass(b"1234567890")
@@ -426,24 +463,10 @@ class BytesIOMixin:
         memio.close()
         self.assertRaises(ValueError, memio.getbuffer)
 
-
-class PyBytesIOTest(MemoryTestMixin, MemorySeekTestMixin,
-                    BytesIOMixin, unittest.TestCase):
-
-    UnsupportedOperation = pyio.UnsupportedOperation
-
-    @staticmethod
-    def buftype(s):
-        return s.encode("ascii")
-    ioclass = pyio.BytesIO
-    EOF = b""
-
     def test_read1(self):
         buf = self.buftype("1234567890")
-        memio = self.ioclass(buf)
-
-        self.assertRaises(TypeError, memio.read1)
-        self.assertEqual(memio.read(), buf)
+        self.assertEqual(self.ioclass(buf).read1(), buf)
+        self.assertEqual(self.ioclass(buf).read1(-1), buf)
 
     def test_readinto(self):
         buf = self.buftype("1234567890")
@@ -736,7 +759,8 @@ class CBytesIOTest(PyBytesIOTest):
         check = self.check_sizeof
         self.assertEqual(object.__sizeof__(io.BytesIO()), basesize)
         check(io.BytesIO(), basesize )
-        check(io.BytesIO(b'a' * 1000), basesize + sys.getsizeof(b'a' * 1000))
+        n = 1000  # use a variable to prevent constant folding
+        check(io.BytesIO(b'a' * n), basesize + sys.getsizeof(b'a' * n))
 
     # Various tests of copy-on-write behaviour for BytesIO.
 

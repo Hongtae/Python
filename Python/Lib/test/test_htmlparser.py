@@ -3,7 +3,6 @@
 import html.parser
 import pprint
 import unittest
-from test import support
 
 
 class EventCollector(html.parser.HTMLParser):
@@ -71,9 +70,6 @@ class EventCollectorExtra(EventCollector):
 
 
 class EventCollectorCharrefs(EventCollector):
-
-    def get_events(self):
-        return self.events
 
     def handle_charref(self, data):
         self.fail('This should never be called with convert_charrefs=True')
@@ -633,6 +629,18 @@ text
         ]
         self._run_check(html, expected)
 
+    def test_convert_charrefs_dropped_text(self):
+        # #23144: make sure that all the events are triggered when
+        # convert_charrefs is True, even if we don't call .close()
+        parser = EventCollector(convert_charrefs=True)
+        # before the fix, bar & baz was missing
+        parser.feed("foo <a>link</a> bar &amp; baz")
+        self.assertEqual(
+            parser.get_events(),
+            [('data', 'foo '), ('starttag', 'a', []), ('data', 'link'),
+             ('endtag', 'a'), ('data', ' bar & baz')]
+        )
+
 
 class AttributesTestCase(TestCaseBase):
 
@@ -693,7 +701,7 @@ class AttributesTestCase(TestCaseBase):
 
     def test_attr_funky_names2(self):
         self._run_check(
-            "<a $><b $=%><c \=/>",
+            r"<a $><b $=%><c \=/>",
             [("starttag", "a", [("$", None)]),
              ("starttag", "b", [("$", "%")]),
              ("starttag", "c", [("\\", "/")])])

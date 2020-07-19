@@ -82,7 +82,7 @@ class WSGIRequestHandler(BaseHTTPRequestHandler):
         else:
             path,query = self.path,''
 
-        env['PATH_INFO'] = urllib.parse.unquote_to_bytes(path).decode('iso-8859-1')
+        env['PATH_INFO'] = urllib.parse.unquote(path, 'iso-8859-1')
         env['QUERY_STRING'] = query
 
         host = self.address_string()
@@ -127,7 +127,8 @@ class WSGIRequestHandler(BaseHTTPRequestHandler):
             return
 
         handler = ServerHandler(
-            self.rfile, self.wfile, self.get_stderr(), self.get_environ()
+            self.rfile, self.wfile, self.get_stderr(), self.get_environ(),
+            multithread=False,
         )
         handler.request_handler = self      # backpointer for logging
         handler.run(self.server.get_app())
@@ -156,10 +157,9 @@ def make_server(
 
 
 if __name__ == '__main__':
-    httpd = make_server('', 8000, demo_app)
-    sa = httpd.socket.getsockname()
-    print("Serving HTTP on", sa[0], "port", sa[1], "...")
-    import webbrowser
-    webbrowser.open('http://localhost:8000/xyz?abc')
-    httpd.handle_request()  # serve one request, then exit
-    httpd.server_close()
+    with make_server('', 8000, demo_app) as httpd:
+        sa = httpd.socket.getsockname()
+        print("Serving HTTP on", sa[0], "port", sa[1], "...")
+        import webbrowser
+        webbrowser.open('http://localhost:8000/xyz?abc')
+        httpd.handle_request()  # serve one request, then exit

@@ -2,10 +2,13 @@
 code that adds all the email6 features.
 """
 
+import re
+import sys
 from email._policybase import Policy, Compat32, compat32, _extend_docstrings
 from email.utils import _has_surrogates
 from email.headerregistry import HeaderRegistry as HeaderRegistry
 from email.contentmanager import raw_data_manager
+from email.message import EmailMessage
 
 __all__ = [
     'Compat32',
@@ -17,6 +20,8 @@ __all__ = [
     'SMTP',
     'HTTP',
     ]
+
+linesep_splitter = re.compile(r'\n|\r')
 
 @_extend_docstrings
 class EmailPolicy(Policy):
@@ -79,6 +84,7 @@ class EmailPolicy(Policy):
 
     """
 
+    message_factory = EmailMessage
     utf8 = False
     refold_source = 'long'
     header_factory = HeaderRegistry()
@@ -135,6 +141,8 @@ class EmailPolicy(Policy):
         if hasattr(value, 'name') and value.name.lower() == name.lower():
             return (name, value)
         if isinstance(value, str) and len(value.splitlines())>1:
+            # XXX this error message isn't quite right when we use splitlines
+            # (see issue 22233), but I'm not sure what should happen here.
             raise ValueError("Header values may not contain linefeed "
                              "or carriage return characters")
         return (name, self.header_factory(name, value))
@@ -150,7 +158,9 @@ class EmailPolicy(Policy):
         """
         if hasattr(value, 'name'):
             return value
-        return self.header_factory(name, ''.join(value.splitlines()))
+        # We can't use splitlines here because it splits on more than \r and \n.
+        value = ''.join(linesep_splitter.split(value))
+        return self.header_factory(name, value)
 
     def fold(self, name, value):
         """+
@@ -194,7 +204,7 @@ class EmailPolicy(Policy):
     def _fold(self, name, value, refold_binary=False):
         if hasattr(value, 'name'):
             return value.fold(policy=self)
-        maxlen = self.max_line_length if self.max_line_length else float('inf')
+        maxlen = self.max_line_length if self.max_line_length else sys.maxsize
         lines = value.splitlines()
         refold = (self.refold_source == 'all' or
                   self.refold_source == 'long' and

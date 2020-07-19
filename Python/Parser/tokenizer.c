@@ -1,8 +1,8 @@
 
 /* Tokenizer implementation */
 
+#define PY_SSIZE_T_CLEAN
 #include "Python.h"
-#include "pgenheaders.h"
 
 #include <ctype.h>
 #include <assert.h>
@@ -10,13 +10,14 @@
 #include "tokenizer.h"
 #include "errcode.h"
 
-#ifndef PGEN
 #include "unicodeobject.h"
 #include "bytesobject.h"
 #include "fileobject.h"
 #include "codecs.h"
 #include "abstract.h"
-#endif /* PGEN */
+
+/* Alternate tab spacing */
+#define ALTTABSIZE 1
 
 #define is_potential_identifier_start(c) (\
               (c >= 'a' && c <= 'z')\
@@ -45,70 +46,9 @@ static int tok_nextc(struct tok_state *tok);
 static void tok_backup(struct tok_state *tok, int c);
 
 
-/* Token names */
-
-const char *_PyParser_TokenNames[] = {
-    "ENDMARKER",
-    "NAME",
-    "NUMBER",
-    "STRING",
-    "NEWLINE",
-    "INDENT",
-    "DEDENT",
-    "LPAR",
-    "RPAR",
-    "LSQB",
-    "RSQB",
-    "COLON",
-    "COMMA",
-    "SEMI",
-    "PLUS",
-    "MINUS",
-    "STAR",
-    "SLASH",
-    "VBAR",
-    "AMPER",
-    "LESS",
-    "GREATER",
-    "EQUAL",
-    "DOT",
-    "PERCENT",
-    "LBRACE",
-    "RBRACE",
-    "EQEQUAL",
-    "NOTEQUAL",
-    "LESSEQUAL",
-    "GREATEREQUAL",
-    "TILDE",
-    "CIRCUMFLEX",
-    "LEFTSHIFT",
-    "RIGHTSHIFT",
-    "DOUBLESTAR",
-    "PLUSEQUAL",
-    "MINEQUAL",
-    "STAREQUAL",
-    "SLASHEQUAL",
-    "PERCENTEQUAL",
-    "AMPEREQUAL",
-    "VBAREQUAL",
-    "CIRCUMFLEXEQUAL",
-    "LEFTSHIFTEQUAL",
-    "RIGHTSHIFTEQUAL",
-    "DOUBLESTAREQUAL",
-    "DOUBLESLASH",
-    "DOUBLESLASHEQUAL",
-    "AT",
-    "ATEQUAL",
-    "RARROW",
-    "ELLIPSIS",
-    /* This table must match the #defines in token.h! */
-    "OP",
-    "AWAIT",
-    "ASYNC",
-    "<ERRORTOKEN>",
-    "<N_TOKENS>"
-};
-
+/* Spaces in this constant are treated as "zero or more spaces or tabs" when
+   tokenizing. */
+static const char* type_comment_prefix = "# type: ";
 
 /* Create and initialize a new tok_state structure */
 
@@ -132,9 +72,6 @@ tok_new(void)
     tok->prompt = tok->nextprompt = NULL;
     tok->lineno = 0;
     tok->level = 0;
-    tok->altwarning = 1;
-    tok->alterror = 1;
-    tok->alttabsize = 1;
     tok->altindstack[0] = 0;
     tok->decoding_state = STATE_INIT;
     tok->decoding_erred = 0;
@@ -142,12 +79,12 @@ tok_new(void)
     tok->enc = NULL;
     tok->encoding = NULL;
     tok->cont_line = 0;
-#ifndef PGEN
     tok->filename = NULL;
     tok->decoding_readline = NULL;
     tok->decoding_buffer = NULL;
-#endif
+    tok->type_comments = 0;
 
+    tok->async_hacks = 0;
     tok->async_def = 0;
     tok->async_def_indent = 0;
     tok->async_def_nl = 0;
@@ -168,41 +105,20 @@ new_string(const char *s, Py_ssize_t len, struct tok_state *tok)
     return result;
 }
 
-#ifdef PGEN
-
-static char *
-decoding_fgets(char *s, int size, struct tok_state *tok)
-{
-    return fgets(s, size, tok->fp);
-}
-
-static int
-decoding_feof(struct tok_state *tok)
-{
-    return feof(tok->fp);
-}
-
-static char *
-decode_str(const char *str, int exec_input, struct tok_state *tok)
-{
-    return new_string(str, strlen(str), tok);
-}
-
-#else /* PGEN */
-
 static char *
 error_ret(struct tok_state *tok) /* XXX */
 {
     tok->decoding_erred = 1;
     if (tok->fp != NULL && tok->buf != NULL) /* see PyTokenizer_Free */
         PyMem_FREE(tok->buf);
-    tok->buf = NULL;
+    tok->buf = tok->cur = tok->end = tok->inp = tok->start = NULL;
+    tok->done = E_DECODE;
     return NULL;                /* as if it were EOF */
 }
 
 
-static char *
-get_normal_name(char *s)        /* for utf-8 and latin-1 */
+static const char *
+get_normal_name(const char *s)  /* for utf-8 and latin-1 */
 {
     char buf[13];
     int i;
@@ -263,7 +179,7 @@ get_coding_spec(const char *s, char **spec, Py_ssize_t size, struct tok_state *t
 
             if (begin < t) {
                 char* r = new_string(begin, t - begin, tok);
-                char* q;
+                const char* q;
                 if (!r)
                     return 0;
                 q = get_normal_name(r);
@@ -274,6 +190,7 @@ get_coding_spec(const char *s, char **spec, Py_ssize_t size, struct tok_state *t
                         return 0;
                 }
                 *spec = r;
+                break;
             }
         }
     }
@@ -438,13 +355,13 @@ fp_readl(char *s, int size, struct tok_state *tok)
     }
     else
     {
-        bufobj = PyObject_CallObject(tok->decoding_readline, NULL);
+        bufobj = _PyObject_CallNoArg(tok->decoding_readline);
         if (bufobj == NULL)
             goto error;
     }
     if (PyUnicode_CheckExact(bufobj))
     {
-        buf = _PyUnicode_AsStringAndSize(bufobj, &buflen);
+        buf = PyUnicode_AsUTF8AndSize(bufobj, &buflen);
         if (buf == NULL) {
             goto error;
         }
@@ -495,15 +412,11 @@ error:
 static int
 fp_setreadl(struct tok_state *tok, const char* enc)
 {
-    PyObject *readline = NULL, *stream = NULL, *io = NULL;
+    PyObject *readline, *io, *stream;
     _Py_IDENTIFIER(open);
     _Py_IDENTIFIER(readline);
     int fd;
     long pos;
-
-    io = PyImport_ImportModuleNoBlock("io");
-    if (io == NULL)
-        goto cleanup;
 
     fd = fileno(tok->fp);
     /* Due to buffering the file offset for fd can be different from the file
@@ -515,28 +428,33 @@ fp_setreadl(struct tok_state *tok, const char* enc)
     if (pos == -1 ||
         lseek(fd, (off_t)(pos > 0 ? pos - 1 : pos), SEEK_SET) == (off_t)-1) {
         PyErr_SetFromErrnoWithFilename(PyExc_OSError, NULL);
-        goto cleanup;
+        return 0;
     }
+
+    io = PyImport_ImportModuleNoBlock("io");
+    if (io == NULL)
+        return 0;
 
     stream = _PyObject_CallMethodId(io, &PyId_open, "isisOOO",
                     fd, "r", -1, enc, Py_None, Py_None, Py_False);
+    Py_DECREF(io);
     if (stream == NULL)
-        goto cleanup;
+        return 0;
 
-    Py_XDECREF(tok->decoding_readline);
     readline = _PyObject_GetAttrId(stream, &PyId_readline);
-    tok->decoding_readline = readline;
+    Py_DECREF(stream);
+    if (readline == NULL)
+        return 0;
+    Py_XSETREF(tok->decoding_readline, readline);
+
     if (pos > 0) {
-        if (PyObject_CallObject(readline, NULL) == NULL) {
-            readline = NULL;
-            goto cleanup;
-        }
+        PyObject *bufobj = _PyObject_CallNoArg(readline);
+        if (bufobj == NULL)
+            return 0;
+        Py_DECREF(bufobj);
     }
 
-  cleanup:
-    Py_XDECREF(stream);
-    Py_XDECREF(io);
-    return readline != NULL;
+    return 1;
 }
 
 /* Fetch the next byte from TOK. */
@@ -612,7 +530,6 @@ decoding_fgets(char *s, int size, struct tok_state *tok)
             return error_ret(tok);
         }
     }
-#ifndef PGEN
     /* The default encoding is UTF-8, so make sure we don't have any
        non-UTF-8 sequences in it. */
     if (line && !tok->encoding) {
@@ -635,7 +552,6 @@ decoding_fgets(char *s, int size, struct tok_state *tok)
                 badchar, tok->filename, tok->lineno + 1);
         return error_ret(tok);
     }
-#endif
     return line;
 }
 
@@ -647,7 +563,7 @@ decoding_feof(struct tok_state *tok)
     } else {
         PyObject* buf = tok->decoding_buffer;
         if (buf == NULL) {
-            buf = PyObject_CallObject(tok->decoding_readline, NULL);
+            buf = _PyObject_CallNoArg(tok->decoding_readline);
             if (buf == NULL) {
                 error_ret(tok);
                 return 1;
@@ -733,9 +649,14 @@ translate_newlines(const char *s, int exec_input, struct tok_state *tok) {
     }
     *current = '\0';
     final_length = current - buf + 1;
-    if (final_length < needed_length && final_length)
+    if (final_length < needed_length && final_length) {
         /* should never fail */
-        buf = PyMem_REALLOC(buf, final_length);
+        char* result = PyMem_REALLOC(buf, final_length);
+        if (result == NULL) {
+            PyMem_FREE(buf);
+        }
+        buf = result;
+    }
     return buf;
 }
 
@@ -799,8 +720,6 @@ decode_str(const char *input, int single, struct tok_state *tok)
     return str;
 }
 
-#endif /* PGEN */
-
 /* Set up tokenizer for string */
 
 struct tok_state *
@@ -826,9 +745,7 @@ PyTokenizer_FromUTF8(const char *str, int exec_input)
     struct tok_state *tok = tok_new();
     if (tok == NULL)
         return NULL;
-#ifndef PGEN
     tok->input = str = translate_newlines(str, exec_input, tok);
-#endif
     if (str == NULL) {
         PyTokenizer_Free(tok);
         return NULL;
@@ -889,11 +806,9 @@ PyTokenizer_Free(struct tok_state *tok)
 {
     if (tok->encoding != NULL)
         PyMem_FREE(tok->encoding);
-#ifndef PGEN
     Py_XDECREF(tok->decoding_readline);
     Py_XDECREF(tok->decoding_buffer);
     Py_XDECREF(tok->filename);
-#endif
     if (tok->fp != NULL && tok->buf != NULL)
         PyMem_FREE(tok->buf);
     if (tok->input)
@@ -932,7 +847,6 @@ tok_nextc(struct tok_state *tok)
         }
         if (tok->prompt != NULL) {
             char *newtok = PyOS_Readline(stdin, stdout, tok->prompt);
-#ifndef PGEN
             if (newtok != NULL) {
                 char *translated = translate_newlines(newtok, 0, tok);
                 PyMem_FREE(newtok);
@@ -952,16 +866,15 @@ tok_nextc(struct tok_state *tok)
                 }
                 buflen = PyBytes_GET_SIZE(u);
                 buf = PyBytes_AS_STRING(u);
-                if (!buf) {
+                newtok = PyMem_MALLOC(buflen+1);
+                if (newtok == NULL) {
                     Py_DECREF(u);
-                    tok->done = E_DECODE;
+                    tok->done = E_NOMEM;
                     return EOF;
                 }
-                newtok = PyMem_MALLOC(buflen+1);
                 strcpy(newtok, buf);
                 Py_DECREF(u);
             }
-#endif
             if (tok->nextprompt != NULL)
                 tok->prompt = tok->nextprompt;
             if (newtok == NULL)
@@ -974,6 +887,7 @@ tok_nextc(struct tok_state *tok)
                 size_t start = tok->start - tok->buf;
                 size_t oldlen = tok->cur - tok->buf;
                 size_t newlen = oldlen + strlen(newtok);
+                Py_ssize_t cur_multi_line_start = tok->multi_line_start - tok->buf;
                 char *buf = tok->buf;
                 buf = (char *)PyMem_REALLOC(buf, newlen+1);
                 tok->lineno++;
@@ -986,6 +900,7 @@ tok_nextc(struct tok_state *tok)
                 }
                 tok->buf = buf;
                 tok->cur = tok->buf + oldlen;
+                tok->multi_line_start = tok->buf + cur_multi_line_start;
                 tok->line_start = tok->cur;
                 strcpy(tok->buf + oldlen, newtok);
                 PyMem_FREE(newtok);
@@ -998,7 +913,6 @@ tok_nextc(struct tok_state *tok)
                 if (tok->buf != NULL)
                     PyMem_FREE(tok->buf);
                 tok->buf = newtok;
-                tok->line_start = tok->buf;
                 tok->cur = tok->buf;
                 tok->line_start = tok->buf;
                 tok->inp = strchr(tok->buf, '\0');
@@ -1021,13 +935,14 @@ tok_nextc(struct tok_state *tok)
                 }
                 if (decoding_fgets(tok->buf, (int)(tok->end - tok->buf),
                           tok) == NULL) {
-                    tok->done = E_EOF;
+                    if (!tok->decoding_erred)
+                        tok->done = E_EOF;
                     done = 1;
                 }
                 else {
                     tok->done = E_OK;
                     tok->inp = strchr(tok->buf, '\0');
-                    done = tok->inp[-1] == '\n';
+                    done = tok->inp == tok->buf || tok->inp[-1] == '\n';
                 }
             }
             else {
@@ -1044,6 +959,7 @@ tok_nextc(struct tok_state *tok)
             while (!done) {
                 Py_ssize_t curstart = tok->start == NULL ? -1 :
                           tok->start - tok->buf;
+                Py_ssize_t cur_multi_line_start = tok->multi_line_start - tok->buf;
                 Py_ssize_t curvalid = tok->inp - tok->buf;
                 Py_ssize_t newsize = curvalid + BUFSIZ;
                 char *newbuf = tok->buf;
@@ -1055,6 +971,9 @@ tok_nextc(struct tok_state *tok)
                     return EOF;
                 }
                 tok->buf = newbuf;
+                tok->cur = tok->buf + cur;
+                tok->multi_line_start = tok->buf + cur_multi_line_start;
+                tok->line_start = tok->cur;
                 tok->inp = tok->buf + curvalid;
                 tok->end = tok->buf + newsize;
                 tok->start = curstart < 0 ? NULL :
@@ -1069,7 +988,8 @@ tok_nextc(struct tok_state *tok)
                         return EOF;
                     /* Last line does not end in \n,
                        fake one */
-                    strcpy(tok->inp, "\n");
+                    if (tok->inp[-1] != '\n')
+                        strcpy(tok->inp, "\n");
                 }
                 tok->inp = strchr(tok->inp, '\0');
                 done = tok->inp[-1] == '\n';
@@ -1112,201 +1032,59 @@ tok_backup(struct tok_state *tok, int c)
 }
 
 
-/* Return the token corresponding to a single character */
-
-int
-PyToken_OneChar(int c)
+static int
+syntaxerror(struct tok_state *tok, const char *format, ...)
 {
-    switch (c) {
-    case '(':           return LPAR;
-    case ')':           return RPAR;
-    case '[':           return LSQB;
-    case ']':           return RSQB;
-    case ':':           return COLON;
-    case ',':           return COMMA;
-    case ';':           return SEMI;
-    case '+':           return PLUS;
-    case '-':           return MINUS;
-    case '*':           return STAR;
-    case '/':           return SLASH;
-    case '|':           return VBAR;
-    case '&':           return AMPER;
-    case '<':           return LESS;
-    case '>':           return GREATER;
-    case '=':           return EQUAL;
-    case '.':           return DOT;
-    case '%':           return PERCENT;
-    case '{':           return LBRACE;
-    case '}':           return RBRACE;
-    case '^':           return CIRCUMFLEX;
-    case '~':           return TILDE;
-    case '@':           return AT;
-    default:            return OP;
+    PyObject *errmsg, *errtext, *args;
+    va_list vargs;
+#ifdef HAVE_STDARG_PROTOTYPES
+    va_start(vargs, format);
+#else
+    va_start(vargs);
+#endif
+    errmsg = PyUnicode_FromFormatV(format, vargs);
+    va_end(vargs);
+    if (!errmsg) {
+        goto error;
     }
-}
 
-
-int
-PyToken_TwoChars(int c1, int c2)
-{
-    switch (c1) {
-    case '=':
-        switch (c2) {
-        case '=':               return EQEQUAL;
-        }
-        break;
-    case '!':
-        switch (c2) {
-        case '=':               return NOTEQUAL;
-        }
-        break;
-    case '<':
-        switch (c2) {
-        case '>':               return NOTEQUAL;
-        case '=':               return LESSEQUAL;
-        case '<':               return LEFTSHIFT;
-        }
-        break;
-    case '>':
-        switch (c2) {
-        case '=':               return GREATEREQUAL;
-        case '>':               return RIGHTSHIFT;
-        }
-        break;
-    case '+':
-        switch (c2) {
-        case '=':               return PLUSEQUAL;
-        }
-        break;
-    case '-':
-        switch (c2) {
-        case '=':               return MINEQUAL;
-        case '>':               return RARROW;
-        }
-        break;
-    case '*':
-        switch (c2) {
-        case '*':               return DOUBLESTAR;
-        case '=':               return STAREQUAL;
-        }
-        break;
-    case '/':
-        switch (c2) {
-        case '/':               return DOUBLESLASH;
-        case '=':               return SLASHEQUAL;
-        }
-        break;
-    case '|':
-        switch (c2) {
-        case '=':               return VBAREQUAL;
-        }
-        break;
-    case '%':
-        switch (c2) {
-        case '=':               return PERCENTEQUAL;
-        }
-        break;
-    case '&':
-        switch (c2) {
-        case '=':               return AMPEREQUAL;
-        }
-        break;
-    case '^':
-        switch (c2) {
-        case '=':               return CIRCUMFLEXEQUAL;
-        }
-        break;
-    case '@':
-        switch (c2) {
-        case '=':               return ATEQUAL;
-        }
-        break;
+    errtext = PyUnicode_DecodeUTF8(tok->line_start, tok->cur - tok->line_start,
+                                   "replace");
+    if (!errtext) {
+        goto error;
     }
-    return OP;
-}
-
-int
-PyToken_ThreeChars(int c1, int c2, int c3)
-{
-    switch (c1) {
-    case '<':
-        switch (c2) {
-        case '<':
-            switch (c3) {
-            case '=':
-                return LEFTSHIFTEQUAL;
-            }
-            break;
-        }
-        break;
-    case '>':
-        switch (c2) {
-        case '>':
-            switch (c3) {
-            case '=':
-                return RIGHTSHIFTEQUAL;
-            }
-            break;
-        }
-        break;
-    case '*':
-        switch (c2) {
-        case '*':
-            switch (c3) {
-            case '=':
-                return DOUBLESTAREQUAL;
-            }
-            break;
-        }
-        break;
-    case '/':
-        switch (c2) {
-        case '/':
-            switch (c3) {
-            case '=':
-                return DOUBLESLASHEQUAL;
-            }
-            break;
-        }
-        break;
-    case '.':
-        switch (c2) {
-        case '.':
-            switch (c3) {
-            case '.':
-                return ELLIPSIS;
-            }
-            break;
-        }
-        break;
+    int offset = (int)PyUnicode_GET_LENGTH(errtext);
+    Py_ssize_t line_len = strcspn(tok->line_start, "\n");
+    if (line_len != tok->cur - tok->line_start) {
+        Py_DECREF(errtext);
+        errtext = PyUnicode_DecodeUTF8(tok->line_start, line_len,
+                                       "replace");
     }
-    return OP;
+    if (!errtext) {
+        goto error;
+    }
+
+    args = Py_BuildValue("(O(OiiN))", errmsg,
+                         tok->filename, tok->lineno, offset, errtext);
+    if (args) {
+        PyErr_SetObject(PyExc_SyntaxError, args);
+        Py_DECREF(args);
+    }
+
+error:
+    Py_XDECREF(errmsg);
+    tok->done = E_ERROR;
+    return ERRORTOKEN;
 }
 
 static int
 indenterror(struct tok_state *tok)
 {
-    if (tok->alterror) {
-        tok->done = E_TABSPACE;
-        tok->cur = tok->inp;
-        return 1;
-    }
-    if (tok->altwarning) {
-#ifdef PGEN
-        PySys_WriteStderr("inconsistent use of tabs and spaces "
-                          "in indentation\n");
-#else
-        PySys_FormatStderr("%U: inconsistent use of tabs and spaces "
-                          "in indentation\n", tok->filename);
-#endif
-        tok->altwarning = 0;
-    }
-    return 0;
+    tok->done = E_TABSPACE;
+    tok->cur = tok->inp;
+    return ERRORTOKEN;
 }
 
-#ifdef PGEN
-#define verify_identifier(tok) 1
-#else
 /* Verify that the identifier follows PEP 3131.
    All identifier strings are guaranteed to be "ready" unicode objects.
  */
@@ -1318,7 +1096,7 @@ verify_identifier(struct tok_state *tok)
     if (tok->decoding_erred)
         return 0;
     s = PyUnicode_DecodeUTF8(tok->start, tok->cur - tok->start, NULL);
-    if (s == NULL || PyUnicode_READY(s) == -1) {
+    if (s == NULL) {
         if (PyErr_ExceptionMatches(PyExc_UnicodeDecodeError)) {
             PyErr_Clear();
             tok->done = E_IDENTIFIER;
@@ -1333,7 +1111,28 @@ verify_identifier(struct tok_state *tok)
         tok->done = E_IDENTIFIER;
     return result;
 }
-#endif
+
+static int
+tok_decimal_tail(struct tok_state *tok)
+{
+    int c;
+
+    while (1) {
+        do {
+            c = tok_nextc(tok);
+        } while (isdigit(c));
+        if (c != '_') {
+            break;
+        }
+        c = tok_nextc(tok);
+        if (!isdigit(c)) {
+            tok_backup(tok, c);
+            syntaxerror(tok, "invalid decimal literal");
+            return 0;
+        }
+    }
+    return c;
+}
 
 /* Get next token, after space stripping etc. */
 
@@ -1355,17 +1154,19 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
         tok->atbol = 0;
         for (;;) {
             c = tok_nextc(tok);
-            if (c == ' ')
+            if (c == ' ') {
                 col++, altcol++;
-            else if (c == '\t') {
-                col = (col/tok->tabsize + 1) * tok->tabsize;
-                altcol = (altcol/tok->alttabsize + 1)
-                    * tok->alttabsize;
             }
-            else if (c == '\014') /* Control-L (formfeed) */
+            else if (c == '\t') {
+                col = (col / tok->tabsize + 1) * tok->tabsize;
+                altcol = (altcol / ALTTABSIZE + 1) * ALTTABSIZE;
+            }
+            else if (c == '\014')  {/* Control-L (formfeed) */
                 col = altcol = 0; /* For Emacs users */
-            else
+            }
+            else {
                 break;
+            }
         }
         tok_backup(tok, c);
         if (c == '#' || c == '\n') {
@@ -1374,10 +1175,18 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
                not passed to the parser as NEWLINE tokens,
                except *totally* empty lines in interactive
                mode, which signal the end of a command group. */
-            if (col == 0 && c == '\n' && tok->prompt != NULL)
+            if (col == 0 && c == '\n' && tok->prompt != NULL) {
                 blankline = 0; /* Let it through */
-            else
+            }
+            else if (tok->prompt != NULL && tok->lineno == 1) {
+                /* In interactive mode, if the first line contains
+                   only spaces and/or a comment, let it through. */
+                blankline = 0;
+                col = altcol = 0;
+            }
+            else {
                 blankline = 1; /* Ignore completely */
+            }
             /* We can't jump back right here since we still
                may need to skip to the end of a comment */
         }
@@ -1385,8 +1194,7 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
             if (col == tok->indstack[tok->indent]) {
                 /* No change */
                 if (altcol != tok->altindstack[tok->indent]) {
-                    if (indenterror(tok))
-                        return ERRORTOKEN;
+                    return indenterror(tok);
                 }
             }
             else if (col > tok->indstack[tok->indent]) {
@@ -1397,8 +1205,7 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
                     return ERRORTOKEN;
                 }
                 if (altcol <= tok->altindstack[tok->indent]) {
-                    if (indenterror(tok))
-                        return ERRORTOKEN;
+                    return indenterror(tok);
                 }
                 tok->pendin++;
                 tok->indstack[++tok->indent] = col;
@@ -1417,8 +1224,7 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
                     return ERRORTOKEN;
                 }
                 if (altcol != tok->altindstack[tok->indent]) {
-                    if (indenterror(tok))
-                        return ERRORTOKEN;
+                    return indenterror(tok);
                 }
             }
         }
@@ -1438,8 +1244,18 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
         }
     }
 
+    /* Peek ahead at the next character */
+    c = tok_nextc(tok);
+    tok_backup(tok, c);
+    /* Check if we are closing an async function */
     if (tok->async_def
         && !blankline
+        /* Due to some implementation artifacts of type comments,
+         * a TYPE_COMMENT at the start of a function won't set an
+         * indentation level and it will produce a NEWLINE after it.
+         * To avoid spuriously ending an async function due to this,
+         * wait until we have some non-newline char in front of us. */
+        && c != '\n'
         && tok->level == 0
         /* There was a NEWLINE after ASYNC DEF,
            so we're past the signature. */
@@ -1463,10 +1279,64 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
     /* Set start of current token */
     tok->start = tok->cur - 1;
 
-    /* Skip comment */
-    if (c == '#')
-        while (c != EOF && c != '\n')
+    /* Skip comment, unless it's a type comment */
+    if (c == '#') {
+        const char *prefix, *p, *type_start;
+
+        while (c != EOF && c != '\n') {
             c = tok_nextc(tok);
+        }
+
+        if (tok->type_comments) {
+            p = tok->start;
+            prefix = type_comment_prefix;
+            while (*prefix && p < tok->cur) {
+                if (*prefix == ' ') {
+                    while (*p == ' ' || *p == '\t') {
+                        p++;
+                    }
+                } else if (*prefix == *p) {
+                    p++;
+                } else {
+                    break;
+                }
+
+                prefix++;
+            }
+
+            /* This is a type comment if we matched all of type_comment_prefix. */
+            if (!*prefix) {
+                int is_type_ignore = 1;
+                const char *ignore_end = p + 6;
+                tok_backup(tok, c);  /* don't eat the newline or EOF */
+
+                type_start = p;
+
+                /* A TYPE_IGNORE is "type: ignore" followed by the end of the token
+                 * or anything ASCII and non-alphanumeric. */
+                is_type_ignore = (
+                    tok->cur >= ignore_end && memcmp(p, "ignore", 6) == 0
+                    && !(tok->cur > ignore_end
+                         && ((unsigned char)ignore_end[0] >= 128 || Py_ISALNUM(ignore_end[0]))));
+
+                if (is_type_ignore) {
+                    *p_start = (char *) ignore_end;
+                    *p_end = tok->cur;
+
+                    /* If this type ignore is the only thing on the line, consume the newline also. */
+                    if (blankline) {
+                        tok_nextc(tok);
+                        tok->atbol = 1;
+                    }
+                    return TYPE_IGNORE;
+                } else {
+                    *p_start = (char *) type_start;  /* after type_comment_prefix */
+                    *p_end = tok->cur;
+                    return TYPE_COMMENT;
+                }
+            }
+        }
+    }
 
     /* Check for EOF and errors now */
     if (c == EOF) {
@@ -1476,48 +1346,67 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
     /* Identifier (most frequent token!) */
     nonascii = 0;
     if (is_potential_identifier_start(c)) {
-        /* Process b"", r"", u"", br"" and rb"" */
-        int saw_b = 0, saw_r = 0, saw_u = 0;
+        /* Process the various legal combinations of b"", r"", u"", and f"". */
+        int saw_b = 0, saw_r = 0, saw_u = 0, saw_f = 0;
         while (1) {
-            if (!(saw_b || saw_u) && (c == 'b' || c == 'B'))
+            if (!(saw_b || saw_u || saw_f) && (c == 'b' || c == 'B'))
                 saw_b = 1;
             /* Since this is a backwards compatibility support literal we don't
                want to support it in arbitrary order like byte literals. */
-            else if (!(saw_b || saw_u || saw_r) && (c == 'u' || c == 'U'))
+            else if (!(saw_b || saw_u || saw_r || saw_f)
+                     && (c == 'u'|| c == 'U')) {
                 saw_u = 1;
+            }
             /* ur"" and ru"" are not supported */
-            else if (!(saw_r || saw_u) && (c == 'r' || c == 'R'))
+            else if (!(saw_r || saw_u) && (c == 'r' || c == 'R')) {
                 saw_r = 1;
-            else
+            }
+            else if (!(saw_f || saw_b || saw_u) && (c == 'f' || c == 'F')) {
+                saw_f = 1;
+            }
+            else {
                 break;
+            }
             c = tok_nextc(tok);
-            if (c == '"' || c == '\'')
+            if (c == '"' || c == '\'') {
                 goto letter_quote;
+            }
         }
         while (is_potential_identifier_char(c)) {
-            if (c >= 128)
+            if (c >= 128) {
                 nonascii = 1;
+            }
             c = tok_nextc(tok);
         }
         tok_backup(tok, c);
-        if (nonascii && !verify_identifier(tok))
+        if (nonascii && !verify_identifier(tok)) {
             return ERRORTOKEN;
+        }
         *p_start = tok->start;
         *p_end = tok->cur;
 
         /* async/await parsing block. */
-        if (tok->cur - tok->start == 5) {
-            /* Current token length is 5. */
-            if (tok->async_def) {
-                /* We're inside an 'async def' function. */
-                if (memcmp(tok->start, "async", 5) == 0)
+        if (tok->cur - tok->start == 5 && tok->start[0] == 'a') {
+            /* May be an 'async' or 'await' token.  For Python 3.7 or
+               later we recognize them unconditionally.  For Python
+               3.5 or 3.6 we recognize 'async' in front of 'def', and
+               either one inside of 'async def'.  (Technically we
+               shouldn't recognize these at all for 3.4 or earlier,
+               but there's no *valid* Python 3.4 code that would be
+               rejected, and async functions will be rejected in a
+               later phase.) */
+            if (!tok->async_hacks || tok->async_def) {
+                /* Always recognize the keywords. */
+                if (memcmp(tok->start, "async", 5) == 0) {
                     return ASYNC;
-                if (memcmp(tok->start, "await", 5) == 0)
+                }
+                if (memcmp(tok->start, "await", 5) == 0) {
                     return AWAIT;
+                }
             }
             else if (memcmp(tok->start, "async", 5) == 0) {
                 /* The current token is 'async'.
-                   Look ahead one token.*/
+                   Look ahead one token to see if that is 'def'. */
 
                 struct tok_state ahead_tok;
                 char *ahead_tok_start = NULL, *ahead_tok_end = NULL;
@@ -1532,7 +1421,7 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
                     && memcmp(ahead_tok.start, "def", 3) == 0)
                 {
                     /* The next token is going to be 'def', so instead of
-                       returning 'async' NAME token, we return ASYNC. */
+                       returning a plain NAME token, return ASYNC. */
                     tok->async_def_indent = tok->indent;
                     tok->async_def = 1;
                     return ASYNC;
@@ -1546,8 +1435,9 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
     /* Newline */
     if (c == '\n') {
         tok->atbol = 1;
-        if (blankline || tok->level > 0)
+        if (blankline || tok->level > 0) {
             goto nextline;
+        }
         *p_start = tok->start;
         *p_end = tok->cur - 1; /* Leave '\n' out of the string */
         tok->cont_line = 0;
@@ -1570,11 +1460,13 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
                 *p_start = tok->start;
                 *p_end = tok->cur;
                 return ELLIPSIS;
-            } else {
+            }
+            else {
                 tok_backup(tok, c);
             }
             tok_backup(tok, '.');
-        } else {
+        }
+        else {
             tok_backup(tok, c);
         }
         *p_start = tok->start;
@@ -1587,83 +1479,136 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
         if (c == '0') {
             /* Hex, octal or binary -- maybe. */
             c = tok_nextc(tok);
-            if (c == '.')
-                goto fraction;
-            if (c == 'j' || c == 'J')
-                goto imaginary;
             if (c == 'x' || c == 'X') {
-
                 /* Hex */
                 c = tok_nextc(tok);
-                if (!isxdigit(c)) {
-                    tok->done = E_TOKEN;
-                    tok_backup(tok, c);
-                    return ERRORTOKEN;
-                }
                 do {
-                    c = tok_nextc(tok);
-                } while (isxdigit(c));
+                    if (c == '_') {
+                        c = tok_nextc(tok);
+                    }
+                    if (!isxdigit(c)) {
+                        tok_backup(tok, c);
+                        return syntaxerror(tok, "invalid hexadecimal literal");
+                    }
+                    do {
+                        c = tok_nextc(tok);
+                    } while (isxdigit(c));
+                } while (c == '_');
             }
             else if (c == 'o' || c == 'O') {
                 /* Octal */
                 c = tok_nextc(tok);
-                if (c < '0' || c >= '8') {
-                    tok->done = E_TOKEN;
-                    tok_backup(tok, c);
-                    return ERRORTOKEN;
-                }
                 do {
-                    c = tok_nextc(tok);
-                } while ('0' <= c && c < '8');
+                    if (c == '_') {
+                        c = tok_nextc(tok);
+                    }
+                    if (c < '0' || c >= '8') {
+                        tok_backup(tok, c);
+                        if (isdigit(c)) {
+                            return syntaxerror(tok,
+                                    "invalid digit '%c' in octal literal", c);
+                        }
+                        else {
+                            return syntaxerror(tok, "invalid octal literal");
+                        }
+                    }
+                    do {
+                        c = tok_nextc(tok);
+                    } while ('0' <= c && c < '8');
+                } while (c == '_');
+                if (isdigit(c)) {
+                    return syntaxerror(tok,
+                            "invalid digit '%c' in octal literal", c);
+                }
             }
             else if (c == 'b' || c == 'B') {
                 /* Binary */
                 c = tok_nextc(tok);
-                if (c != '0' && c != '1') {
-                    tok->done = E_TOKEN;
-                    tok_backup(tok, c);
-                    return ERRORTOKEN;
-                }
                 do {
-                    c = tok_nextc(tok);
-                } while (c == '0' || c == '1');
+                    if (c == '_') {
+                        c = tok_nextc(tok);
+                    }
+                    if (c != '0' && c != '1') {
+                        tok_backup(tok, c);
+                        if (isdigit(c)) {
+                            return syntaxerror(tok,
+                                    "invalid digit '%c' in binary literal", c);
+                        }
+                        else {
+                            return syntaxerror(tok, "invalid binary literal");
+                        }
+                    }
+                    do {
+                        c = tok_nextc(tok);
+                    } while (c == '0' || c == '1');
+                } while (c == '_');
+                if (isdigit(c)) {
+                    return syntaxerror(tok,
+                            "invalid digit '%c' in binary literal", c);
+                }
             }
             else {
                 int nonzero = 0;
                 /* maybe old-style octal; c is first char of it */
                 /* in any case, allow '0' as a literal */
-                while (c == '0')
-                    c = tok_nextc(tok);
-                while (isdigit(c)) {
-                    nonzero = 1;
+                while (1) {
+                    if (c == '_') {
+                        c = tok_nextc(tok);
+                        if (!isdigit(c)) {
+                            tok_backup(tok, c);
+                            return syntaxerror(tok, "invalid decimal literal");
+                        }
+                    }
+                    if (c != '0') {
+                        break;
+                    }
                     c = tok_nextc(tok);
                 }
-                if (c == '.')
+                if (isdigit(c)) {
+                    nonzero = 1;
+                    c = tok_decimal_tail(tok);
+                    if (c == 0) {
+                        return ERRORTOKEN;
+                    }
+                }
+                if (c == '.') {
+                    c = tok_nextc(tok);
                     goto fraction;
-                else if (c == 'e' || c == 'E')
+                }
+                else if (c == 'e' || c == 'E') {
                     goto exponent;
-                else if (c == 'j' || c == 'J')
+                }
+                else if (c == 'j' || c == 'J') {
                     goto imaginary;
+                }
                 else if (nonzero) {
-                    tok->done = E_TOKEN;
+                    /* Old-style octal: now disallowed. */
                     tok_backup(tok, c);
-                    return ERRORTOKEN;
+                    return syntaxerror(tok,
+                                       "leading zeros in decimal integer "
+                                       "literals are not permitted; "
+                                       "use an 0o prefix for octal integers");
                 }
             }
         }
         else {
             /* Decimal */
-            do {
-                c = tok_nextc(tok);
-            } while (isdigit(c));
+            c = tok_decimal_tail(tok);
+            if (c == 0) {
+                return ERRORTOKEN;
+            }
             {
                 /* Accept floating point numbers. */
                 if (c == '.') {
+                    c = tok_nextc(tok);
         fraction:
                     /* Fraction */
-                    do {
-                        c = tok_nextc(tok);
-                    } while (isdigit(c));
+                    if (isdigit(c)) {
+                        c = tok_decimal_tail(tok);
+                        if (c == 0) {
+                            return ERRORTOKEN;
+                        }
+                    }
                 }
                 if (c == 'e' || c == 'E') {
                     int e;
@@ -1674,9 +1619,8 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
                     if (c == '+' || c == '-') {
                         c = tok_nextc(tok);
                         if (!isdigit(c)) {
-                            tok->done = E_TOKEN;
                             tok_backup(tok, c);
-                            return ERRORTOKEN;
+                            return syntaxerror(tok, "invalid decimal literal");
                         }
                     } else if (!isdigit(c)) {
                         tok_backup(tok, c);
@@ -1685,14 +1629,16 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
                         *p_end = tok->cur;
                         return NUMBER;
                     }
-                    do {
-                        c = tok_nextc(tok);
-                    } while (isdigit(c));
+                    c = tok_decimal_tail(tok);
+                    if (c == 0) {
+                        return ERRORTOKEN;
+                    }
                 }
-                if (c == 'j' || c == 'J')
+                if (c == 'j' || c == 'J') {
                     /* Imaginary part */
         imaginary:
                     c = tok_nextc(tok);
+                }
             }
         }
         tok_backup(tok, c);
@@ -1708,26 +1654,38 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
         int quote_size = 1;             /* 1 or 3 */
         int end_quote_size = 0;
 
+        /* Nodes of type STRING, especially multi line strings
+           must be handled differently in order to get both
+           the starting line number and the column offset right.
+           (cf. issue 16806) */
+        tok->first_lineno = tok->lineno;
+        tok->multi_line_start = tok->line_start;
+
         /* Find the quote size and start of string */
         c = tok_nextc(tok);
         if (c == quote) {
             c = tok_nextc(tok);
-            if (c == quote)
+            if (c == quote) {
                 quote_size = 3;
-            else
+            }
+            else {
                 end_quote_size = 1;     /* empty string found */
+            }
         }
-        if (c != quote)
+        if (c != quote) {
             tok_backup(tok, c);
+        }
 
         /* Get rest of string */
         while (end_quote_size != quote_size) {
             c = tok_nextc(tok);
             if (c == EOF) {
-                if (quote_size == 3)
+                if (quote_size == 3) {
                     tok->done = E_EOFS;
-                else
+                }
+                else {
                     tok->done = E_EOLS;
+                }
                 tok->cur = tok->inp;
                 return ERRORTOKEN;
             }
@@ -1736,12 +1694,14 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
                 tok->cur = tok->inp;
                 return ERRORTOKEN;
             }
-            if (c == quote)
+            if (c == quote) {
                 end_quote_size += 1;
+            }
             else {
                 end_quote_size = 0;
-                if (c == '\\')
-                c = tok_nextc(tok);  /* skip escaped char */
+                if (c == '\\') {
+                    tok_nextc(tok);  /* skip escaped char */
+                }
             }
         }
 
@@ -1758,6 +1718,14 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
             tok->cur = tok->inp;
             return ERRORTOKEN;
         }
+        c = tok_nextc(tok);
+        if (c == EOF) {
+            tok->done = E_EOF;
+            tok->cur = tok->inp;
+            return ERRORTOKEN;
+        } else {
+            tok_backup(tok, c);
+        }
         tok->cont_line = 1;
         goto again; /* Read next line */
     }
@@ -1771,7 +1739,8 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
             int token3 = PyToken_ThreeChars(c, c2, c3);
             if (token3 != OP) {
                 token = token3;
-            } else {
+            }
+            else {
                 tok_backup(tok, c3);
             }
             *p_start = tok->start;
@@ -1786,12 +1755,38 @@ tok_get(struct tok_state *tok, char **p_start, char **p_end)
     case '(':
     case '[':
     case '{':
+        if (tok->level >= MAXLEVEL) {
+            return syntaxerror(tok, "too many nested parentheses");
+        }
+        tok->parenstack[tok->level] = c;
+        tok->parenlinenostack[tok->level] = tok->lineno;
         tok->level++;
         break;
     case ')':
     case ']':
     case '}':
+        if (!tok->level) {
+            return syntaxerror(tok, "unmatched '%c'", c);
+        }
         tok->level--;
+        int opening = tok->parenstack[tok->level];
+        if (!((opening == '(' && c == ')') ||
+              (opening == '[' && c == ']') ||
+              (opening == '{' && c == '}')))
+        {
+            if (tok->parenlinenostack[tok->level] != tok->lineno) {
+                return syntaxerror(tok,
+                        "closing parenthesis '%c' does not match "
+                        "opening parenthesis '%c' on line %d",
+                        c, opening, tok->parenlinenostack[tok->level]);
+            }
+            else {
+                return syntaxerror(tok,
+                        "closing parenthesis '%c' does not match "
+                        "opening parenthesis '%c'",
+                        c, opening);
+            }
+        }
         break;
     }
 
@@ -1829,11 +1824,7 @@ PyTokenizer_FindEncodingFilename(int fd, PyObject *filename)
     FILE *fp;
     char *p_start =NULL , *p_end =NULL , *encoding = NULL;
 
-#ifndef PGEN
     fd = _Py_dup(fd);
-#else
-    fd = dup(fd);
-#endif
     if (fd < 0) {
         return NULL;
     }
@@ -1847,7 +1838,6 @@ PyTokenizer_FindEncodingFilename(int fd, PyObject *filename)
         fclose(fp);
         return NULL;
     }
-#ifndef PGEN
     if (filename != NULL) {
         Py_INCREF(filename);
         tok->filename = filename;
@@ -1860,7 +1850,6 @@ PyTokenizer_FindEncodingFilename(int fd, PyObject *filename)
             return encoding;
         }
     }
-#endif
     while (tok->lineno < 2 && tok->done == E_OK) {
         PyTokenizer_Get(tok, &p_start, &p_end);
     }
@@ -1868,7 +1857,7 @@ PyTokenizer_FindEncodingFilename(int fd, PyObject *filename)
     if (tok->encoding) {
         encoding = (char *)PyMem_MALLOC(strlen(tok->encoding) + 1);
         if (encoding)
-        strcpy(encoding, tok->encoding);
+            strcpy(encoding, tok->encoding);
     }
     PyTokenizer_Free(tok);
     return encoding;

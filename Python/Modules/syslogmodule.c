@@ -116,7 +116,7 @@ syslog_openlog(PyObject * self, PyObject * args, PyObject *kwds)
     long facility = LOG_USER;
     PyObject *new_S_ident_o = NULL;
     static char *keywords[] = {"ident", "logoption", "facility", 0};
-    char *ident = NULL;
+    const char *ident = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds,
                           "|Ull:openlog", keywords, &new_S_ident_o, &logopt, &facility))
@@ -139,16 +139,19 @@ syslog_openlog(PyObject * self, PyObject * args, PyObject *kwds)
      * If NULL, just let openlog figure it out (probably using C argv[0]).
      */
     if (S_ident_o) {
-        ident = _PyUnicode_AsString(S_ident_o);
+        ident = PyUnicode_AsUTF8(S_ident_o);
         if (ident == NULL)
             return NULL;
+    }
+
+    if (PySys_Audit("syslog.openlog", "sll", ident, logopt, facility) < 0) {
+        return NULL;
     }
 
     openlog(ident, logopt, facility);
     S_log_open = 1;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 
@@ -167,9 +170,13 @@ syslog_syslog(PyObject * self, PyObject * args)
             return NULL;
     }
 
-    message = _PyUnicode_AsString(message_object);
+    message = PyUnicode_AsUTF8(message_object);
     if (message == NULL)
         return NULL;
+
+    if (PySys_Audit("syslog.syslog", "is", priority, message) < 0) {
+        return NULL;
+    }
 
     /*  if log is not opened, open it now  */
     if (!S_log_open) {
@@ -195,13 +202,15 @@ syslog_syslog(PyObject * self, PyObject * args)
 static PyObject *
 syslog_closelog(PyObject *self, PyObject *unused)
 {
+    if (PySys_Audit("syslog.closelog", NULL) < 0) {
+        return NULL;
+    }
     if (S_log_open) {
         closelog();
         Py_CLEAR(S_ident_o);
         S_log_open = 0;
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -211,6 +220,9 @@ syslog_setlogmask(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "l;mask for priority", &maskpri))
         return NULL;
+    if (PySys_Audit("syslog.setlogmask", "(O)", args ? args : Py_None) < 0) {
+        return NULL;
+    }
     omaskpri = setlogmask(maskpri);
     return PyLong_FromLong(omaskpri);
 }
@@ -240,7 +252,7 @@ syslog_log_upto(PyObject *self, PyObject *args)
 /* List of functions defined in the module */
 
 static PyMethodDef syslog_methods[] = {
-    {"openlog",         (PyCFunction) syslog_openlog,           METH_VARARGS | METH_KEYWORDS},
+    {"openlog",         (PyCFunction)(void(*)(void)) syslog_openlog,           METH_VARARGS | METH_KEYWORDS},
     {"closelog",        syslog_closelog,        METH_NOARGS},
     {"syslog",          syslog_syslog,          METH_VARARGS},
     {"setlogmask",      syslog_setlogmask,      METH_VARARGS},

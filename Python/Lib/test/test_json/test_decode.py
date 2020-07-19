@@ -1,5 +1,5 @@
 import decimal
-from io import StringIO, BytesIO
+from io import StringIO
 from collections import OrderedDict
 from test.test_json import PyTest, CTest
 
@@ -35,7 +35,7 @@ class TestDecode:
         self.assertEqual(self.loads(s, object_pairs_hook=OrderedDict,
                                     object_hook=lambda x: None),
                          OrderedDict(p))
-        # check that empty objects literals work (see #17368)
+        # check that empty object literals work (see #17368)
         self.assertEqual(self.loads('{}', object_pairs_hook=OrderedDict),
                          OrderedDict())
         self.assertEqual(self.loads('{"empty": {}}',
@@ -58,7 +58,9 @@ class TestDecode:
     def test_keys_reuse(self):
         s = '[{"a_key": 1, "b_\xe9": 2}, {"a_key": 3, "b_\xe9": 4}]'
         self.check_keys_reuse(s, self.loads)
-        self.check_keys_reuse(s, self.json.decoder.JSONDecoder().decode)
+        decoder = self.json.decoder.JSONDecoder()
+        self.check_keys_reuse(s, decoder.decode)
+        self.assertFalse(decoder.memo)
 
     def test_extra_data(self):
         s = '[1, 2, 3]5'
@@ -72,10 +74,8 @@ class TestDecode:
 
     def test_invalid_input_type(self):
         msg = 'the JSON object must be str'
-        for value in [1, 3.14, b'bytes', b'\xff\x00', [], {}, None]:
+        for value in [1, 3.14, [], {}, None]:
             self.assertRaisesRegex(TypeError, msg, self.loads, value)
-        with self.assertRaisesRegex(TypeError, msg):
-            self.json.load(BytesIO(b'[1,2,3]'))
 
     def test_string_with_utf8_bom(self):
         # see #18958
@@ -94,6 +94,10 @@ class TestDecode:
     def test_negative_index(self):
         d = self.json.JSONDecoder()
         self.assertRaises(ValueError, d.raw_decode, 'a'*42, -50000)
+
+    def test_deprecated_encode(self):
+        with self.assertWarns(DeprecationWarning):
+            self.loads('{}', encoding='fake')
 
 class TestPyDecode(TestDecode, PyTest): pass
 class TestCDecode(TestDecode, CTest): pass

@@ -109,7 +109,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>include;build;crypto/modes;crypto/ec/curve448;crypto/ec/curve448/arch_32</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_LIB;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;OPENSSL_NO_THREADS;OPENSSL_NO_RC5;OPENSSL_NO_MD2;OPENSSL_NO_KRB5;OPENSSL_NO_JPAKE;OPENSSL_NO_DYNAMIC_ENGINE;OPENSSL_NO_HW;OPENSSL_NO_ASM;OPENSSLDIR="/OpenSSL";ENGINESDIR="/OpenSSL";DEBUG=1;_DEBUG=1</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_LIB;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;OPENSSLDIR="/OpenSSL";ENGINESDIR="/OpenSSL";DEBUG=1;_DEBUG=1</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -145,7 +145,7 @@
     </Midl>
     <ClCompile>
       <AdditionalIncludeDirectories>include;build;crypto/modes;crypto/ec/curve448;crypto/ec/curve448/arch_32</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_LIB;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;OPENSSL_NO_THREADS;OPENSSL_NO_RC5;OPENSSL_NO_MD2;OPENSSL_NO_KRB5;OPENSSL_NO_JPAKE;OPENSSL_NO_DYNAMIC_ENGINE;OPENSSL_NO_HW;OPENSSL_NO_ASM;OPENSSLDIR="/OpenSSL";ENGINESDIR="/OpenSSL";NDEBUG=1;_NDEBUG=1</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_LIB;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_DEPRECATE;OPENSSLDIR="/OpenSSL";ENGINESDIR="/OpenSSL";NDEBUG=1;_NDEBUG=1</PreprocessorDefinitions>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>

@@ -1,0 +1,637 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Modules">
+      <UniqueIdentifier>{094bf314-b076-449e-8b11-a328774fec67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\_io">
+      <UniqueIdentifier>{497c3532-000c-4dbe-a384-aefb739ef7c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\cjkcodecs">
+      <UniqueIdentifier>{1232e5a5-e69a-4443-bea5-4aa79f279415}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\expat">
+      <UniqueIdentifier>{520fdd4d-2acf-4bca-ba94-5d3830de02a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\_sqlite">
+      <UniqueIdentifier>{fd906954-7743-4d81-9d2e-013999ce650f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\_decimal">
+      <UniqueIdentifier>{cab91b26-25b6-48dc-a910-b7a771fed2eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\_ctypes">
+      <UniqueIdentifier>{25f8df29-e883-40c4-bd66-42693e6004f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\_multiprocessing">
+      <UniqueIdentifier>{473f6cca-8643-4196-8bc5-9777555179da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\clinic">
+      <UniqueIdentifier>{298fcc20-6c25-4776-99ea-79d50dfece70}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Modules\hashtable.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\overlapped.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_opcode.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_stat.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_tracemalloc.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\arraymodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\atexitmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\audioop.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\binascii.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\cmathmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\errnomodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\faulthandler.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\gcmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\getbuildinfo.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\itertoolsmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\main.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\mathmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\md5module.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\mmapmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_operator.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\parsermodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\posixmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\rotatingtree.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\selectmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\sha1module.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\sha256module.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\sha512module.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\signalmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\socketmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\symtablemodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\timemodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\unicodedata.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\xxsubtype.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\zlibmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_bisectmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_bz2module.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_codecsmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_collectionsmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_csv.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_datetimemodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_elementtree.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_functoolsmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_hashopenssl.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_heapqmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_json.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_localemodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_lsprof.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_math.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_pickle.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_randommodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_sre.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_ssl.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_struct.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_testbuffer.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_testcapimodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_threadmodule.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_weakref.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_winapi.c">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_io\bufferedio.c">
+      <Filter>Modules\_io</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_io\bytesio.c">
+      <Filter>Modules\_io</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_io\fileio.c">
+      <Filter>Modules\_io</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_io\iobase.c">
+      <Filter>Modules\_io</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_io\stringio.c">
+      <Filter>Modules\_io</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_io\textio.c">
+      <Filter>Modules\_io</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_io\_iomodule.c">
+      <Filter>Modules\_io</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\cjkcodecs\multibytecodec.c">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\cjkcodecs\_codecs_cn.c">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\cjkcodecs\_codecs_hk.c">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\cjkcodecs\_codecs_iso2022.c">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\cjkcodecs\_codecs_jp.c">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\cjkcodecs\_codecs_kr.c">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\cjkcodecs\_codecs_tw.c">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\expat\xmlparse.c">
+      <Filter>Modules\expat</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\expat\xmlrole.c">
+      <Filter>Modules\expat</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\expat\xmltok.c">
+      <Filter>Modules\expat</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\pyexpat.c">
+      <Filter>Modules\expat</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_sqlite\cache.c">
+      <Filter>Modules\_sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_sqlite\connection.c">
+      <Filter>Modules\_sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_sqlite\cursor.c">
+      <Filter>Modules\_sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_sqlite\microprotocols.c">
+      <Filter>Modules\_sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_sqlite\module.c">
+      <Filter>Modules\_sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_sqlite\prepare_protocol.c">
+      <Filter>Modules\_sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_sqlite\row.c">
+      <Filter>Modules\_sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_sqlite\statement.c">
+      <Filter>Modules\_sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_sqlite\util.c">
+      <Filter>Modules\_sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_decimal\libmpdec\basearith.c">
+      <Filter>Modules\_decimal</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_decimal\libmpdec\constants.c">
+      <Filter>Modules\_decimal</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_decimal\libmpdec\context.c">
+      <Filter>Modules\_decimal</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_decimal\libmpdec\convolute.c">
+      <Filter>Modules\_decimal</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_decimal\libmpdec\crt.c">
+      <Filter>Modules\_decimal</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_decimal\libmpdec\difradix2.c">
+      <Filter>Modules\_decimal</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_decimal\libmpdec\fnt.c">
+      <Filter>Modules\_decimal</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_decimal\libmpdec\fourstep.c">
+      <Filter>Modules\_decimal</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_decimal\libmpdec\io.c">
+      <Filter>Modules\_decimal</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_decimal\libmpdec\memory.c">
+      <Filter>Modules\_decimal</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_decimal\libmpdec\mpdecimal.c">
+      <Filter>Modules\_decimal</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_decimal\libmpdec\numbertheory.c">
+      <Filter>Modules\_decimal</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_decimal\libmpdec\sixstep.c">
+      <Filter>Modules\_decimal</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_decimal\libmpdec\transpose.c">
+      <Filter>Modules\_decimal</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_decimal\_decimal.c">
+      <Filter>Modules\_decimal</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_ctypes\callbacks.c">
+      <Filter>Modules\_ctypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_ctypes\callproc.c">
+      <Filter>Modules\_ctypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_ctypes\cfield.c">
+      <Filter>Modules\_ctypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_ctypes\libffi_msvc\ffi.c">
+      <Filter>Modules\_ctypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_ctypes\libffi_msvc\prep_cif.c">
+      <Filter>Modules\_ctypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_ctypes\libffi_msvc\win32.c">
+      <Filter>Modules\_ctypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_ctypes\malloc_closure.c">
+      <Filter>Modules\_ctypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_ctypes\stgdict.c">
+      <Filter>Modules\_ctypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_ctypes\_ctypes.c">
+      <Filter>Modules\_ctypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_ctypes\_ctypes_test.c">
+      <Filter>Modules\_ctypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_multiprocessing\multiprocessing.c">
+      <Filter>Modules\_multiprocessing</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\_multiprocessing\semaphore.c">
+      <Filter>Modules\_multiprocessing</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Modules\hashtable.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\rotatingtree.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\socketmodule.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\unicodedata_db.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\unicodename_db.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_math.h">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_io\_iomodule.h">
+      <Filter>Modules\_io</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\cjkcodecs\alg_jisx0201.h">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\cjkcodecs\cjkcodecs.h">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\cjkcodecs\emu_jisx0213_2000.h">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\cjkcodecs\mappings_cn.h">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\cjkcodecs\mappings_hk.h">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\cjkcodecs\mappings_jisx0213_pair.h">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\cjkcodecs\mappings_jp.h">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\cjkcodecs\mappings_kr.h">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\cjkcodecs\mappings_tw.h">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\cjkcodecs\multibytecodec.h">
+      <Filter>Modules\cjkcodecs</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\expat\expat.h">
+      <Filter>Modules\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\expat\internal.h">
+      <Filter>Modules\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\expat\xmlrole.h">
+      <Filter>Modules\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\expat\xmltok.h">
+      <Filter>Modules\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_sqlite\cache.h">
+      <Filter>Modules\_sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_sqlite\connection.h">
+      <Filter>Modules\_sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_sqlite\cursor.h">
+      <Filter>Modules\_sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_sqlite\microprotocols.h">
+      <Filter>Modules\_sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_sqlite\module.h">
+      <Filter>Modules\_sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_sqlite\prepare_protocol.h">
+      <Filter>Modules\_sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_sqlite\row.h">
+      <Filter>Modules\_sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_sqlite\sqlitecompat.h">
+      <Filter>Modules\_sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_sqlite\statement.h">
+      <Filter>Modules\_sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_sqlite\util.h">
+      <Filter>Modules\_sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\docstrings.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\basearith.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\bits.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\constants.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\convolute.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\crt.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\difradix2.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\fnt.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\fourstep.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\io.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\memory.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\mpdecimal.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\numbertheory.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\sixstep.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\transpose.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\typearith.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\umodarith.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\vccompat.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_decimal\libmpdec\vcstdint.h">
+      <Filter>Modules\_decimal</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\_multiprocessing\multiprocessing.h">
+      <Filter>Modules\_multiprocessing</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\arraymodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\audioop.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\binascii.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\cmathmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\fcntlmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\grpmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\md5module.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\posixmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\pwdmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\pyexpat.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\sha1module.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\sha256module.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\sha512module.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\signalmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\spwdmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\unicodedata.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\zlibmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_bz2module.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_codecsmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_cryptmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_cursesmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_datetimemodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_dbmmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_elementtree.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_gdbmmodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_lzmamodule.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_opcode.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_pickle.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_sre.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_ssl.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_tkinter.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_weakref.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\clinic\_winapi.c.h">
+      <Filter>Modules\clinic</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Modules\_decimal\libmpdec\vcdiv64.asm">
+      <Filter>Modules\_decimal</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Modules\_ctypes\libffi_msvc\win64.asm">
+      <Filter>Modules\_ctypes</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Modules\_decimal\README.txt">
+      <Filter>Modules\_decimal</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

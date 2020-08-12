@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30330.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Python3", "Python\Python3.vcxproj", "{2A5EE3C0-96F5-4ACF-BDB3-D0D3EA504DC4}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sqlite", "sqlite\sqlite.vcxproj", "{5AE405D5-6F17-4AA8-8BB8-1C7687FDC458}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib\zlib.vcxproj", "{7F819992-8FCA-438E-91BF-587C126B0590}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CoreModules", "Python\CoreModules.vcxproj.vcxproj", "{EEBDF271-A760-406B-AF04-51A3300EECE0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -105,8 +107,27 @@ Global
 		{7F819992-8FCA-438E-91BF-587C126B0590}.Release|Win32.Build.0 = Release|Win32
 		{7F819992-8FCA-438E-91BF-587C126B0590}.Release|x64.ActiveCfg = Release|x64
 		{7F819992-8FCA-438E-91BF-587C126B0590}.Release|x64.Build.0 = Release|x64
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Debug_DLL|Win32.ActiveCfg = Debug|Win32
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Debug_DLL|Win32.Build.0 = Debug|Win32
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Debug_DLL|x64.ActiveCfg = Debug|x64
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Debug_DLL|x64.Build.0 = Debug|x64
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Debug|Win32.Build.0 = Debug|Win32
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Debug|x64.ActiveCfg = Debug|x64
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Debug|x64.Build.0 = Debug|x64
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Release_DLL|Win32.ActiveCfg = Release|Win32
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Release_DLL|Win32.Build.0 = Release|Win32
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Release_DLL|x64.ActiveCfg = Release|x64
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Release_DLL|x64.Build.0 = Release|x64
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Release|Win32.ActiveCfg = Release|Win32
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Release|Win32.Build.0 = Release|Win32
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Release|x64.ActiveCfg = Release|x64
+		{EEBDF271-A760-406B-AF04-51A3300EECE0}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {334480CD-18AD-4EE4-9120-34AC6FD0B2D0}
 	EndGlobalSection
 EndGlobal

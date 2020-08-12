@@ -26,6 +26,7 @@
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
 
+#define MODULE_NAME "_sqlite3"
 #define PYSQLITE_VERSION "2.6.0"
 
 extern PyObject* pysqlite_Error;

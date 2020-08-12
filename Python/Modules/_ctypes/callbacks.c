@@ -558,6 +558,7 @@ long Call_CanUnloadNow(void)
     return retval;
 }
 
+#if 0 // tiff2766
 /*
   DllRegisterServer and DllUnregisterServer still missing
 */
@@ -582,6 +583,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvRes)
     return TRUE;
 }
 #endif
+#endif // if 0
 
 #endif
 

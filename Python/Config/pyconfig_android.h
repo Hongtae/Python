@@ -1134,6 +1134,8 @@
 /* Define if log1p(-0.) is 0. rather than -0. */
 #define LOG1P_DROPS_ZERO_SIGN 1
 
+#define HAVE_UUID_UUID_H 1
+
 /* Define to 1 if `major', `minor', and `makedev' are declared in <mkdev.h>.
  */
 /* #undef MAJOR_IN_MKDEV */

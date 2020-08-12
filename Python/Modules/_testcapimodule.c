@@ -13,6 +13,7 @@
 #define PY_SSIZE_T_CLEAN
 
 #include "Python.h"
+#undef Py_BUILD_CORE /* to use PyDateTimeAPI in datetime.h - tiff2766 */
 #include "datetime.h"
 #include "marshal.h"
 #include "pythread.h"

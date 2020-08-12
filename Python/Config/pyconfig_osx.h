@@ -1132,6 +1132,8 @@
 /* Define if the zlib library has inflateCopy */
 #define HAVE_ZLIB_COPY 1
 
+#define HAVE_UUID_UUID_H 1
+
 /* Define to 1 if you have the `_getpty' function. */
 /* #undef HAVE__GETPTY */
 

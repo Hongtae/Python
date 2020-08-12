@@ -11,7 +11,6 @@
 #endif
 
 
-#ifndef SOABI
-/* CPython 3.5.x */
-#define SOABI "cpython-35m"
-#endif
+/* framework name */
+#define _PYTHONFRAMEWORK ""
+

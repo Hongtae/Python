@@ -31,7 +31,7 @@
 #include "pythread.h"
 #include "structmember.h"
 #include "complexobject.h"
-#include "mpdecimal.h"
+#include "libmpdec/mpdecimal.h"
 
 #include <stdlib.h>
 

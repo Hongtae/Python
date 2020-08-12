@@ -29,6 +29,36 @@
 #ifndef MPDECIMAL_H
 #define MPDECIMAL_H
 
+ /* MSC_VER, OSX, iOS Configuration by tiff2766 */
+#ifdef _MSC_VER
+#ifdef _WIN64
+#define CONFIG_64
+#pragma message("libmpdec win32.x64")
+#else
+#define CONFIG_32
+#define PPRO
+#pragma message("libmpdec win32.x86")
+#endif
+#define MASM
+#endif
+
+#if !defined(CONFIG_64) && !defined(CONFIG_32)
+#if defined(__i386__)
+#define CONFIG_32
+#define ANSI
+#elif defined(__x86_64__)
+#define CONFIG_64
+#define ANSI
+#elif defined(__arm__)
+#define CONFIG_32
+#define ANSI
+#elif defined(__arm64__)
+#define CONFIG_64
+#define ANSI
+#else
+#error "unknown architecture."
+#endif
+#endif
 
 #ifdef __cplusplus
 extern "C" {

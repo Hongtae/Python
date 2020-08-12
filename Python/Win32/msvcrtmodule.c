@@ -33,14 +33,20 @@
 #endif
 
 /*[python input]
-class Py_intptr_t_converter(CConverter):
-    type = 'Py_intptr_t'
-    format_unit = '"_Py_PARSE_INTPTR"'
+class HANDLE_converter(CConverter):
+    type = 'void *'
+    format_unit = '"_Py_PARSE_UINTPTR"'
 
-class handle_return_converter(long_return_converter):
-    type = 'Py_intptr_t'
-    cast = '(void *)'
-    conversion_fn = 'PyLong_FromVoidPtr'
+class HANDLE_return_converter(CReturnConverter):
+    type = 'void *'
+
+    def render(self, function, data):
+        self.declare(data)
+        self.err_occurred_if(
+            "_return_value == NULL || _return_value == INVALID_HANDLE_VALUE",
+            data)
+        data.return_conversion.append(
+            'return_value = PyLong_FromVoidPtr(_return_value);\n')
 
 class byte_char_return_converter(CReturnConverter):
     type = 'int'
@@ -59,7 +65,7 @@ class wchar_t_return_converter(CReturnConverter):
         data.return_conversion.append(
             'return_value = PyUnicode_FromOrdinal(_return_value);\n')
 [python start generated code]*/
-/*[python end generated code: output=da39a3ee5e6b4b0d input=6a54fc4e73d0b367]*/
+/*[python end generated code: output=da39a3ee5e6b4b0d input=d102511df3cda2eb]*/
 
 /*[clinic input]
 module msvcrt
@@ -78,11 +84,11 @@ to the operating system. On failure, this raises OSError.
 [clinic start generated code]*/
 
 static PyObject *
-msvcrt_heapmin_impl(PyModuleDef *module)
-/*[clinic end generated code: output=464f866feb57c436 input=82e1771d21bde2d8]*/
+msvcrt_heapmin_impl(PyObject *module)
+/*[clinic end generated code: output=1ba00f344782dc19 input=82e1771d21bde2d8]*/
 {
     if (_heapmin() != 0)
-        return PyErr_SetFromErrno(PyExc_IOError);
+        return PyErr_SetFromErrno(PyExc_OSError);
 
     Py_RETURN_NONE;
 }
@@ -96,7 +102,7 @@ msvcrt.locking
 
 Lock part of a file based on file descriptor fd from the C runtime.
 
-Raises IOError on failure. The locked region of the file extends from
+Raises OSError on failure. The locked region of the file extends from
 the current file position for nbytes bytes, and may continue beyond
 the end of the file. mode must be one of the LK_* constants listed
 below. Multiple regions in a file may be locked at the same time, but
@@ -105,16 +111,22 @@ individually.
 [clinic start generated code]*/
 
 static PyObject *
-msvcrt_locking_impl(PyModuleDef *module, int fd, int mode, long nbytes)
-/*[clinic end generated code: output=dff41e5e76d544de input=d9f13f0f6a713ba7]*/
+msvcrt_locking_impl(PyObject *module, int fd, int mode, long nbytes)
+/*[clinic end generated code: output=a4a90deca9785a03 input=e97bd15fc4a04fef]*/
 {
     int err;
 
+    if (PySys_Audit("msvcrt.locking", "iil", fd, mode, nbytes) < 0) {
+        return NULL;
+    }
+
     Py_BEGIN_ALLOW_THREADS
+    _Py_BEGIN_SUPPRESS_IPH
     err = _locking(fd, mode, nbytes);
+    _Py_END_SUPPRESS_IPH
     Py_END_ALLOW_THREADS
     if (err != 0)
-        return PyErr_SetFromErrno(PyExc_IOError);
+        return PyErr_SetFromErrno(PyExc_OSError);
 
     Py_RETURN_NONE;
 }
@@ -135,12 +147,14 @@ Return value is the previous mode.
 [clinic start generated code]*/
 
 static long
-msvcrt_setmode_impl(PyModuleDef *module, int fd, int flags)
-/*[clinic end generated code: output=8c84e5b37c586d0d input=76e7c01f6b137f75]*/
+msvcrt_setmode_impl(PyObject *module, int fd, int flags)
+/*[clinic end generated code: output=24a9be5ea07ccb9b input=76e7c01f6b137f75]*/
 {
+    _Py_BEGIN_SUPPRESS_IPH
     flags = _setmode(fd, flags);
+    _Py_END_SUPPRESS_IPH
     if (flags == -1)
-        PyErr_SetFromErrno(PyExc_IOError);
+        PyErr_SetFromErrno(PyExc_OSError);
 
     return flags;
 }
@@ -148,7 +162,7 @@ msvcrt_setmode_impl(PyModuleDef *module, int fd, int flags)
 /*[clinic input]
 msvcrt.open_osfhandle -> long
 
-    handle: Py_intptr_t
+    handle: HANDLE
     flags: int
     /
 
@@ -160,48 +174,52 @@ to os.fdopen() to create a file object.
 [clinic start generated code]*/
 
 static long
-msvcrt_open_osfhandle_impl(PyModuleDef *module, Py_intptr_t handle,
-                           int flags)
-/*[clinic end generated code: output=86bce32582c49c06 input=4d8516ed32db8f65]*/
+msvcrt_open_osfhandle_impl(PyObject *module, void *handle, int flags)
+/*[clinic end generated code: output=b2fb97c4b515e4e6 input=d5db190a307cf4bb]*/
 {
     int fd;
 
-    fd = _open_osfhandle(handle, flags);
+    if (PySys_Audit("msvcrt.open_osfhandle", "Ki", handle, flags) < 0) {
+        return -1;
+    }
+
+    _Py_BEGIN_SUPPRESS_IPH
+    fd = _open_osfhandle((intptr_t)handle, flags);
+    _Py_END_SUPPRESS_IPH
     if (fd == -1)
-        PyErr_SetFromErrno(PyExc_IOError);
+        PyErr_SetFromErrno(PyExc_OSError);
 
     return fd;
 }
 
 /*[clinic input]
-msvcrt.get_osfhandle -> handle
+msvcrt.get_osfhandle -> HANDLE
 
     fd: int
     /
 
 Return the file handle for the file descriptor fd.
 
-Raises IOError if fd is not recognized.
+Raises OSError if fd is not recognized.
 [clinic start generated code]*/
 
-static Py_intptr_t
-msvcrt_get_osfhandle_impl(PyModuleDef *module, int fd)
-/*[clinic end generated code: output=376bff52586b55a6 input=c7d18d02c8017ec1]*/
+static void *
+msvcrt_get_osfhandle_impl(PyObject *module, int fd)
+/*[clinic end generated code: output=aca01dfe24637374 input=5fcfde9b17136aa2]*/
 {
-    Py_intptr_t handle = -1;
+    intptr_t handle = -1;
 
-    if (!_PyVerify_fd(fd)) {
-        PyErr_SetFromErrno(PyExc_IOError);
+    if (PySys_Audit("msvcrt.get_osfhandle", "(i)", fd) < 0) {
+        return NULL;
     }
-    else {
+
     _Py_BEGIN_SUPPRESS_IPH
-        handle = _get_osfhandle(fd);
+    handle = _get_osfhandle(fd);
     _Py_END_SUPPRESS_IPH
-        if (handle == -1)
-            PyErr_SetFromErrno(PyExc_IOError);
-    }
+    if (handle == -1)
+        PyErr_SetFromErrno(PyExc_OSError);
 
-    return handle;
+    return (HANDLE)handle;
 }
 
 /* Console I/O */
@@ -212,8 +230,8 @@ Return true if a keypress is waiting to be read.
 [clinic start generated code]*/
 
 static long
-msvcrt_kbhit_impl(PyModuleDef *module)
-/*[clinic end generated code: output=2b7293fcbe5cb24e input=e70d678a5c2f6acc]*/
+msvcrt_kbhit_impl(PyObject *module)
+/*[clinic end generated code: output=940dfce6587c1890 input=e70d678a5c2f6acc]*/
 {
     return _kbhit();
 }
@@ -231,8 +249,8 @@ cannot be read with this function.
 [clinic start generated code]*/
 
 static int
-msvcrt_getch_impl(PyModuleDef *module)
-/*[clinic end generated code: output=199e3d89f49c166a input=37a40cf0ed0d1153]*/
+msvcrt_getch_impl(PyObject *module)
+/*[clinic end generated code: output=a4e51f0565064a7d input=37a40cf0ed0d1153]*/
 {
     int ch;
 
@@ -249,8 +267,8 @@ Wide char variant of getch(), returning a Unicode value.
 [clinic start generated code]*/
 
 static wchar_t
-msvcrt_getwch_impl(PyModuleDef *module)
-/*[clinic end generated code: output=9d3762861328b1fe input=27b3dec8ad823d7c]*/
+msvcrt_getwch_impl(PyObject *module)
+/*[clinic end generated code: output=be9937494e22f007 input=27b3dec8ad823d7c]*/
 {
     wchar_t ch;
 
@@ -267,8 +285,8 @@ Similar to getch(), but the keypress will be echoed if possible.
 [clinic start generated code]*/
 
 static int
-msvcrt_getche_impl(PyModuleDef *module)
-/*[clinic end generated code: output=8aa369be6550068e input=43311ade9ed4a9c0]*/
+msvcrt_getche_impl(PyObject *module)
+/*[clinic end generated code: output=d8f7db4fd2990401 input=43311ade9ed4a9c0]*/
 {
     int ch;
 
@@ -285,8 +303,8 @@ Wide char variant of getche(), returning a Unicode value.
 [clinic start generated code]*/
 
 static wchar_t
-msvcrt_getwche_impl(PyModuleDef *module)
-/*[clinic end generated code: output=3693cf78e3ea0cf6 input=49337d59d1a591f8]*/
+msvcrt_getwche_impl(PyObject *module)
+/*[clinic end generated code: output=d0dae5ba3829d596 input=49337d59d1a591f8]*/
 {
     wchar_t ch;
 
@@ -306,10 +324,12 @@ Print the byte string char to the console without buffering.
 [clinic start generated code]*/
 
 static PyObject *
-msvcrt_putch_impl(PyModuleDef *module, char char_value)
-/*[clinic end generated code: output=c05548b11554f36f input=ec078dd10cb054d6]*/
+msvcrt_putch_impl(PyObject *module, char char_value)
+/*[clinic end generated code: output=92ec9b81012d8f60 input=ec078dd10cb054d6]*/
 {
+    _Py_BEGIN_SUPPRESS_IPH
     _putch(char_value);
+    _Py_END_SUPPRESS_IPH
     Py_RETURN_NONE;
 }
 
@@ -323,10 +343,12 @@ Wide char variant of putch(), accepting a Unicode value.
 [clinic start generated code]*/
 
 static PyObject *
-msvcrt_putwch_impl(PyModuleDef *module, int unicode_char)
-/*[clinic end generated code: output=c216a73694ca73dd input=996ccd0bbcbac4c3]*/
+msvcrt_putwch_impl(PyObject *module, int unicode_char)
+/*[clinic end generated code: output=a3bd1a8951d28eee input=996ccd0bbcbac4c3]*/
 {
+    _Py_BEGIN_SUPPRESS_IPH
     _putwch(unicode_char);
+    _Py_END_SUPPRESS_IPH
     Py_RETURN_NONE;
 
 }
@@ -345,11 +367,17 @@ getch() or getche().
 [clinic start generated code]*/
 
 static PyObject *
-msvcrt_ungetch_impl(PyModuleDef *module, char char_value)
-/*[clinic end generated code: output=19a4cd3249709ec9 input=22f07ee9001bbf0f]*/
+msvcrt_ungetch_impl(PyObject *module, char char_value)
+/*[clinic end generated code: output=c6942a0efa119000 input=22f07ee9001bbf0f]*/
 {
-    if (_ungetch(char_value) == EOF)
-        return PyErr_SetFromErrno(PyExc_IOError);
+    int res;
+
+    _Py_BEGIN_SUPPRESS_IPH
+    res = _ungetch(char_value);
+    _Py_END_SUPPRESS_IPH
+
+    if (res == EOF)
+        return PyErr_SetFromErrno(PyExc_OSError);
     Py_RETURN_NONE;
 }
 
@@ -363,20 +391,26 @@ Wide char variant of ungetch(), accepting a Unicode value.
 [clinic start generated code]*/
 
 static PyObject *
-msvcrt_ungetwch_impl(PyModuleDef *module, int unicode_char)
-/*[clinic end generated code: output=1ee7674710322bd1 input=83ec0492be04d564]*/
+msvcrt_ungetwch_impl(PyObject *module, int unicode_char)
+/*[clinic end generated code: output=e63af05438b8ba3d input=83ec0492be04d564]*/
 {
-    if (_ungetwch(unicode_char) == WEOF)
-        return PyErr_SetFromErrno(PyExc_IOError);
+    int res;
+
+    _Py_BEGIN_SUPPRESS_IPH
+    res = _ungetwch(unicode_char);
+    _Py_END_SUPPRESS_IPH
+
+    if (res == WEOF)
+        return PyErr_SetFromErrno(PyExc_OSError);
     Py_RETURN_NONE;
 }
 
 #ifdef _DEBUG
 /*[clinic input]
-msvcrt.CrtSetReportFile -> long
+msvcrt.CrtSetReportFile -> HANDLE
 
     type: int
-    file: int
+    file: HANDLE
     /
 
 Wrapper around _CrtSetReportFile.
@@ -384,11 +418,17 @@ Wrapper around _CrtSetReportFile.
 Only available on Debug builds.
 [clinic start generated code]*/
 
-static long
-msvcrt_CrtSetReportFile_impl(PyModuleDef *module, int type, int file)
-/*[clinic end generated code: output=8c3644fb2edfa808 input=bb8f721a604fcc45]*/
+static void *
+msvcrt_CrtSetReportFile_impl(PyObject *module, int type, void *file)
+/*[clinic end generated code: output=9393e8c77088bbe9 input=290809b5f19e65b9]*/
 {
-    return (long)_CrtSetReportFile(type, (_HFILE)file);
+    HANDLE res;
+
+    _Py_BEGIN_SUPPRESS_IPH
+    res = _CrtSetReportFile(type, file);
+    _Py_END_SUPPRESS_IPH
+
+    return res;
 }
 
 /*[clinic input]
@@ -404,14 +444,16 @@ Only available on Debug builds.
 [clinic start generated code]*/
 
 static long
-msvcrt_CrtSetReportMode_impl(PyModuleDef *module, int type, int mode)
-/*[clinic end generated code: output=b407fbf8716a52b9 input=9319d29b4319426b]*/
+msvcrt_CrtSetReportMode_impl(PyObject *module, int type, int mode)
+/*[clinic end generated code: output=b2863761523de317 input=9319d29b4319426b]*/
 {
     int res;
 
+    _Py_BEGIN_SUPPRESS_IPH
     res = _CrtSetReportMode(type, mode);
+    _Py_END_SUPPRESS_IPH
     if (res == -1)
-        PyErr_SetFromErrno(PyExc_IOError);
+        PyErr_SetFromErrno(PyExc_OSError);
     return res;
 }
 
@@ -427,10 +469,16 @@ Only available on Debug builds.
 [clinic start generated code]*/
 
 static long
-msvcrt_set_error_mode_impl(PyModuleDef *module, int mode)
-/*[clinic end generated code: output=62148adffa90867d input=046fca59c0f20872]*/
+msvcrt_set_error_mode_impl(PyObject *module, int mode)
+/*[clinic end generated code: output=ac4a09040d8ac4e3 input=046fca59c0f20872]*/
 {
-    return _set_error_mode(mode);
+    long res;
+
+    _Py_BEGIN_SUPPRESS_IPH
+    res = _set_error_mode(mode);
+    _Py_END_SUPPRESS_IPH
+
+    return res;
 }
 #endif /* _DEBUG */
 
@@ -444,12 +492,15 @@ Wrapper around SetErrorMode.
 [clinic start generated code]*/
 
 static PyObject *
-msvcrt_SetErrorMode_impl(PyModuleDef *module, unsigned int mode)
-/*[clinic end generated code: output=544c60b085be79c6 input=d8b167258d32d907]*/
+msvcrt_SetErrorMode_impl(PyObject *module, unsigned int mode)
+/*[clinic end generated code: output=01d529293f00da8f input=d8b167258d32d907]*/
 {
     unsigned int res;
 
+    _Py_BEGIN_SUPPRESS_IPH
     res = SetErrorMode(mode);
+    _Py_END_SUPPRESS_IPH
+
     return PyLong_FromUnsignedLong(res);
 }
 
@@ -507,6 +558,20 @@ insertint(PyObject *d, char *name, int value)
     }
 }
 
+static void
+insertptr(PyObject *d, char *name, void *value)
+{
+    PyObject *v = PyLong_FromVoidPtr(value);
+    if (v == NULL) {
+        /* Don't bother reporting this error */
+        PyErr_Clear();
+    }
+    else {
+        PyDict_SetItemString(d, name, v);
+        Py_DECREF(v);
+    }
+}
+
 PyMODINIT_FUNC
 PyInit_msvcrt(void)
 {
@@ -535,13 +600,12 @@ PyInit_msvcrt(void)
     insertint(d, "CRTDBG_MODE_FILE", _CRTDBG_MODE_FILE);
     insertint(d, "CRTDBG_MODE_WNDW", _CRTDBG_MODE_WNDW);
     insertint(d, "CRTDBG_REPORT_MODE", _CRTDBG_REPORT_MODE);
-    insertint(d, "CRTDBG_FILE_STDERR", (int)_CRTDBG_FILE_STDERR);
-    insertint(d, "CRTDBG_FILE_STDOUT", (int)_CRTDBG_FILE_STDOUT);
-    insertint(d, "CRTDBG_REPORT_FILE", (int)_CRTDBG_REPORT_FILE);
+    insertptr(d, "CRTDBG_FILE_STDERR", _CRTDBG_FILE_STDERR);
+    insertptr(d, "CRTDBG_FILE_STDOUT", _CRTDBG_FILE_STDOUT);
+    insertptr(d, "CRTDBG_REPORT_FILE", _CRTDBG_REPORT_FILE);
 #endif
 
     /* constants for the crt versions */
-    (void)st;
 #ifdef _VC_ASSEMBLY_PUBLICKEYTOKEN
     st = PyModule_AddStringConstant(m, "VC_ASSEMBLY_PUBLICKEYTOKEN",
                                     _VC_ASSEMBLY_PUBLICKEYTOKEN);
@@ -567,6 +631,8 @@ PyInit_msvcrt(void)
     st = PyModule_AddObject(m, "CRT_ASSEMBLY_VERSION", version);
     if (st < 0) return NULL;
 #endif
+    /* make compiler warning quiet if st is unused */
+    (void)st;
 
     return m;
 }

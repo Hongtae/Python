@@ -60,6 +60,7 @@ DECL_MOD(_decimal);
 DECL_MOD(_elementtree);
 DECL_MOD(_freeze_importlib);
 DECL_MOD(_hashlib);
+DECL_MOD(_locale);
 DECL_MOD(_multiprocessing);
 DECL_MOD(_queue);
 DECL_MOD(_socket);
@@ -75,7 +76,6 @@ DECL_MOD(select);
 DECL_MOD(unicodedata);
 #ifdef WIN32
 DECL_MOD(nt);
-DECL_MOD(_locale);
 DECL_MOD(msvcrt);
 DECL_MOD(winreg);
 DECL_MOD(_winapi);
@@ -173,6 +173,7 @@ struct _inittab _PyImport_Inittab[] = {
     INIT_MOD(_decimal),
     INIT_MOD(_elementtree),
     INIT_MOD(_hashlib),
+    INIT_MOD(_locale),
     INIT_MOD(_multiprocessing),
     INIT_MOD(_queue),
     INIT_MOD(_socket),
@@ -192,7 +193,6 @@ struct _inittab _PyImport_Inittab[] = {
     INIT_MOD(_winapi),
     INIT_MOD(msvcrt),
     INIT_MOD(winreg),
-    INIT_MOD(_locale),
     INIT_MOD(_overlapped),
 #else
     INIT_MOD(posix),

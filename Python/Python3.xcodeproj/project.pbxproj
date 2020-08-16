@@ -2388,7 +2388,7 @@
 		84909E831A60332F004EB23B /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = ../zlib/zlib.xcodeproj; sourceTree = "<group>"; };
 		84909E961A6036E4004EB23B /* bzip2.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = bzip2.xcodeproj; path = ../bzip2/bzip2.xcodeproj; sourceTree = "<group>"; };
 		84909EA91A60380B004EB23B /* sqlite.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = sqlite.xcodeproj; path = ../sqlite/sqlite.xcodeproj; sourceTree = "<group>"; };
-		84909EBE1A603A27004EB23B /* Android.mk */ = {isa = PBXFileReference; lastKnownFileType = text; path = Android.mk; sourceTree = "<group>"; };
+		84909EBE1A603A27004EB23B /* Android.mk */ = {isa = PBXFileReference; lastKnownFileType = text; path = Android.mk; sourceTree = "<group>"; usesTabs = 1; };
 		849641D016C48B3500001919 /* _posixsubprocess.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _posixsubprocess.c; sourceTree = "<group>"; };
 		84AFC4201A5D90360049FD91 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		84AFC4211A5D90360049FD91 /* Python_iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Python_iOS-Info.plist"; sourceTree = "<group>"; };
@@ -2576,7 +2576,6 @@
 		8467073916AFC3D700B69AF3 /* Modules */ = {
 			isa = PBXGroup;
 			children = (
-				845CD0D624E944A400F4F74D /* getpath.c */,
 				845CD06424E93E9200F4F74D /* _abc.c */,
 				845CD06524E93E9200F4F74D /* _asynciomodule.c */,
 				8467113216B1017B00B69AF3 /* _bisectmodule.c */,
@@ -2634,6 +2633,7 @@
 				84670EAA16AFD3C500B69AF3 /* faulthandler.c */,
 				8467077F16AFC78500B69AF3 /* gcmodule.c */,
 				8467114A16B1025A00B69AF3 /* getbuildinfo.c */,
+				845CD0D624E944A400F4F74D /* getpath.c */,
 				84AFC4371A5E39370049FD91 /* hashtable.c */,
 				84AFC4381A5E39370049FD91 /* hashtable.h */,
 				84670EAB16AFD3C500B69AF3 /* itertoolsmodule.c */,
@@ -3056,15 +3056,13 @@
 		84E270F016AF906100E408BD /* Objects */ = {
 			isa = PBXGroup;
 			children = (
-				845CD09624E93EC500F4F74D /* call.c */,
-				845CD09724E93EC500F4F74D /* interpreteridobject.c */,
-				845CD09524E93EC500F4F74D /* picklebufobject.c */,
 				8467085816AFCA1700B69AF3 /* abstract.c */,
 				8467085916AFCA1700B69AF3 /* accu.c */,
 				8467085A16AFCA1700B69AF3 /* boolobject.c */,
 				8467085B16AFCA1700B69AF3 /* bytearrayobject.c */,
 				8467085C16AFCA1700B69AF3 /* bytes_methods.c */,
 				8467085D16AFCA1700B69AF3 /* bytesobject.c */,
+				845CD09624E93EC500F4F74D /* call.c */,
 				8467085E16AFCA1700B69AF3 /* capsule.c */,
 				8467085F16AFCA1700B69AF3 /* cellobject.c */,
 				8467086016AFCA1700B69AF3 /* classobject.c */,
@@ -3079,6 +3077,7 @@
 				8467086916AFCA1700B69AF3 /* frameobject.c */,
 				8467086A16AFCA1700B69AF3 /* funcobject.c */,
 				8467086B16AFCA1700B69AF3 /* genobject.c */,
+				845CD09724E93EC500F4F74D /* interpreteridobject.c */,
 				8467086C16AFCA1700B69AF3 /* iterobject.c */,
 				8467086D16AFCA1700B69AF3 /* listobject.c */,
 				8467086E16AFCA1700B69AF3 /* longobject.c */,
@@ -3089,17 +3088,18 @@
 				8467087316AFCA1700B69AF3 /* object.c */,
 				846707C516AFC87300B69AF3 /* obmalloc.c */,
 				840A36F51B5E83A90077D6DB /* odictobject.c */,
+				845CD09524E93EC500F4F74D /* picklebufobject.c */,
 				8467087416AFCA1700B69AF3 /* rangeobject.c */,
 				8467087516AFCA1700B69AF3 /* setobject.c */,
 				8467087616AFCA1700B69AF3 /* sliceobject.c */,
+				846708D616AFCADC00B69AF3 /* stringlib */,
 				8467087716AFCA1700B69AF3 /* structseq.c */,
 				8467087816AFCA1700B69AF3 /* tupleobject.c */,
 				8467087916AFCA1700B69AF3 /* typeobject.c */,
 				8467087A16AFCA1700B69AF3 /* unicodectype.c */,
 				8467087B16AFCA1700B69AF3 /* unicodeobject.c */,
-				8467087C16AFCA1700B69AF3 /* weakrefobject.c */,
 				84670EEA16AFD4A600B69AF3 /* unicodetype_db.h */,
-				846708D616AFCADC00B69AF3 /* stringlib */,
+				8467087C16AFCA1700B69AF3 /* weakrefobject.c */,
 			);
 			path = Objects;
 			sourceTree = "<group>";

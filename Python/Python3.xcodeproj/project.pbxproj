@@ -2142,6 +2142,7 @@
 		845CD13A24E9473300F4F74D /* pymacro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pymacro.h; sourceTree = "<group>"; };
 		845CD13B24E9473300F4F74D /* rangeobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rangeobject.h; sourceTree = "<group>"; };
 		845CD13C24E9473300F4F74D /* longintrepr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = longintrepr.h; sourceTree = "<group>"; };
+		845CD2D224E9637300F4F74D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		8467076A16AFC42200B69AF3 /* expat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = expat.h; sourceTree = "<group>"; };
 		8467076B16AFC42200B69AF3 /* internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = internal.h; sourceTree = "<group>"; };
 		8467076C16AFC42200B69AF3 /* xmlrole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xmlrole.h; sourceTree = "<group>"; };
@@ -2380,9 +2381,9 @@
 		8467116A16B1056B00B69AF3 /* dynload_shlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dynload_shlib.c; sourceTree = "<group>"; };
 		8467118616B1070B00B69AF3 /* config.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = config.c; sourceTree = "<group>"; };
 		8467118916B1071300B69AF3 /* pyconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pyconfig.h; sourceTree = "<group>"; };
-		8474A27B16AF8B2B00F004D5 /* libpython3.5.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpython3.5.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8474A27B16AF8B2B00F004D5 /* libpython3.5.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libpython3.5.a; path = libpython3.8.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8479F24718FD6B0200829991 /* OpenSSL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OpenSSL.xcodeproj; path = ../OpenSSL/OpenSSL.xcodeproj; sourceTree = "<group>"; };
-		8479F3CE18FD6B3B00829991 /* libpython3.5.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpython3.5.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8479F3CE18FD6B3B00829991 /* libpython3.5.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libpython3.5.a; path = libpython3.8.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		848A7EAC16C203ED007F6822 /* _ctypes_test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = _ctypes_test.c; sourceTree = "<group>"; };
 		84909E831A60332F004EB23B /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = ../zlib/zlib.xcodeproj; sourceTree = "<group>"; };
 		84909E961A6036E4004EB23B /* bzip2.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = bzip2.xcodeproj; path = ../bzip2/bzip2.xcodeproj; sourceTree = "<group>"; };
@@ -2816,6 +2817,7 @@
 			children = (
 				84141F861A5F91DA00C92847 /* Lib */,
 				84AFC4201A5D90360049FD91 /* LICENSE */,
+				845CD2D224E9637300F4F74D /* README.md */,
 				84AFC4231A5D90360049FD91 /* README.rst */,
 				84909EBE1A603A27004EB23B /* Android.mk */,
 				84B8EB8F1904FC58006BFD40 /* Android.mk */,

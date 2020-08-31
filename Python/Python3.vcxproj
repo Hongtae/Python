@@ -526,15 +526,19 @@
   <ItemGroup>
     <ProjectReference Include="..\bzip2\bzip2.vcxproj">
       <Project>{b748dbfc-45ea-4c3f-8d2b-58f6c42fb2b2}</Project>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
     <ProjectReference Include="..\OpenSSL\OpenSSL.vcxproj">
       <Project>{8ce6ba3d-5851-4ef4-af55-15db4ef9b64c}</Project>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
     <ProjectReference Include="..\sqlite\sqlite.vcxproj">
       <Project>{5ae405d5-6f17-4aa8-8bb8-1c7687fdc458}</Project>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
     <ProjectReference Include="..\zlib\zlib.vcxproj">
       <Project>{7f819992-8fca-438e-91bf-587c126b0590}</Project>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
